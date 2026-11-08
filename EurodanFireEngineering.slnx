@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="Eurodan.CORE/Eurodan.Core.csproj" />
+    <Project Path="Eurodan.Database/Eurodan.Data.csproj" />
+    <Project Path="Eurodan.WPF/Eurodan.WPF.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="Eurodan.Tests/Eurodan.Tests.csproj" />
+  </Folder>
+</Solution>
