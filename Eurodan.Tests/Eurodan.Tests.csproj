@@ -14,7 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Eurodan.CORE\Eurodan.Core.csproj" />
     <ProjectReference Include="..\Eurodan.Database\Eurodan.Data.csproj" />
-    <ProjectReference Include="..\Eurodan.WPF\Eurodan.WPF.csproj" />
   </ItemGroup>
 
   <ItemGroup>
