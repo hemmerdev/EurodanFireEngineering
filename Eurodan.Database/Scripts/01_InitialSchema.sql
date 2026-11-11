@@ -30,7 +30,7 @@ BEGIN
 
 		ProjectName NVARCHAR(200) NOT NULL,
 
-		FeeProposalStatus NVARCHAR(30) NOT NULL
+		FeeProposalStatus VARCHAR(8) NOT NULL
 			CONSTRAINT DF_PROJECT_FeeProposalStatus DEFAULT (N'Pending')
 			CONSTRAINT CK_PROJECT_FeeProposalStatus
 				CHECK (FeeProposalStatus IN (N'Pending', N'Approved')),

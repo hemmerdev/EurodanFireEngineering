@@ -17,9 +17,9 @@ namespace Eurodan.Data.Repositories
 
             using SqlConnection connection = new(_connectionString);
             using SqlCommand cmd = new(query, connection);
-            cmd.Parameters.Add("@Name", System.Data.SqlDbType.NVarChar, 150)
+            cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 150)
                 .Value = technicalIssue.Name;
-            cmd.Parameters.Add("@Description", System.Data.SqlDbType.NVarChar, 500)
+            cmd.Parameters.Add("@Description", SqlDbType.NVarChar, 500)
                 .Value = (object?)technicalIssue.Description ?? DBNull.Value;
 
             connection.Open();
@@ -43,7 +43,7 @@ namespace Eurodan.Data.Repositories
             using SqlConnection connection = new(_connectionString);
             using SqlCommand cmd = new(query, connection);
 
-            cmd.Parameters.Add("@TechnicalIssueId", System.Data.SqlDbType.Int)
+            cmd.Parameters.Add("@TechnicalIssueId", SqlDbType.Int)
                 .Value = id;
 
             connection.Open();
@@ -92,7 +92,7 @@ namespace Eurodan.Data.Repositories
             using (SqlConnection connection = new(_connectionString))
             {
                 using SqlCommand cmd = new(query, connection);
-                cmd.Parameters.Add("@TechnicalIssueId", System.Data.SqlDbType.Int)
+                cmd.Parameters.Add("@TechnicalIssueId", SqlDbType.Int)
                     .Value = id;
                 connection.Open();
 

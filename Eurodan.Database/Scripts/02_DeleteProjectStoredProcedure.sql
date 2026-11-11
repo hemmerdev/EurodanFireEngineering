@@ -1,0 +1,31 @@
+USE EurodanDB;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.uspDeleteProject
+	@ProjectId INT
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
+
+	BEGIN TRY
+
+		BEGIN TRANSACTION;
+			DELETE FROM dbo.PROJECT_BUILDING WHERE ProjectId = @ProjectId;
+			DELETE FROM dbo.PROJECT_BUILDINGCLASS WHERE ProjectId = @ProjectId;
+			DELETE FROM dbo.PROJECT_TECHNICALISSUE WHERE ProjectId = @ProjectId;
+			DELETE FROM dbo.PROJECT WHERE ProjectId = @ProjectId;
+
+			IF @@ROWCOUNT = 0 
+				THROW 50001, 'No project found with the specified ProjectId.', 1;
+
+		COMMIT TRANSACTION;
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRANSACTION;
+
+			THROW;
+	END CATCH
+END;
+GO
