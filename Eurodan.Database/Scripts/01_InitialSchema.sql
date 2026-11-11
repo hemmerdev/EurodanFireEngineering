@@ -30,21 +30,21 @@ BEGIN
 
 		ProjectName NVARCHAR(200) NOT NULL,
 
-		ProjectStatus NVARCHAR(30) NOT NULL
-			CONSTRAINT DF_PROJECT_ProjectStatus DEFAULT (N'Pending')
-			CONSTRAINT CK_PROJECT_ProjectStatus
-				CHECK (ProjectStatus IN (N'Pending', N'Approved')),
+		FeeProposalStatus NVARCHAR(30) NOT NULL
+			CONSTRAINT DF_PROJECT_FeeProposalStatus DEFAULT (N'Pending')
+			CONSTRAINT CK_PROJECT_FeeProposalStatus
+				CHECK (FeeProposalStatus IN (N'Pending', N'Approved')),
 
 		ProjectManager NVARCHAR(100) NULL,
 		FeeProposal Decimal(10,2) NULL,
 
-		PbdbStatus VARCHAR(3) NULL
+		PbdbStatus VARCHAR(13) NULL
 			CONSTRAINT CK_PROJECT_PbdbStatus
-				CHECK (PbdbStatus IS NULL OR PbdbStatus IN (N'Yes', N'No', N'N/A')),
+				CHECK (PbdbStatus IS NULL OR PbdbStatus IN (N'Completed', N'NotCompleted', N'NotApplicable')),
 
-		FserStatus VARCHAR(3) NULL
+		FserStatus VARCHAR(13) NULL
 			CONSTRAINT CK_PROJECT_FserStatus
-				CHECK (FserStatus IS NULL OR FserStatus IN (N'Yes', N'No', N'N/A')),
+				CHECK (FserStatus IS NULL OR FserStatus IN (N'Completed', N'NotCompleted', N'NotApplicable')),
 
 		PaymentDueDate DATE NULL,
 		OutstandingAmount Decimal(10,2) NULL,
