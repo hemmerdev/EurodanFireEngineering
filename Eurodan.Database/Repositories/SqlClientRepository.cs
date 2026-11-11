@@ -54,7 +54,7 @@ namespace Eurodan.Data.Repositories
             if (rowsAffected == 0)
             {
                 throw new InvalidOperationException(
-                    "No client found with the specified ClientId.");
+                    "No client found with the specified ClientId. Failed to delete client.");
             }
         }
 
@@ -145,7 +145,7 @@ namespace Eurodan.Data.Repositories
             if (rowsAffected == 0)
             {
                 throw new InvalidOperationException(
-                    "No client found with the specified ClientId.");
+                    "No client found with the specified ClientId. Failed to update client.");
             }
         }
     }
