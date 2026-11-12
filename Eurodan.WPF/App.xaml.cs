@@ -1,4 +1,5 @@
 ﻿using Eurodan.Data;
+using Eurodan.WPF.ViewModels;
 using Microsoft.Extensions.Configuration;
 using System.Data.Common;
 using System.IO;
@@ -39,9 +40,14 @@ namespace Eurodan.WPF
                     return;
                 }
 
+                // Test the database connection
                 DatabaseConnectionTester connectionTester = new(connectionString);
-
                 connectionTester.TestConnection();
+
+                // Initialize the MainViewModel and MainWindow
+                MainViewModel mainViewModel = new();
+                MainWindow mainWindow = new(mainViewModel);
+                mainWindow.Show();
             }
 
             catch (FileNotFoundException)
