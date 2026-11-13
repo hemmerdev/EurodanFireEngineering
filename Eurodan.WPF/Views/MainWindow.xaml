@@ -4,9 +4,136 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Eurodan.WPF"
+        xmlns:views="clr-namespace:Eurodan.WPF.Views"
+        xmlns:viewModels="clr-namespace:Eurodan.WPF.ViewModels"
+        xmlns:enums="clr-namespace:Eurodan.WPF.ViewModels.enums"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="EURODAN Fire Engineering" Height="950" Width="1300"
+        MinHeight="650" MinWidth="1200"
+        Background="#202020" Foreground="#EEEEEE"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewModels:ProjectOverviewViewModel}">
+            <views:ProjectOverviewView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ProjectViewModel}">
+            <views:ProjectView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ProjectDetailsViewModel}">
+            <views:ProjectDetailsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:BuildingViewModel}">
+            <views:BuildingView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ClientViewModel}">
+            <views:ClientView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:TechnicalIssueViewModel}">
+            <views:TechnicalIssueView />
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0"
+                Background="#292929"
+                BorderBrush="#595959"
+                BorderThickness="0,0,1,0">
+
+            <Grid Margin="12,20">
+
+                <!-- Navigation buttons -->
+                <StackPanel>
+                    <Button Content="Project Overview"
+                            Command="{Binding ShowProjectOverviewCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource NavigationButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActivePage}"
+                                                 Value="{x:Static enums:NavigationPage.ProjectOverview}">
+                                        <Setter Property="Background" Value="#505050" />
+                                        <Setter Property="Foreground" Value="#999999" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Manage Projects"
+                            Command="{Binding ShowProjectCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource NavigationButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActivePage}"
+                                                 Value="{x:Static enums:NavigationPage.ProjectManagement}">
+                                        <Setter Property="Background" Value="#505050" />
+                                        <Setter Property="Foreground" Value="#999999" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Manage Buildings"
+                            Command="{Binding ShowBuildingCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource NavigationButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActivePage}"
+                                                 Value="{x:Static enums:NavigationPage.BuildingManagement}">
+                                        <Setter Property="Background" Value="#505050" />
+                                        <Setter Property="Foreground" Value="#999999" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Manage Clients"
+                            Command="{Binding ShowClientCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource NavigationButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActivePage}"
+                                                 Value="{x:Static enums:NavigationPage.ClientManagement}">
+                                        <Setter Property="Background" Value="#505050" />
+                                        <Setter Property="Foreground" Value="#999999" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Manage Issues"
+                            Command="{Binding ShowTechnicalIssueCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource NavigationButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActivePage}"
+                                                 Value="{x:Static enums:NavigationPage.TechnicalIssueManagement}">
+                                        <Setter Property="Background" Value="#505050" />
+                                        <Setter Property="Foreground" Value="#999999" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ContentControl Grid.Column="1"
+                        Content="{Binding CurrentViewModel}" />
 
     </Grid>
 </Window>
