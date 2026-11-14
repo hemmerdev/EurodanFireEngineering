@@ -1,9 +1,6 @@
 ﻿using Eurodan.Core.Services;
 using Eurodan.Core.Models;
 using Eurodan.WPF.Commands;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
