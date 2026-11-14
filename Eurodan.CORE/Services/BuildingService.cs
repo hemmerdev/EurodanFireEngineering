@@ -20,6 +20,16 @@ namespace Eurodan.Core.Services
                 throw new ArgumentException("Enter a building name or address.");
             }
 
+            if (building.Name != null && building.Name.Length > 150)
+            {
+                throw new ArgumentException("Building name cannot exceed 150 characters.");
+            }
+
+            if (building.Address != null && building.Address.Length > 250)
+            {
+                throw new ArgumentException("Address cannot exceed 250 characters.");
+            }
+
             _repository.Add(building);
             return building.BuildingId;
         }

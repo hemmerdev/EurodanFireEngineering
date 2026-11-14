@@ -28,7 +28,7 @@
             <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" MaxLength="255" Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
             <TextBlock Text="Phone" Margin="10,0,10,3"/>
             <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
-            <TextBlock Text="Client ID will automatically be created during creation." TextWrapping="Wrap" Margin="10,0,0,12"/>
+            <TextBlock Text="Client ID will automatically be generated during creation." TextWrapping="Wrap" Margin="10,0,0,12"/>
             
             <WrapPanel>
                 <Button Content="Register client" Command="{Binding RegisterCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="10,0,8,0"/>

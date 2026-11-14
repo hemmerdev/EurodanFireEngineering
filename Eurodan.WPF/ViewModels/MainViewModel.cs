@@ -57,12 +57,12 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand ShowClientCommand { get; }
         public RelayCommand ShowTechnicalIssueCommand { get; }
 
-        public MainViewModel(ClientService clientService)
+        public MainViewModel(ClientService clientService, BuildingService buildingService)
         {
             ProjectOverview = new ProjectOverviewViewModel();
             ProjectManagement = new ProjectViewModel();
             ProjectDetails = new ProjectDetailsViewModel();
-            BuildingManagement = new BuildingViewModel();
+            BuildingManagement = new BuildingViewModel(buildingService);
             ClientManagement = new ClientViewModel(clientService);
             TechnicalIssueManagement = new TechnicalIssueViewModel();
             CurrentViewModel = ProjectOverview; // Set the default view model
