@@ -16,11 +16,16 @@ namespace Eurodan.WPF.Views
     /// <summary>
     /// Interaction logic for ClientRegistrationView.xaml
     /// </summary>
-    public partial class ClientRegistrationView : Page
+    public partial class ClientRegistrationView : Window
     {
         public ClientRegistrationView()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

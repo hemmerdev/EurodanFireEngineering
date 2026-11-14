@@ -15,9 +15,11 @@
                    FontWeight="Bold"
                    Margin="10" />
 
-        <Button Content="Register new client" Command="{Binding SaveCommand}"
-        Visibility="{Binding IsNew, Converter={StaticResource BoolToVisibility}}"
-        Style="{StaticResource PrimaryButtonStyle}" Margin="10,66,1046,537"/>
+        <Button Content="Register new client"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Margin="10,66,0,0" Click="Button_Click"/>
 
 
     </Grid>
