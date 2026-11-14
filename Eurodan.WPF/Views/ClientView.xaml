@@ -4,12 +4,21 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Eurodan.WPF.Views"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Height="950" Width="1300"
+             MinHeight="650" MinWidth="1200"
+             Background="#202020" Foreground="#EEEEEE">
     <Grid>
         <TextBlock Text="Client Management"
                    FontSize="24"
                    FontWeight="Bold"
                    Margin="10" />
+
+        <Button Content="Register new client" Command="{Binding SaveCommand}"
+        Visibility="{Binding IsNew, Converter={StaticResource BoolToVisibility}}"
+        Style="{StaticResource PrimaryButtonStyle}" Margin="10,66,1046,537"/>
+
+
     </Grid>
 </UserControl>

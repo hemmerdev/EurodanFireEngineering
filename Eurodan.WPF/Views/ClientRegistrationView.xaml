@@ -4,11 +4,44 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Eurodan.WPF.Views"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="ClientRegistrationView">
+      xmlns:viewModels="clr-namespace:Eurodan.WPF.ViewModels"
+      xmlns:enums="clr-namespace:Eurodan.WPF.ViewModels.enums"
+      mc:Ignorable="d"
+      Title="ClientRegistrationView" Height="452"
+      MinHeight="300" MinWidth="306"
+      Background="#202020" Foreground="#EEEEEE">
 
-    <Grid>
-        
+    <Grid Margin="0,0,0,18">
+        <TextBlock Text="Client Registration"
+           FontSize="24"
+           FontWeight="Bold"
+           Margin="10,10,10,-15" />
+
+        <StackPanel>
+            <TextBlock Text="Contact name" Margin="10,70,10,3"/>
+            <TextBox Text="{Binding ContactName, UpdateSourceTrigger=PropertyChanged}" MaxLength="255" Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
+            <TextBlock Text="Company name" Margin="10,0,10,3"/>
+            <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,0"/>
+            <TextBlock Text="Email" Margin="10,0,10,3"/>
+            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" MaxLength="255" Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
+            <TextBlock Text="Phone" Margin="10,0,10,3"/>
+            <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
+            <TextBlock Text="Client ID will automatically be created during creation." TextWrapping="Wrap" Margin="10,0,0,12"/>
+            <WrapPanel>
+                <Button Content="Register client" Command="{Binding RegisterCommand}"
+                Style="{StaticResource PrimaryButtonStyle}" Margin="10,40,8,0"/>
+                
+                <Button Content="Cancel registration"
+                Style="{StaticResource ActionButtonStyle}" Margin="61,40,0,0"/>
+
+            </WrapPanel>
+
+            <TextBlock Text="{Binding StatusMessage}"
+               Style="{StaticResource MessageTextStyle}"
+               Foreground="#AAAAAA"
+               TextWrapping="Wrap"
+               Margin="0,12,0,0"/>
+
+        </StackPanel>
     </Grid>
 </Page>
