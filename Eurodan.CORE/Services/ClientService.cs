@@ -21,6 +21,26 @@ namespace Eurodan.Core.Services
                 throw new ArgumentException("Enter a company name or contact name.");
             }
 
+            if (client.CompanyName != null && client.CompanyName.Length > 150)
+            {
+                throw new ArgumentException("Company name cannot exceed 150 characters.");
+            }
+
+            if (client.ContactName != null && client.ContactName.Length > 100)
+            {
+                throw new ArgumentException("Contact name cannot exceed 100 characters.");
+            }
+
+            if (client.Phone != null && client.Phone.Length > 30)
+            {
+                throw new ArgumentException("Phone number cannot exceed 30 characters.");
+            }
+
+            if (client.Email != null && client.Email.Length > 254)
+            {
+                throw new ArgumentException("Email cannot exceed 254 characters");
+            }
+
             _repository.Add(client);
             return client.ClientId;
         }

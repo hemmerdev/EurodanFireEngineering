@@ -88,6 +88,12 @@ namespace Eurodan.WPF.ViewModels
                 int id = _clientService.RegisterClient(client);
 
                 StatusMessage = $"New client registered! ID: {id}";
+
+                // Clearing the fields to avoid doubleclicking for double registering
+                CompanyName = "";
+                ContactName = "";
+                Email = "";
+                Phone = "";
             }
             catch (ArgumentException ex)
             {

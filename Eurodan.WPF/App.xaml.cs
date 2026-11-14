@@ -1,4 +1,6 @@
-﻿using Eurodan.Data;
+﻿using Eurodan.Core.Services;
+using Eurodan.Data;
+using Eurodan.Data.Repositories;
 using Eurodan.WPF.ViewModels;
 using Microsoft.Extensions.Configuration;
 using System.Data.Common;
@@ -44,8 +46,12 @@ namespace Eurodan.WPF
                 DatabaseConnectionTester connectionTester = new(connectionString);
                 connectionTester.TestConnection();
 
+                // Create SqlClientRepository and ClientService instances
+                SqlClientRepository sqlClientRepository = new(connectionString);
+                ClientService clientService = new(sqlClientRepository);
+
                 // Initialize the MainViewModel and MainWindow
-                MainViewModel mainViewModel = new();
+                MainViewModel mainViewModel = new(clientService);
                 MainWindow mainWindow = new(mainViewModel);
                 mainWindow.Show();
             }
