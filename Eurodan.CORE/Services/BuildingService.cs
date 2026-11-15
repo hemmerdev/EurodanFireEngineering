@@ -5,19 +5,19 @@ namespace Eurodan.Core.Services
 {
     public class BuildingService
     {
-        private readonly IRepository<Building> _repository;
+        private readonly IRepository<Building> _buildingRepository;
 
         public BuildingService(IRepository<Building> repository)
         {
-            _repository = repository;
+            _buildingRepository = repository;
         }
 
         public int RegisterBuilding(Building building)
         {
             ArgumentNullException.ThrowIfNull(building);
-            if (string.IsNullOrWhiteSpace(building.Name) && string.IsNullOrWhiteSpace(building.Address))
+            if (string.IsNullOrWhiteSpace(building.Name) || string.IsNullOrWhiteSpace(building.Address))
             {
-                throw new ArgumentException("Enter a building name or address.");
+                throw new ArgumentException("Enter both a building name and an address.");
             }
 
             if (building.Name != null && building.Name.Length > 150)
@@ -30,8 +30,9 @@ namespace Eurodan.Core.Services
                 throw new ArgumentException("Address cannot exceed 250 characters.");
             }
 
-            _repository.Add(building);
+            _buildingRepository.Add(building);
             return building.BuildingId;
         }
     }
 }
+ 

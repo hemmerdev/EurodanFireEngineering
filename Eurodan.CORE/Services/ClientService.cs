@@ -6,19 +6,19 @@ namespace Eurodan.Core.Services
 {
     public class ClientService
     {
-        private readonly IRepository<Client> _repository;
+        private readonly IRepository<Client> _clientRepository;
 
         public ClientService(IRepository<Client> repository)
         {
-            _repository = repository;
+            _clientRepository = repository;
         }
 
         public int RegisterClient(Client client)
         {
             ArgumentNullException.ThrowIfNull(client);
-            if (string.IsNullOrWhiteSpace(client.CompanyName) && string.IsNullOrWhiteSpace(client.ContactName))
+            if (string.IsNullOrWhiteSpace(client.CompanyName))
             {
-                throw new ArgumentException("Enter a company name or contact name.");
+                throw new ArgumentException("Company name is required.");
             }
 
             if (client.CompanyName != null && client.CompanyName.Length > 150)
@@ -41,7 +41,7 @@ namespace Eurodan.Core.Services
                 throw new ArgumentException("Email cannot exceed 254 characters");
             }
 
-            _repository.Add(client);
+            _clientRepository.Add(client);
             return client.ClientId;
         }
     }
