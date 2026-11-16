@@ -13,15 +13,5 @@ namespace Eurodan.WPF.Views
         {
             InitializeComponent();
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ClientViewModel clientViewModel)
-            {
-                ClientRegistrationViewModel registrationViewModel = clientViewModel.CreateClientRegistrationViewModel();
-                ClientRegistrationView crv = new(registrationViewModel);
-                crv.Show();
-            }
-        }
     }
 }

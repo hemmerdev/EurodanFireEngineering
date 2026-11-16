@@ -1,12 +1,13 @@
 ﻿using Eurodan.WPF.ViewModels;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Eurodan.WPF.Views
 {
     /// <summary>
     /// Interaction logic for BuildingRegistrationView.xaml
     /// </summary>
-    public partial class BuildingRegistrationView : Window
+    public partial class BuildingRegistrationView : UserControl
     {
         public BuildingRegistrationView()
         {
@@ -17,11 +18,6 @@ namespace Eurodan.WPF.Views
         {
             InitializeComponent();
             DataContext = viewModel;
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
     }
 }

@@ -6,8 +6,6 @@
              xmlns:local="clr-namespace:Eurodan.WPF.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             Height="950" Width="1300"
-             MinHeight="650" MinWidth="1200"
              Background="#202020" Foreground="#EEEEEE">
     <Grid>
         <TextBlock Text="Client Management"
@@ -19,7 +17,8 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Style="{StaticResource PrimaryButtonStyle}"
-                Margin="10,66,0,0" Click="Button_Click"/>
+                Margin="10,66,0,0"
+                Command="{Binding DataContext.ShowClientRegistrationCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
 
 
     </Grid>
