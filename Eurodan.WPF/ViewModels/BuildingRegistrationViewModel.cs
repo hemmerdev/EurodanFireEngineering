@@ -15,7 +15,7 @@ namespace Eurodan.WPF.ViewModels
             get => _name;
             set
             {
-                _name = value;
+                if (_name != value) _name = value;
                 OnPropertyChanged();
             }
         }
@@ -26,7 +26,7 @@ namespace Eurodan.WPF.ViewModels
             get => _address;
             set
             {
-                _address = value;
+                if (_address != value) _address = value;
                 OnPropertyChanged();
             }
         }
@@ -37,7 +37,7 @@ namespace Eurodan.WPF.ViewModels
             get => _statusMessage;
             set
             {
-                _statusMessage = value;
+                if (_statusMessage != value) _statusMessage = value;
                 OnPropertyChanged();
             }
         }

@@ -15,7 +15,7 @@ namespace Eurodan.WPF.ViewModels
             get => _companyName;
             set
             {
-                _companyName = value;
+                if (_companyName != value) _companyName = value;
                 OnPropertyChanged();
             }
         }
@@ -26,7 +26,7 @@ namespace Eurodan.WPF.ViewModels
             get => _contactName;
             set
             {
-                _contactName = value;
+                if (_contactName != value) _contactName = value;
                 OnPropertyChanged();
             }
             
@@ -38,7 +38,7 @@ namespace Eurodan.WPF.ViewModels
             get => _email;
             set
             {
-                _email = value;
+                if (_email != value) _email = value;
                 OnPropertyChanged();
             }
         }
@@ -49,7 +49,7 @@ namespace Eurodan.WPF.ViewModels
             get => _phone;
             set
             {
-                _phone = value;
+                if (_phone != value) _phone = value;
                 OnPropertyChanged();
             }
         }
@@ -60,7 +60,7 @@ namespace Eurodan.WPF.ViewModels
             get => _statusMessage;
             set
             {
-                _statusMessage = value;
+                if (_statusMessage != value) _statusMessage = value;
                 OnPropertyChanged();
             }
         }
