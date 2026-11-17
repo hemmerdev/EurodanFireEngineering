@@ -19,9 +19,6 @@
             <TextBlock Text="Address" Margin="10,0,10,3"/>
             <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
-            <TextBlock Text="Building ID will automatically be generated during creation."
-                       TextWrapping="Wrap"
-                       Margin="10,0,0,12"/>
 
             <WrapPanel>
                 <Button Content="Register building"
