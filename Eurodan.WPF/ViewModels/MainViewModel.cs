@@ -1,4 +1,5 @@
-﻿using Eurodan.WPF.Commands;
+﻿using Eurodan.Core.Services;
+using Eurodan.WPF.Commands;
 using Eurodan.WPF.ViewModels.enums;
 
 namespace Eurodan.WPF.ViewModels
@@ -51,18 +52,17 @@ namespace Eurodan.WPF.ViewModels
         // Disable when no project is selected and pass the project to ProjectDetails before navigating.
         // Keep Project Overview highlighted and add a Back button using ShowProjectOverviewCommand.
         public RelayCommand ShowProjectDetailsCommand { get; }
-
         public RelayCommand ShowBuildingCommand { get; }
         public RelayCommand ShowClientCommand { get; }
         public RelayCommand ShowTechnicalIssueCommand { get; }
 
-        public MainViewModel()
+        public MainViewModel(ClientService clientService, BuildingService buildingService)
         {
             ProjectOverview = new ProjectOverviewViewModel();
             ProjectManagement = new ProjectViewModel();
             ProjectDetails = new ProjectDetailsViewModel();
-            BuildingManagement = new BuildingViewModel();
-            ClientManagement = new ClientViewModel();
+            BuildingManagement = new BuildingViewModel(buildingService);
+            ClientManagement = new ClientViewModel(clientService);
             TechnicalIssueManagement = new TechnicalIssueViewModel();
             CurrentViewModel = ProjectOverview; // Set the default view model
 
@@ -107,7 +107,5 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = TechnicalIssueManagement;
                 });
         }
-
-
     }
 }

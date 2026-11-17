@@ -5,11 +5,35 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Eurodan.WPF.Views"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="#202020" Foreground="#EEEEEE">
     <Grid>
         <TextBlock Text="Building Management"
                    FontSize="24"
                    FontWeight="Bold"
                    Margin="10" />
+
+        <StackPanel>
+            <TextBlock Text="Name" Margin="10,70,10,3"/>
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="255" Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
+            <TextBlock Text="Address" Margin="10,0,10,3"/>
+            <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
+
+            <WrapPanel>
+                <Button Content="Register building"
+                        Command="{Binding RegisterBuildingCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Margin="10,0,8,0"/>
+
+            </WrapPanel>
+
+            <TextBlock Text="{Binding StatusMessage}"
+                       Style="{StaticResource MessageTextStyle}"
+                       Foreground="#AAAAAA"
+                       TextWrapping="Wrap"
+                       Margin="10,12,10,0"/>
+
+        </StackPanel>
     </Grid>
 </UserControl>
