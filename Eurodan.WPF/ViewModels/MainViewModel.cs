@@ -38,9 +38,7 @@ namespace Eurodan.WPF.ViewModels
             ProjectViewModel => NavigationPage.ProjectManagement,
             ProjectDetailsViewModel => NavigationPage.ProjectDetails,
             BuildingViewModel => NavigationPage.BuildingManagement,
-            BuildingRegistrationViewModel => NavigationPage.BuildingManagement,
             ClientViewModel => NavigationPage.ClientManagement,
-            ClientRegistrationViewModel => NavigationPage.ClientManagement,
             TechnicalIssueViewModel => NavigationPage.TechnicalIssueManagement,
             _ => null
         };
@@ -54,11 +52,8 @@ namespace Eurodan.WPF.ViewModels
         // Disable when no project is selected and pass the project to ProjectDetails before navigating.
         // Keep Project Overview highlighted and add a Back button using ShowProjectOverviewCommand.
         public RelayCommand ShowProjectDetailsCommand { get; }
-
         public RelayCommand ShowBuildingCommand { get; }
-        public RelayCommand ShowBuildingRegistrationCommand { get; }
         public RelayCommand ShowClientCommand { get; }
-        public RelayCommand ShowClientRegistrationCommand { get; }
         public RelayCommand ShowTechnicalIssueCommand { get; }
 
         public MainViewModel(ClientService clientService, BuildingService buildingService)
@@ -99,23 +94,11 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = BuildingManagement;
                 });
 
-            ShowBuildingRegistrationCommand =
-                new RelayCommand(_ =>
-                {
-                    CurrentViewModel = BuildingManagement.CreateBuildingRegistrationViewModel();
-                });
-
             ShowClientCommand = new RelayCommand(_ =>
             {
                 // TODO: Refresh logic goes here once implemented and if needed
                 CurrentViewModel = ClientManagement;
             });
-
-            ShowClientRegistrationCommand =
-                new RelayCommand(_ =>
-                {
-                    CurrentViewModel = ClientManagement.CreateClientRegistrationViewModel();
-                });
 
             ShowTechnicalIssueCommand =
                 new RelayCommand(_ =>
@@ -124,7 +107,5 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = TechnicalIssueManagement;
                 });
         }
-
-
     }
 }
