@@ -29,7 +29,7 @@ namespace Eurodan.WPF.ViewModels
         public ProjectDetailsViewModel ProjectDetails { get; }
         public BuildingViewModel BuildingManagement { get; }
         public ClientViewModel ClientManagement { get; }
-        public TechnicalIssueManagementViewModel TechnicalIssueManagement { get; }
+        public TechnicalIssueViewModel TechnicalIssueManagement { get; }
 
         // Property used for highlighting the selected navigation button in the UI
         public NavigationPage? ActivePage => CurrentViewModel switch
@@ -39,7 +39,7 @@ namespace Eurodan.WPF.ViewModels
             ProjectDetailsViewModel => NavigationPage.ProjectDetails,
             BuildingViewModel => NavigationPage.BuildingManagement,
             ClientViewModel => NavigationPage.ClientManagement,
-            TechnicalIssueManagementViewModel => NavigationPage.TechnicalIssueManagement,
+            TechnicalIssueViewModel => NavigationPage.TechnicalIssueManagement,
             _ => null
         };
 
@@ -63,7 +63,7 @@ namespace Eurodan.WPF.ViewModels
             ProjectDetails = new ProjectDetailsViewModel();
             BuildingManagement = new BuildingViewModel(buildingService);
             ClientManagement = new ClientViewModel(clientService);
-            TechnicalIssueManagement = new TechnicalIssueManagementViewModel(technicalIssueService);
+            TechnicalIssueManagement = new TechnicalIssueViewModel(technicalIssueService);
             CurrentViewModel = ProjectOverview; // Set the default view model
 
             ShowProjectOverviewCommand =

@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
 {
-    public class TechnicalIssueManagementViewModel : ViewModelBase
+    public class TechnicalIssueViewModel : ViewModelBase
     {
         private readonly TechnicalIssueService _technicalIssueService;
 
@@ -78,7 +78,7 @@ namespace Eurodan.WPF.ViewModels
         public ICommand DeleteIssueCommand { get; }
 
 
-        public TechnicalIssueManagementViewModel(TechnicalIssueService technicalIssueService)
+        public TechnicalIssueViewModel(TechnicalIssueService technicalIssueService)
         {
             _technicalIssueService = technicalIssueService;
             AddIssueCommand = new RelayCommand(AddIssue);
@@ -98,33 +98,43 @@ namespace Eurodan.WPF.ViewModels
 
             try
             {
-                int id = _technicalIssueService.CreateTechnicalIssue(technicalIssue);
+                _technicalIssueService.CreateTechnicalIssue(technicalIssue);
 
-                StatusMessage = $"New issue tag added.";
+                StatusMessage = $"New technical issue {technicalIssue.Name} added.";
 
                 // Clearing the fields to avoid double-clicking for double registering
                 Name = "";
                 Description = "";
-                
+                SelectedIssue = null;
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
-                StatusMessage = "Could not save the tag.";
+                StatusMessage = "Could not save the technical issue.";
+                return;
             }
 
-            SelectedIssue = null;
-            LoadIssues();
+            try
+            {
+                LoadIssues();
+
+            }
+            catch (Exception)
+            {
+                StatusMessage = "The technical issue was saved, but could not reload the list.";
+                return;
+            }
         }
 
         private void UpdateIssue(object? parameter)
         {
             if (SelectedIssue == null)
             {
-                StatusMessage = "Please select a tag to update.";
+                StatusMessage = "Please select a technical issue to update.";
                 return;
             }
 
@@ -139,24 +149,36 @@ namespace Eurodan.WPF.ViewModels
             {
                 bool updated = _technicalIssueService.UpdateTechnicalIssue(updatedIssue);
 
-                if (updated)
+                if (!updated)
                 {
-                    SelectedIssue = null;
-                    LoadIssues();
-                    StatusMessage = "Tag updated successfully.";
-                }
-                else
-                {
-                    StatusMessage = "The selected tag could not be found.";
+                    StatusMessage = "The selected technical issue could not be updated.";
+                    return;
                 }
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
-                StatusMessage = "Could not update the tag.";
+                StatusMessage = "Could not update the technical issue.";
+                return;
+            }
+
+            // Successfully updated, clear the fields and reload the issues
+            try
+            {
+                SelectedIssue = null;
+                Name = "";
+                Description = "";
+                LoadIssues();
+                StatusMessage = $"Technical issue {updatedIssue.Name} updated successfully.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = $"The technical issue {updatedIssue.Name} was updated, but could not reload the list.";
+                return;
             }
         }
 
@@ -164,36 +186,60 @@ namespace Eurodan.WPF.ViewModels
         {
             if (SelectedIssue == null)
             {
-                StatusMessage = "Please select a tag to delete.";
+                StatusMessage = "Please select a technical issue to delete.";
                 return;
             }
+
+            var issueToDelete = new TechnicalIssue
+            {
+                TechnicalIssueId = SelectedIssue.TechnicalIssueId,
+                Name = SelectedIssue.Name,
+                Description = SelectedIssue.Description
+            };
 
             try
             {
                 bool deleted = _technicalIssueService.DeleteTechnicalIssue(SelectedIssue.TechnicalIssueId);
 
-                if (deleted)
+                if (!deleted)
                 {
-                    SelectedIssue = null;
-                    LoadIssues();
-                    StatusMessage = "Tag deleted successfully.";
+                    StatusMessage = $"The technical issue {issueToDelete.Name} could not be deleted.";
+                    return;
                 }
-                else
-                {
-                    StatusMessage = "The selected tag could not be found.";
-                }
+            }
+            catch (ArgumentException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
-                StatusMessage = "Could not delete the tag. It may already be in use.";
+                StatusMessage = "Could not delete the technical issue.";
+                return;
+            }
+
+            // Successfully deleted, clear the fields and reload the issues
+            try
+            {
+                SelectedIssue = null;
+                Name = "";
+                Description = "";
+                LoadIssues();
+                StatusMessage = $"Technical issue: {issueToDelete.Name} deleted successfully.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = $"The technical issue was deleted, but could not reload the list.";
+                return;
             }
         }
 
         private void LoadIssues()
         {
+            var newIssues = _technicalIssueService.GetAllTechnicalIssues();
+
             TechnicalIssues.Clear();
-            
-            foreach (var issue in _technicalIssueService.GetAllTechnicalIssues())
+            foreach (var issue in newIssues)
             {
                 TechnicalIssues.Add(issue);
             }
