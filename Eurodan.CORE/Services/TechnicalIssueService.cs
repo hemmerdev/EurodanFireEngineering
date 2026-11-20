@@ -25,8 +25,9 @@ namespace Eurodan.Core.Services
             {
                 throw new ArgumentException("Name is required.");
             }
+            technicalIssue.Name = technicalIssue.Name.Trim();
 
-            if (_technicalIssueRepository.GetAll().Any(issue => issue.Name == technicalIssue.Name))
+            if (_technicalIssueRepository.GetAll().Any(issue => string.Equals(issue.Name, technicalIssue.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new ArgumentException("Name must be unique.");
             }
@@ -49,14 +50,15 @@ namespace Eurodan.Core.Services
         {
             ArgumentNullException.ThrowIfNull(technicalIssue);
 
-            if (_technicalIssueRepository.GetAll().Any(issue => issue.Name == technicalIssue.Name && issue.TechnicalIssueId != technicalIssue.TechnicalIssueId))
-            {
-                throw new ArgumentException("Name must be unique.");
-            }
-
             if (string.IsNullOrWhiteSpace(technicalIssue.Name))
             {
                 throw new ArgumentException("Name is required.");
+            }
+            technicalIssue.Name = technicalIssue.Name.Trim();
+
+            if (_technicalIssueRepository.GetAll().Any(issue => string.Equals(issue.Name, technicalIssue.Name, StringComparison.OrdinalIgnoreCase) && issue.TechnicalIssueId != technicalIssue.TechnicalIssueId))
+            {
+                throw new ArgumentException("Name must be unique.");
             }
 
             if (technicalIssue.Name != null && technicalIssue.Name.Length > 150)
