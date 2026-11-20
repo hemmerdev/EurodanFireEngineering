@@ -1,6 +1,5 @@
 ﻿using Eurodan.Core.Interfaces;
 using Eurodan.Core.Models;
-using System.Runtime.CompilerServices;
 
 namespace Eurodan.Core.Services
 {
@@ -29,8 +28,11 @@ namespace Eurodan.Core.Services
         {
             ValidateClient(client);
             Client? existingClient = _clientRepository.GetById(client.ClientId);
+            if (existingClient == null)
+            {
+                return false;
+            }
 
-            if (existingClient == null) return false;
             _clientRepository.Update(client);
 
             return true;
