@@ -13,7 +13,30 @@ namespace Eurodan.Core.Services
             _clientRepository = repository;
         }
 
+        public List<Client> GetAllClients()
+        {
+            return _clientRepository.GetAll().ToList();
+        }
+
         public int RegisterClient(Client client)
+        {
+            ValidateClient(client);
+            _clientRepository.Add(client);
+            return client.ClientId;
+        }
+
+        public bool UpdateClient(Client client)
+        {
+            ValidateClient(client);
+            Client? existingClient = _clientRepository.GetById(client.ClientId);
+
+            if (existingClient == null) return false;
+            _clientRepository.Update(client);
+
+            return true;
+        }
+
+        private void ValidateClient(Client client)
         {
             ArgumentNullException.ThrowIfNull(client);
             if (string.IsNullOrWhiteSpace(client.CompanyName))
@@ -40,9 +63,6 @@ namespace Eurodan.Core.Services
             {
                 throw new ArgumentException("Email cannot exceed 254 characters");
             }
-
-            _clientRepository.Add(client);
-            return client.ClientId;
         }
     }
 }
