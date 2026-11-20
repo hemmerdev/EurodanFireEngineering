@@ -1,6 +1,8 @@
 ﻿using Eurodan.Core.Models;
 using Eurodan.Core.Services;
+using Eurodan.WPF.Commands;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data.Common;
 
 namespace Eurodan.WPF.ViewModels
@@ -15,7 +17,7 @@ namespace Eurodan.WPF.ViewModels
         private int? _selectedClientId;
 
         public ObservableCollection<Client> Clients { get; } = new();
-        public ObservableCollection<Building> Buildings { get; } = new();
+        public ObservableCollection<BuildingSelectionViewModel> BuildingOptions { get; } = new();
         public ObservableCollection<BuildingClass> BuildingClasses { get; } = new();
         public ObservableCollection<TechnicalIssue> TechnicalIssues { get; } = new();
 
@@ -29,6 +31,7 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _projectNumber = value;
                     OnPropertyChanged();
+                    SaveProjectCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -42,6 +45,7 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _projectName = value;
                     OnPropertyChanged();
+                    SaveProjectCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -68,13 +72,73 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _selectedClientId = value;
                     OnPropertyChanged();
+                    SaveProjectCommand.RaiseCanExecuteChanged();
                 }
             }
         }
 
+        public RelayCommand SaveProjectCommand { get; }
+
         public ProjectViewModel(ProjectService projectService)
         {
             _projectService = projectService;
+
+            SaveProjectCommand = new RelayCommand(SaveProject, CanSaveProject);
+        }
+
+        private void BuildingOptionPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(BuildingSelectionViewModel.IsSelected))
+            {
+                SaveProjectCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        private bool CanSaveProject(object? parameter)
+        {
+            return !string.IsNullOrWhiteSpace(ProjectNumber) &&
+                   !string.IsNullOrWhiteSpace(ProjectName) &&
+                   SelectedClientId.HasValue &&
+                   BuildingOptions.Any(b => b.IsSelected);
+        }
+
+        private void SaveProject(object? parameter)
+        {
+            if (!SelectedClientId.HasValue)
+            {
+                StatusMessage = "Please select a client before saving the project.";
+                return;
+            }
+
+            Project project = new Project
+            {
+                ProjectNumber = ProjectNumber,
+                ProjectName = ProjectName,
+                ClientId = SelectedClientId.Value,
+                Buildings = BuildingOptions
+                    .Where(b => b.IsSelected)
+                    .Select(b => b.Building)
+                    .ToList()
+            };
+
+            try
+            {
+                int projectId = _projectService.CreateProject(project);
+
+                StatusMessage = $"Project created successfully with ID: {projectId}";
+            }
+            catch (ArgumentException ex)
+            {
+                StatusMessage = $"Error: {ex.Message}";
+            }
+            catch (DbException)
+            {
+                StatusMessage = "Could not save the project. Please try again.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = "An unexpected error occurred";
+            }
         }
 
         public void LoadProjectLookups()
@@ -87,11 +151,22 @@ namespace Eurodan.WPF.ViewModels
                 var buildingClasses = _projectService.GetAllBuildingClasses();
                 var technicalIssues = _projectService.GetAllTechnicalIssues();
 
-                var selectedClientId = SelectedClientId; // Store the currently selected client ID
+                int? selectedClientId = SelectedClientId; // Store the currently selected client ID
+                List<int> selectedBuildingIds = new();
+
+                foreach (var buildingOption in BuildingOptions)
+                {
+                    if (buildingOption.IsSelected)
+                    {
+                        selectedBuildingIds.Add(buildingOption.Building.BuildingId);
+                    }
+
+                    buildingOption.PropertyChanged -= BuildingOptionPropertyChanged;
+                }
 
                 // Clear existing collections and add the retrieved data
                 Clients.Clear();
-                Buildings.Clear();
+                BuildingOptions.Clear();
                 BuildingClasses.Clear();
                 TechnicalIssues.Clear();
 
@@ -103,7 +178,13 @@ namespace Eurodan.WPF.ViewModels
 
                 foreach (var building in buildings)
                 {
-                    Buildings.Add(building);
+                    var buildingOption = new BuildingSelectionViewModel(building) // Create an option that holds this building and its checkbox state.
+                    {
+                        IsSelected = selectedBuildingIds.Contains(building.BuildingId) // Keep this building checked if it was selected before refreshing the list.
+                    };
+
+                    BuildingOptions.Add(buildingOption); // Add the completed option to the collection displayed by the form.
+                    buildingOption.PropertyChanged += BuildingOptionPropertyChanged;
                 }
 
                 foreach (var buildingClass in buildingClasses)
@@ -127,6 +208,7 @@ namespace Eurodan.WPF.ViewModels
                     SelectedClientId = null; // Reset if the previously selected client no longer exists
                 }
 
+                SaveProjectCommand.RaiseCanExecuteChanged(); // Update the command's ability to execute based on the new data
                 StatusMessage = ""; // Clear any previous status message
             }
             catch (DbException)
