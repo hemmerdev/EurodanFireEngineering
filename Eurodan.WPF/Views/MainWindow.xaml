@@ -29,7 +29,7 @@
         <DataTemplate DataType="{x:Type viewModels:ClientViewModel}">
             <views:ClientView />
         </DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:TechnicalIssueViewModel}">
+        <DataTemplate DataType="{x:Type viewModels:TechnicalIssueManagementViewModel}">
             <views:TechnicalIssueView />
         </DataTemplate>
     </Window.Resources>
