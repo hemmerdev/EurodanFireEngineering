@@ -54,8 +54,12 @@ namespace Eurodan.WPF
                 SqlBuildingRepository sqlBuildingRepository = new(connectionString);
                 BuildingService buildingService = new(sqlBuildingRepository);
 
+                // Create TechnicalIssueRepository and TechnicalIssueService instances
+                SqlTechnicalIssueRepository sqlTechnicalIssueRepository = new(connectionString);
+                TechnicalIssueService technicalIssueService = new(sqlTechnicalIssueRepository);
+
                 // Initialize the MainViewModel and MainWindow
-                MainViewModel mainViewModel = new(clientService, buildingService);
+                MainViewModel mainViewModel = new(clientService, buildingService, technicalIssueService);
                 MainWindow mainWindow = new(mainViewModel);
                 mainWindow.Show();
             }
