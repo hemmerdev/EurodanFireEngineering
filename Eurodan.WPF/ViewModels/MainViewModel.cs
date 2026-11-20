@@ -80,6 +80,8 @@ namespace Eurodan.WPF.ViewModels
             ShowProjectCommand =
                 new RelayCommand(_ =>
                 {
+                    ProjectManagement.LoadProjectLookups(); // Load lookups before navigating to ProjectManagement
+
                     // TODO: Refresh logic goes here once implemented and if needed
                     CurrentViewModel = ProjectManagement;
                 });

@@ -153,5 +153,25 @@ namespace Eurodan.Core.Services
             return project.ProjectId;
 
         }
+
+        public List<Client> GetAllClients()
+        {
+            return _clientRepository.GetAll().ToList();
+        }
+
+        public List<Building> GetAllBuildings()
+        {
+            return _buildingRepository.GetAll().ToList();
+        }
+
+        public List<BuildingClass> GetAllBuildingClasses()
+        {
+            return _buildingClassRepository.GetAll().ToList();
+        }
+
+        public List<TechnicalIssue> GetAllTechnicalIssues()
+        {
+            return _technicalIssueRepository.GetAll().ToList();
+        }
     }
 }
