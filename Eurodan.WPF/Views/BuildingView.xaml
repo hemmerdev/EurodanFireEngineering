@@ -14,18 +14,43 @@
                    Margin="10" />
 
         <StackPanel>
-            <TextBlock Text="Name" Margin="10,70,10,3"/>
-            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="255" Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
+            <DataGrid Style="{StaticResource ManagementDataGridStyle}"
+                      Margin="10,70,10,12"
+                      ItemsSource="{Binding Buildings}"
+                      SelectedItem="{Binding SelectedBuilding}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      MaxHeight="350">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name"
+                                        Binding="{Binding Name}"
+                                        ElementStyle="{StaticResource ManagementCellTextStyle}"/>
+                    <DataGridTextColumn Header="Address"
+                                        Binding="{Binding Address}"
+                                        ElementStyle="{StaticResource ManagementCellTextStyle}"
+                                        Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Text="Name" Margin="10,0,10,3"/>
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                     MaxLength="150" Style="{StaticResource InputTextBoxStyle}"
+                     Margin="10,0,10,12"/>
+
             <TextBlock Text="Address" Margin="10,0,10,3"/>
             <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource InputTextBoxStyle}" Margin="10,0,10,12"/>
+                     Style="{StaticResource InputTextBoxStyle}"
+                     Margin="10,0,10,12"/>
 
             <WrapPanel>
                 <Button Content="Register building"
                         Command="{Binding RegisterBuildingCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Margin="10,0,8,0"/>
-
+                <Button Content="Save changes"
+                        Command="{Binding UpdateBuildingCommand}"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Margin="0,0,8,0"/>
             </WrapPanel>
 
             <TextBlock Text="{Binding StatusMessage}"
