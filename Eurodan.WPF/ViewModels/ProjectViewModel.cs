@@ -234,6 +234,7 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand ClearPbdbStatusCommand { get; }
         public RelayCommand ClearFserStatusCommand { get; }
         public RelayCommand ClearPaymentDueDateCommand { get; }
+        public RelayCommand ClearProjectFormCommand { get; }
 
         public ProjectViewModel(ProjectService projectService)
         {
@@ -243,6 +244,13 @@ namespace Eurodan.WPF.ViewModels
             ClearPbdbStatusCommand = new RelayCommand(ClearPbdbStatus);
             ClearFserStatusCommand = new RelayCommand(ClearFserStatus);
             ClearPaymentDueDateCommand = new RelayCommand(ClearPaymentDueDate);
+            ClearProjectFormCommand = new RelayCommand(ClearProjectForm);
+        }
+
+        private void ClearProjectForm(object? parameter)
+        {
+            ResetProjectForm();
+            StatusMessage = string.Empty; // Clear any status message when resetting the form
         }
 
         private void ClearPaymentDueDate(object? parameter)
@@ -287,6 +295,41 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = $"Invalid {propertyName}. Please enter a valid decimal number.";
                 return false;
             }
+        }
+
+        private void ResetProjectForm()
+        {
+            // Clear the form after successful creation
+            ProjectNumber = string.Empty;
+            ProjectName = string.Empty;
+            ProjectManager = string.Empty;
+            BuildingSurveyor = string.Empty;
+            Comments = string.Empty;
+            FeeProposalText = string.Empty;
+            OutstandingAmountText = string.Empty;
+            InvoicedAmountText = string.Empty;
+            SelectedClientId = null;
+            SelectedPbdbStatus = null;
+            SelectedFserStatus = null;
+            SelectedPaymentDueDate = null;
+            SelectedFeeProposalStatus = FeeProposalStatus.Pending;
+
+            foreach (var buildingOption in BuildingOptions)
+            {
+                buildingOption.IsSelected = false;
+            }
+
+            foreach (var buildingClassOption in BuildingClassOptions)
+            {
+                buildingClassOption.IsSelected = false;
+            }
+
+            foreach (var technicalIssueOption in TechnicalIssueOptions)
+            {
+                technicalIssueOption.IsSelected = false;
+            }
+
+            SaveProjectCommand.RaiseCanExecuteChanged();
         }
 
         private bool CanSaveProject(object? parameter)
@@ -364,6 +407,9 @@ namespace Eurodan.WPF.ViewModels
                 int projectId = _projectService.CreateProject(project);
 
                 StatusMessage = $"Project created successfully with ID: {projectId}";
+
+                ResetProjectForm(); // Clear the form after successful creation
+
             }
             catch (ArgumentException ex)
             {
