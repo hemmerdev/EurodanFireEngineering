@@ -7,6 +7,19 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              Background="#202020" Foreground="#EEEEEE">
+
+    <UserControl.Resources>
+        <Style x:Key="OverviewCellTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource ManagementCellTextStyle}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="TextTrimming" Value="None" />
+            <Setter Property="Margin" Value="8,6" />
+            <Setter Property="ToolTip"
+                    Value="{Binding Text, RelativeSource={RelativeSource Self}}" />
+        </Style>
+    </UserControl.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -37,48 +50,104 @@
                   CanUserDeleteRows="False"
                   CanUserSortColumns="False"
                   SelectionMode="Single"
-                  SelectionUnit="FullRow">
+                  SelectionUnit="FullRow"
+                  FrozenColumnCount="1"
+                  CanUserResizeColumns="True"
+                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                  GridLinesVisibility="All"
+                  VerticalGridLinesBrush="#505050">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Project number"
                                     Binding="{Binding Project.ProjectNumber}"
                                     Width="140"
-                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Project name"
                                     Binding="{Binding Project.ProjectName}"
-                                    Width="2*" MinWidth="220"
-                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+                                    Width="260" MinWidth="220"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Client"
                                     Binding="{Binding ClientCompanyName}"
                                     Width="200"
-                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Buildings"
                                     Binding="{Binding BuildingNames}"
                                     Width="220"
-                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Building classes"
                                     Binding="{Binding BuildingClassCodes}"
                                     Width="140"
-                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Technical issues"
                                     Binding="{Binding TechnicalIssueNames}"
                                     Width="260"
-                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Project manager"
                                     Binding="{Binding Project.ProjectManager}"
-                                    Width="*" MinWidth="160"
-                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+                                    Width="180" MinWidth="160"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Building surveyor"
+                                    Binding="{Binding Project.BuildingSurveyor}"
+                                    Width="180"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Fee proposal status"
+                                    Binding="{Binding Project.FeeProposalStatus}"
+                                    Width="160"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="PBDB status"
+                                    Binding="{Binding Project.PbdbStatus}"
+                                    Width="140"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="FSER status"
+                                    Binding="{Binding Project.FserStatus}"
+                                    Width="140"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Fee proposal amount"
+                                    Binding="{Binding Project.FeeProposal, StringFormat={}{0:N2}}"
+                                    Width="160"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Invoiced amount"
+                                    Binding="{Binding Project.InvoicedAmount, StringFormat={}{0:N2}}"
+                                    Width="150"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Outstanding amount"
+                                    Binding="{Binding Project.OutstandingAmount, StringFormat={}{0:N2}}"
+                                    Width="170"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridCheckBoxColumn Header="Paid"
+                                        Binding="{Binding Project.IsPaid, Mode=OneWay}"
+                                        HeaderStyle="{StaticResource CenteredColumnHeaderStyle}"
+                                        IsReadOnly="True"
+                                        Width="80">
+                    <DataGridCheckBoxColumn.ElementStyle>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="IsHitTestVisible" Value="False" />
+                            <Setter Property="Focusable" Value="False" />
+                        </Style>
+                    </DataGridCheckBoxColumn.ElementStyle>
+                </DataGridCheckBoxColumn>
 
                 <DataGridTextColumn Header="Payment due date"
                                     Binding="{Binding Project.PaymentDueDate, StringFormat={}{0:dd/MM/yyyy}}"
                                     Width="160"
-                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
             </DataGrid.Columns>
         </DataGrid>
 
