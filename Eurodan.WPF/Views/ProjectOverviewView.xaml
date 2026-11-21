@@ -5,11 +5,88 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Eurodan.WPF.Views"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Project Overview"
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="#202020" Foreground="#EEEEEE">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Project Overview"
                    FontSize="24"
                    FontWeight="Bold"
-                   Margin="10" />
+                   Margin="0,0,0,20" />
+
+        <Button Grid.Row="1"
+                Content="Refresh projects"
+                Command="{Binding LoadProjectsCommand}"
+                Style="{StaticResource ActionButtonStyle}"
+                HorizontalAlignment="Left"
+                Margin="0,0,0,12" />
+
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Projects}"
+                  Style="{StaticResource ManagementDataGridStyle}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserSortColumns="False"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Project number"
+                                    Binding="{Binding Project.ProjectNumber}"
+                                    Width="140"
+                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+
+                <DataGridTextColumn Header="Project name"
+                                    Binding="{Binding Project.ProjectName}"
+                                    Width="2*" MinWidth="220"
+                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+
+                <DataGridTextColumn Header="Client"
+                                    Binding="{Binding ClientCompanyName}"
+                                    Width="200"
+                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+
+                <DataGridTextColumn Header="Buildings"
+                                    Binding="{Binding BuildingNames}"
+                                    Width="220"
+                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+
+                <DataGridTextColumn Header="Building classes"
+                                    Binding="{Binding BuildingClassCodes}"
+                                    Width="140"
+                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+
+                <DataGridTextColumn Header="Technical issues"
+                                    Binding="{Binding TechnicalIssueNames}"
+                                    Width="260"
+                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+
+                <DataGridTextColumn Header="Project manager"
+                                    Binding="{Binding Project.ProjectManager}"
+                                    Width="*" MinWidth="160"
+                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+
+                <DataGridTextColumn Header="Payment due date"
+                                    Binding="{Binding Project.PaymentDueDate, StringFormat={}{0:dd/MM/yyyy}}"
+                                    Width="160"
+                                    ElementStyle="{StaticResource ManagementCellTextStyle}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="3"
+                   Text="{Binding StatusMessage}"
+                   Style="{StaticResource MessageTextStyle}"
+                   Foreground="#AAAAAA"
+                   TextWrapping="Wrap"
+                   Margin="0,8,0,0" />
     </Grid>
 </UserControl>

@@ -62,17 +62,17 @@ namespace Eurodan.WPF.ViewModels
             TechnicalIssueService technicalIssueService,
             ProjectService projectService)
         {
-            ProjectOverview = new ProjectOverviewViewModel();
+            ProjectOverview = new ProjectOverviewViewModel(projectService);
             ProjectManagement = new ProjectViewModel(projectService);
             ProjectDetails = new ProjectDetailsViewModel();
             BuildingManagement = new BuildingViewModel(buildingService);
             ClientManagement = new ClientViewModel(clientService);
             TechnicalIssueManagement = new TechnicalIssueViewModel(technicalIssueService);
-            CurrentViewModel = ProjectOverview; // Set the default view model
 
             ShowProjectOverviewCommand =
                 new RelayCommand(_ =>
                 {
+                    ProjectOverview.LoadProjectsCommand.Execute(null); // Load projects before navigating to ProjectOverview
                     // TODO: Refresh logic goes here once implemented and if needed
                     CurrentViewModel = ProjectOverview;
                 });
@@ -112,6 +112,8 @@ namespace Eurodan.WPF.ViewModels
                     // TODO: Refresh logic goes here once implemented and if needed
                     CurrentViewModel = TechnicalIssueManagement;
                 });
+
+            ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
     }
 }
