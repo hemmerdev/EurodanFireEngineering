@@ -34,12 +34,111 @@
                    FontWeight="Bold"
                    Margin="0,0,0,20" />
 
-        <Button Grid.Row="1"
-                Content="Refresh projects"
-                Command="{Binding LoadProjectsCommand}"
-                Style="{StaticResource ActionButtonStyle}"
-                HorizontalAlignment="Left"
-                Margin="0,0,0,12" />
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="260" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <!-- Project Search -->
+            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                <TextBlock Text="Search by project name or number"
+                           Margin="0,0,0,6" />
+
+                <TextBox Text="{Binding ProjectSearchText,
+                         Mode=TwoWay,
+                         UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource InputTextBoxStyle}" />
+            </StackPanel>
+
+            <!-- Client Search -->
+            <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                <TextBlock Text="Search by client name"
+                           Margin="0,0,0,6" />
+
+                <TextBox Text="{Binding ClientSearchText,
+                         Mode=TwoWay,
+                         UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource InputTextBoxStyle}" />
+            </StackPanel>
+
+            <!-- Technical issues dropdown -->
+            <Grid Grid.Column="2"
+                  Width="140"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Bottom"
+                  Margin="0,0,12,0">
+
+                <ToggleButton x:Name="TechnicalIssueFilterButton"
+                              Style="{StaticResource FilterDropdownButtonStyle}">
+                    <DockPanel LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Right"
+                                   Text="▾"
+                                   FontSize="10"
+                                   Margin="12,0,0,0"
+                                   VerticalAlignment="Center" />
+
+                        <TextBlock Text="Technical issues"
+                                   VerticalAlignment="Center" />
+                    </DockPanel>
+                </ToggleButton>
+
+                <Popup Placement="Bottom"
+                       PlacementTarget="{Binding ElementName=TechnicalIssueFilterButton}"
+                       IsOpen="{Binding IsChecked,
+                       ElementName=TechnicalIssueFilterButton,
+                       Mode=TwoWay}"
+                       DataContext="{Binding PlacementTarget.DataContext,
+                       RelativeSource={RelativeSource Self}}"
+                       StaysOpen="False"
+                       AllowsTransparency="True">
+
+                    <Border Width="340"
+                            Background="#333333"
+                            BorderBrush="#595959"
+                            BorderThickness="1"
+                            CornerRadius="3"
+                            Padding="10">
+
+                        <StackPanel>
+                            <TextBlock Text="Projects must match all selected issues"
+                                       Foreground="#EEEEEE"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,10" />
+
+                            <ScrollViewer MaxHeight="200"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+
+                                <ItemsControl ItemsSource="{Binding TechnicalIssueOptions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected,
+                                                      Mode=TwoWay}"
+                                                      ToolTip="{Binding TechnicalIssue.Description}"
+                                                      Style="{StaticResource FilterCheckBoxStyle}"
+                                                      Margin="0,0,0,8">
+
+                                                <TextBlock Text="{Binding TechnicalIssue.Name}"
+                                                           TextWrapping="Wrap" />
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </Grid>
+
+            <Button Grid.Column="3"
+                    Content="Refresh projects"
+                    Command="{Binding LoadProjectsCommand}"
+                    Style="{StaticResource ActionButtonStyle}"
+                    VerticalAlignment="Bottom"
+                    MinHeight="36" />
+        </Grid>
 
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Projects}"
