@@ -127,7 +127,8 @@ namespace Eurodan.Data.Repositories
                                            ProjectManager, FeeProposal, PbdbStatus, FserStatus,
                                            PaymentDueDate, OutstandingAmount, InvoicedAmount,
                                            BuildingSurveyor, Comments, ClientId
-                                    FROM dbo.PROJECT";
+                                    FROM dbo.PROJECT
+                                    ORDER BY ProjectId DESC";
 
             using (SqlConnection connection = new(_connectionString))
             {
