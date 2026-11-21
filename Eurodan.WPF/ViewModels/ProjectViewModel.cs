@@ -9,7 +9,6 @@ namespace Eurodan.WPF.ViewModels
 {
     public class ProjectViewModel : ViewModelBase
     {
-
         private readonly ProjectService _projectService;
         private string _projectNumber = string.Empty;
         private string _projectName = string.Empty;
@@ -18,8 +17,8 @@ namespace Eurodan.WPF.ViewModels
 
         public ObservableCollection<Client> Clients { get; } = new();
         public ObservableCollection<BuildingSelectionViewModel> BuildingOptions { get; } = new();
-        public ObservableCollection<BuildingClass> BuildingClasses { get; } = new();
-        public ObservableCollection<TechnicalIssue> TechnicalIssues { get; } = new();
+        public ObservableCollection<BuildingClassSelectionViewModel> BuildingClassOptions { get; } = new();
+        public ObservableCollection<TechnicalIssueSelectionViewModel> TechnicalIssueOptions { get; } = new();
 
         // Form Properties
         public string ProjectNumber
@@ -86,6 +85,7 @@ namespace Eurodan.WPF.ViewModels
             SaveProjectCommand = new RelayCommand(SaveProject, CanSaveProject);
         }
 
+        // Event handler for when a BuildingOption's IsSelected property changes, to update the SaveProjectCommand's ability to execute.
         private void BuildingOptionPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(BuildingSelectionViewModel.IsSelected))
@@ -118,6 +118,14 @@ namespace Eurodan.WPF.ViewModels
                 Buildings = BuildingOptions
                     .Where(b => b.IsSelected)
                     .Select(b => b.Building)
+                    .ToList(),
+                BuildingClasses = BuildingClassOptions
+                    .Where(bc => bc.IsSelected)
+                    .Select(bc => bc.BuildingClass)
+                    .ToList(),
+                TechnicalIssues = TechnicalIssueOptions
+                    .Where(ti => ti.IsSelected)
+                    .Select(ti => ti.TechnicalIssue)
                     .ToList()
             };
 
@@ -153,7 +161,10 @@ namespace Eurodan.WPF.ViewModels
 
                 int? selectedClientId = SelectedClientId; // Store the currently selected client ID
                 List<int> selectedBuildingIds = new();
+                List<int> selectedBuildingClassIds = new();
+                List<int> selectedTechnicalIssueIds = new();
 
+                // Store the currently selected building IDs before clearing the collection
                 foreach (var buildingOption in BuildingOptions)
                 {
                     if (buildingOption.IsSelected)
@@ -164,11 +175,31 @@ namespace Eurodan.WPF.ViewModels
                     buildingOption.PropertyChanged -= BuildingOptionPropertyChanged;
                 }
 
+                // Store the currently selected building class IDs before clearing the collection
+                foreach (var buildingClassOption in BuildingClassOptions)
+                {
+                    if (buildingClassOption.IsSelected)
+                    {
+                        selectedBuildingClassIds.Add(
+                            buildingClassOption.BuildingClass.BuildingClassId);
+                    }
+                }
+
+                // Store the currently selected technical issue IDs before clearing the collection
+                foreach (var technicalIssueOption in TechnicalIssueOptions)
+                {
+                    if (technicalIssueOption.IsSelected)
+                    {
+                        selectedTechnicalIssueIds.Add(
+                            technicalIssueOption.TechnicalIssue.TechnicalIssueId);
+                    }
+                }
+
                 // Clear existing collections and add the retrieved data
                 Clients.Clear();
                 BuildingOptions.Clear();
-                BuildingClasses.Clear();
-                TechnicalIssues.Clear();
+                BuildingClassOptions.Clear();
+                TechnicalIssueOptions.Clear();
 
                 // Rebuild the collections with the retrieved data
                 foreach (var client in clients)
@@ -180,7 +211,8 @@ namespace Eurodan.WPF.ViewModels
                 {
                     var buildingOption = new BuildingSelectionViewModel(building) // Create an option that holds this building and its checkbox state.
                     {
-                        IsSelected = selectedBuildingIds.Contains(building.BuildingId) // Keep this building checked if it was selected before refreshing the list.
+                        IsSelected = selectedBuildingIds.Contains(
+                            building.BuildingId) // Keep this building checked if it was selected before refreshing the list.
                     };
 
                     BuildingOptions.Add(buildingOption); // Add the completed option to the collection displayed by the form.
@@ -189,12 +221,24 @@ namespace Eurodan.WPF.ViewModels
 
                 foreach (var buildingClass in buildingClasses)
                 {
-                    BuildingClasses.Add(buildingClass);
+                    var buildingClassOption = new BuildingClassSelectionViewModel(buildingClass)
+                    {
+                        IsSelected = selectedBuildingClassIds.Contains(
+                            buildingClass.BuildingClassId)
+                    };
+
+                    BuildingClassOptions.Add(buildingClassOption);
                 }
 
                 foreach (var technicalIssue in technicalIssues)
                 {
-                    TechnicalIssues.Add(technicalIssue);
+                    var technicalIssueOption = new TechnicalIssueSelectionViewModel(technicalIssue)
+                    {
+                        IsSelected = selectedTechnicalIssueIds.Contains(
+                            technicalIssue.TechnicalIssueId)
+                    };
+
+                    TechnicalIssueOptions.Add(technicalIssueOption);
                 }
 
                 // Restore the previously selected client ID if it still exists in the new list

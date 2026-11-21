@@ -77,6 +77,56 @@
                     </ItemsControl>
                 </ScrollViewer>
 
+                <!-- Building Classes -->
+                <TextBlock Text="Building Classes (optional)"
+                           Margin="0,0,0,8" />
+
+                <ScrollViewer MaxHeight="250"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Margin="0,0,0,12">
+                    <ItemsControl ItemsSource="{Binding BuildingClassOptions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                          ToolTip="{Binding BuildingClass.Description}"
+                                          Style="{StaticResource FilterCheckBoxStyle}"
+                                          Margin="0,0,0,8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Class code - "
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding BuildingClass.ClassCode}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Technical Issues -->
+                <TextBlock Text="Technical issues (optional)"
+                           Margin="0,12,0,8" />
+
+                <ScrollViewer MaxHeight="250"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Margin="0,0,0,12">
+                    <ItemsControl ItemsSource="{Binding TechnicalIssueOptions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                          ToolTip="{Binding TechnicalIssue.Description}"
+                                          Style="{StaticResource FilterCheckBoxStyle}"
+                                          Margin="0,0,0,8">
+                                    <TextBlock Text="{Binding TechnicalIssue.Name}"
+                                               TextWrapping="Wrap" />
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
                 <Button Content="Save project"
                         Command="{Binding SaveProjectCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
