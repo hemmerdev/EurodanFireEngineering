@@ -17,11 +17,31 @@ namespace Eurodan.Core.Services
         private readonly IReadOnlyRepository<TechnicalIssue> _technicalIssueRepository = technicalIssueRepository;
 
 
+        private static void ValidateDecimalAmount(decimal? amount, string propertyName)
+        {
+            if (!amount.HasValue)
+            {
+                return;
+            }
+
+            decimal value = amount.Value;
+            if (value < -99_999_999.99m || value > 99_999_999.99m)
+            {
+                throw new ArgumentException(
+                    $"{propertyName} must be between -99,999,999.99 and 99,999,999.99.");
+            }
+            if (value != decimal.Round(value, 2))
+            {
+                throw new ArgumentException(
+                    $"{propertyName} cannot have more than two decimal places.");
+            }
+        }
+
         public int CreateProject(Project project)
         {
             if (project == null)
             {
-                throw new ArgumentNullException(nameof(project), "Project could not be created");
+                throw new ArgumentNullException(nameof(project), "Project could not be created.");
             }
 
             if (string.IsNullOrWhiteSpace(project.ProjectNumber) ||
@@ -53,6 +73,10 @@ namespace Eurodan.Core.Services
             {
                 throw new ArgumentException("Building surveyor name cannot exceed 100 characters.");
             }
+
+            ValidateDecimalAmount(project.FeeProposal, "Fee proposal amount");
+            ValidateDecimalAmount(project.OutstandingAmount, "Outstanding amount");
+            ValidateDecimalAmount(project.InvoicedAmount, "Invoiced amount");
 
             // Check if the project number is unique
             if (_projectRepository.GetAll()

@@ -1,4 +1,5 @@
-﻿using Eurodan.Core.Models;
+﻿using Eurodan.Core.Enums;
+using Eurodan.Core.Models;
 using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
 using System.Collections.ObjectModel;
@@ -14,11 +15,31 @@ namespace Eurodan.WPF.ViewModels
         private string _projectName = string.Empty;
         private string _statusMessage = string.Empty;
         private int? _selectedClientId;
+        private string? _projectManager;
+        private string? _buildingSurveyor;
+        private string? _comments;
+        private FeeProposalStatus _selectedFeeProposalStatus = FeeProposalStatus.Pending;
+        private CompletionStatus? _selectedPbdbStatus;
+        private CompletionStatus? _selectedFserStatus;
+        private string? _feeProposalText = string.Empty;
+        private string? _invoicedAmountText;
+        private string? _outstandingAmountText;
 
         public ObservableCollection<Client> Clients { get; } = new();
         public ObservableCollection<BuildingSelectionViewModel> BuildingOptions { get; } = new();
         public ObservableCollection<BuildingClassSelectionViewModel> BuildingClassOptions { get; } = new();
         public ObservableCollection<TechnicalIssueSelectionViewModel> TechnicalIssueOptions { get; } = new();
+        public List<FeeProposalStatus> FeeProposalStatuses { get; } = new()
+        {
+            FeeProposalStatus.Pending,
+            FeeProposalStatus.Approved
+        };
+        public List<CompletionStatus> CompletionStatuses { get; } = new()
+        {
+            CompletionStatus.Completed,
+            CompletionStatus.NotCompleted,
+            CompletionStatus.NotApplicable
+        };
 
         // Form Properties
         public string ProjectNumber
@@ -49,6 +70,84 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+        public string? ProjectManager
+        {
+            get => _projectManager;
+            set
+            {
+                if (_projectManager != value)
+                {
+                    _projectManager = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string? BuildingSurveyor
+        {
+            get => _buildingSurveyor;
+            set
+            {
+                if (_buildingSurveyor != value)
+                {
+                    _buildingSurveyor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string? FeeProposalText
+        {
+            get => _feeProposalText;
+            set
+            {
+                if (_feeProposalText != value)
+                {
+                    _feeProposalText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string? OutstandingAmountText
+        {
+            get => _outstandingAmountText;
+            set
+            {
+                if (_outstandingAmountText != value)
+                {
+                    _outstandingAmountText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string? InvoicedAmountText
+        {
+            get => _invoicedAmountText;
+            set
+            {
+                if (_invoicedAmountText != value)
+                {
+                    _invoicedAmountText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string? Comments
+        {
+            get => _comments;
+            set
+            {
+                if (_comments != value)
+                {
+                    _comments = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public string StatusMessage
         {
             get => _statusMessage;
@@ -57,6 +156,45 @@ namespace Eurodan.WPF.ViewModels
                 if (_statusMessage != value)
                 {
                     _statusMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public FeeProposalStatus SelectedFeeProposalStatus
+        {
+            get => _selectedFeeProposalStatus;
+            set
+            {
+                if (_selectedFeeProposalStatus != value)
+                {
+                    _selectedFeeProposalStatus = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public CompletionStatus? SelectedPbdbStatus
+        {
+            get => _selectedPbdbStatus;
+            set
+            {
+                if (_selectedPbdbStatus != value)
+                {
+                    _selectedPbdbStatus = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public CompletionStatus? SelectedFserStatus
+        {
+            get => _selectedFserStatus;
+            set
+            {
+                if (_selectedFserStatus != value)
+                {
+                    _selectedFserStatus = value;
                     OnPropertyChanged();
                 }
             }
@@ -77,12 +215,26 @@ namespace Eurodan.WPF.ViewModels
         }
 
         public RelayCommand SaveProjectCommand { get; }
+        public RelayCommand ClearPbdbStatusCommand { get; }
+        public RelayCommand ClearFserStatusCommand { get; }
 
         public ProjectViewModel(ProjectService projectService)
         {
             _projectService = projectService;
 
             SaveProjectCommand = new RelayCommand(SaveProject, CanSaveProject);
+            ClearPbdbStatusCommand = new RelayCommand(ClearPbdbStatus);
+            ClearFserStatusCommand = new RelayCommand(ClearFserStatus);
+        }
+
+        private void ClearFserStatus(object? parameter)
+        {
+            SelectedFserStatus = null;
+        }
+
+        private void ClearPbdbStatus(object? parameter)
+        {
+            SelectedPbdbStatus = null;
         }
 
         // Event handler for when a BuildingOption's IsSelected property changes, to update the SaveProjectCommand's ability to execute.
@@ -91,6 +243,26 @@ namespace Eurodan.WPF.ViewModels
             if (e.PropertyName == nameof(BuildingSelectionViewModel.IsSelected))
             {
                 SaveProjectCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        private bool TryParseOptionalAmount(string? text, string propertyName, out decimal? amount)
+        {
+            amount = null;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return true; // Null or empty is valid for optional amounts
+            }
+
+            if (decimal.TryParse(text, out decimal parsedAmount))
+            {
+                amount = parsedAmount;
+                return true;
+            }
+            else
+            {
+                StatusMessage = $"Invalid {propertyName}. Please enter a valid decimal number.";
+                return false;
             }
         }
 
@@ -110,6 +282,25 @@ namespace Eurodan.WPF.ViewModels
                 return;
             }
 
+            // Parse the optional amounts to a decimal, if provided
+            if (!TryParseOptionalAmount(
+                    FeeProposalText, "Fee proposal amount", out decimal? feeProposal))
+            {
+                return;
+            }
+
+            if (!TryParseOptionalAmount(
+                    InvoicedAmountText, "Invoiced amount", out decimal? invoicedAmount))
+            {
+                return;
+            }
+
+            if (!TryParseOptionalAmount(
+                    OutstandingAmountText, "Outstanding amount", out decimal? outstandingAmount))
+            {
+                return;
+            }
+
             Project project = new Project
             {
                 ProjectNumber = ProjectNumber,
@@ -126,7 +317,16 @@ namespace Eurodan.WPF.ViewModels
                 TechnicalIssues = TechnicalIssueOptions
                     .Where(ti => ti.IsSelected)
                     .Select(ti => ti.TechnicalIssue)
-                    .ToList()
+                    .ToList(),
+                ProjectManager = ProjectManager,
+                BuildingSurveyor = BuildingSurveyor,
+                Comments = Comments,
+                FeeProposalStatus = SelectedFeeProposalStatus,
+                PbdbStatus = SelectedPbdbStatus,
+                FserStatus = SelectedFserStatus,
+                FeeProposal = feeProposal,
+                OutstandingAmount = outstandingAmount,
+                InvoicedAmount = invoicedAmount
             };
 
             try

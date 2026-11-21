@@ -13,133 +13,237 @@
         <!-- Project Creation form-->
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Project Management"
-                           FontSize="24"
-                           FontWeight="Bold"
-                           Margin="0,0,0,20" />
+                <StackPanel Grid.Column="0"
+                            Margin="10">
 
-                <TextBlock Text="Project number"
-                           Margin="0,0,0,4" />
+                    <TextBlock Text="Project Management"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Margin="0,0,0,20" />
 
-                <TextBox Text="{Binding ProjectNumber, UpdateSourceTrigger=PropertyChanged}"
-                         MaxLength="30"
-                         Style="{StaticResource InputTextBoxStyle}"
-                         Margin="0,0,0,12" />
+                    <TextBlock Text="Project number"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding ProjectNumber, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="30"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="0,0,0,12" />
 
-                <TextBlock Text="Project name"
-                           Margin="0,0,0,4" />
+                    <TextBlock Text="Project name"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="200"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="0,0,0,12" />
 
-                <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
-                         MaxLength="200"
-                         Style="{StaticResource InputTextBoxStyle}"
-                         Margin="0,0,0,12" />
+                    <TextBlock Text="Project Manager (optional)"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding ProjectManager, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="100"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="0,0,0,12" />
 
-                <TextBlock Text="Client"
-                           Margin="0,0,0,4" />
+                    <TextBlock Text="Building Surveyor (optional)"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding BuildingSurveyor, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="100"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="0,0,0,12" />
 
-                <!-- Client dropdown-->
-                <ComboBox ItemsSource="{Binding Clients}"
-                          DisplayMemberPath="CompanyName"
-                          SelectedValuePath="ClientId"
-                          SelectedValue="{Binding SelectedClientId, Mode=TwoWay}"
-                          Style="{StaticResource InputComboBoxStyle}"
-                          Margin="0,0,0,12" />
+                    <TextBlock Text="Fee proposal amount (optional)"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding FeeProposalText, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="0,0,0,12" />
 
-                <!-- Building options -->
-                <TextBlock Text="Buildings (select at least one)"
-                           Margin="0,0,0,8" />
+                    <TextBlock Text="Invoiced amount (optional)"
+                               Margin="0,0,0,4" />
+                    <TextBox  Text="{Binding InvoicedAmountText, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="0,0,0,12" />
 
-                <ScrollViewer MaxHeight="250"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
+                    <TextBlock Text="Outstanding amount (optional)"
+                               Margin="0,0,0,4" />
+                    <TextBox  Text="{Binding OutstandingAmountText, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="0,0,0,12" />
 
-                    <ItemsControl ItemsSource="{Binding BuildingOptions}"
+
+                    <TextBlock Text="Fee Proposal Status"
+                               Margin="0,0,0,4" />
+                    <ComboBox ItemsSource="{Binding FeeProposalStatuses}"
+                              SelectedItem="{Binding SelectedFeeProposalStatus, Mode=TwoWay}"
+                              Style="{StaticResource InputComboBoxStyle}"
+                              Margin="0,0,0,12" />
+
+
+                    <!-- PBDB status -->
+                    <TextBlock Text="PBDB status (optional)"
+                               Margin="0,0,0,4" />
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox ItemsSource="{Binding CompletionStatuses}"
+                                  SelectedItem="{Binding SelectedPbdbStatus, Mode=TwoWay}"
+                                  Style="{StaticResource InputComboBoxStyle}"/>
+
+                        <Button Grid.Column="1"
+                                Content="Clear"
+                                Command="{Binding ClearPbdbStatusCommand}"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Margin="8,0,0,0"/>
+                    </Grid>
+
+                    <!-- FSER Status-->
+                    <TextBlock Text="FSER status (optional)"
+                               Margin="0,0,0,4" />
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox ItemsSource="{Binding CompletionStatuses}"
+                                  SelectedItem="{Binding SelectedFserStatus, Mode=TwoWay}"
+                                  Style="{StaticResource InputComboBoxStyle}"/>
+
+                        <Button Grid.Column="1"
+                                Content="Clear"
+                                Command="{Binding ClearFserStatusCommand}"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Margin="8,0,0,0"/>
+                    </Grid>
+
+                    <!-- Client dropdown-->
+                    <TextBlock Text="Client"
+                               Margin="0,0,0,4" />
+                    <ComboBox ItemsSource="{Binding Clients}"
+                              DisplayMemberPath="CompanyName"
+                              SelectedValuePath="ClientId"
+                              SelectedValue="{Binding SelectedClientId, Mode=TwoWay}"
+                              Style="{StaticResource InputComboBoxStyle}"
+                              Margin="0,0,0,12" />
+
+                    <!-- Building options -->
+                    <TextBlock Text="Buildings (select at least one)"
+                               Margin="0,0,0,8" />
+
+                    <ScrollViewer MaxHeight="250"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+
+                        <ItemsControl ItemsSource="{Binding BuildingOptions}"
+                                      Margin="0,0,0,12">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              Style="{StaticResource FilterCheckBoxStyle}"
+                                              Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Building.Name}"
+                                                       TextWrapping="Wrap" />
+
+                                            <TextBlock Text="{Binding Building.Address}"
+                                                       Foreground="#AAAAAA"
+                                                       FontSize="12"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Building Classes -->
+                    <TextBlock Text="Building Classes (optional)"
+                               Margin="0,0,0,8" />
+
+                    <ScrollViewer MaxHeight="250"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
                                   Margin="0,0,0,12">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                          Style="{StaticResource FilterCheckBoxStyle}"
-                                          Margin="0,0,0,8">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Building.Name}"
+                        <ItemsControl ItemsSource="{Binding BuildingClassOptions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              ToolTip="{Binding BuildingClass.Description}"
+                                              Style="{StaticResource FilterCheckBoxStyle}"
+                                              Margin="0,0,0,8">
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Class code - "
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding BuildingClass.ClassCode}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Technical Issues -->
+                    <TextBlock Text="Technical issues (optional)"
+                               Margin="0,12,0,8" />
+
+                    <ScrollViewer MaxHeight="250"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Margin="0,0,0,12">
+                        <ItemsControl ItemsSource="{Binding TechnicalIssueOptions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              ToolTip="{Binding TechnicalIssue.Description}"
+                                              Style="{StaticResource FilterCheckBoxStyle}"
+                                              Margin="0,0,0,8">
+                                        <TextBlock Text="{Binding TechnicalIssue.Name}"
                                                    TextWrapping="Wrap" />
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
 
-                                        <TextBlock Text="{Binding Building.Address}"
-                                                   Foreground="#AAAAAA"
-                                                   FontSize="12"
-                                                   TextWrapping="Wrap" />
-                                    </StackPanel>
-                                </CheckBox>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                    <TextBlock Text="Comments (optional)"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalContentAlignment="Top"
+                             VerticalScrollBarVisibility="Auto"
+                             Height="100"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="0,0,0,12" />
 
-                <!-- Building Classes -->
-                <TextBlock Text="Building Classes (optional)"
-                           Margin="0,0,0,8" />
+                    <Button Content="Save project"
+                            Command="{Binding SaveProjectCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HorizontalAlignment="Left"
+                            Margin="0,12,0,0" />
 
-                <ScrollViewer MaxHeight="250"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              Margin="0,0,0,12">
-                    <ItemsControl ItemsSource="{Binding BuildingClassOptions}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                          ToolTip="{Binding BuildingClass.Description}"
-                                          Style="{StaticResource FilterCheckBoxStyle}"
-                                          Margin="0,0,0,8">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Class code - "
-                                                   TextWrapping="Wrap" />
-                                        <TextBlock Text="{Binding BuildingClass.ClassCode}"
-                                                   TextWrapping="Wrap" />
-                                    </StackPanel>
-                                </CheckBox>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Style="{StaticResource MessageTextStyle}"
+                               Foreground="#AAAAAA"
+                               TextWrapping="Wrap"
+                               Margin="0,8,0,0" />
 
-                <!-- Technical Issues -->
-                <TextBlock Text="Technical issues (optional)"
-                           Margin="0,12,0,8" />
-
-                <ScrollViewer MaxHeight="250"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              Margin="0,0,0,12">
-                    <ItemsControl ItemsSource="{Binding TechnicalIssueOptions}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                          ToolTip="{Binding TechnicalIssue.Description}"
-                                          Style="{StaticResource FilterCheckBoxStyle}"
-                                          Margin="0,0,0,8">
-                                    <TextBlock Text="{Binding TechnicalIssue.Name}"
-                                               TextWrapping="Wrap" />
-                                </CheckBox>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
-                <Button Content="Save project"
-                        Command="{Binding SaveProjectCommand}"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        HorizontalAlignment="Left"
-                        Margin="0,12,0,0" />
-
-                <TextBlock Text="{Binding StatusMessage}"
-                           Style="{StaticResource MessageTextStyle}"
-                           Foreground="#AAAAAA"
-                           TextWrapping="Wrap"
-                           Margin="0,8,0,0" />
-
-            </StackPanel>
+                </StackPanel>
+                <!-- Empty column for spacing -->
+                <!-- TODO: Fix this temporary solution with better UI/UX design -->
+                <Grid Grid.Column="1"
+                      Background="Transparent"/>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </UserControl>
