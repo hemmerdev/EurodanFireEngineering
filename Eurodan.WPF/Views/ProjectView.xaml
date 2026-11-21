@@ -73,6 +73,26 @@
                              Style="{StaticResource InputTextBoxStyle}"
                              Margin="0,0,0,12" />
 
+                    <TextBlock Text="Payment due date (optional)"
+                               Margin="0,0,0,4"/>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <DatePicker SelectedDate="{Binding SelectedPaymentDueDate, Mode=TwoWay}"
+                                    SelectedDateFormat="Short"
+                                    Style="{StaticResource InputDatePickerStyle}"/>
+
+                        <Button Grid.Column="1"
+                                Content="Clear"
+                                Command="{Binding ClearPaymentDueDateCommand}"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Margin="8,0,0,0"/>
+                    </Grid>
+
 
                     <TextBlock Text="Fee Proposal Status"
                                Margin="0,0,0,4" />

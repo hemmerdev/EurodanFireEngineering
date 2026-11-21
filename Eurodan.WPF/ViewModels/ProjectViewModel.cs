@@ -24,6 +24,7 @@ namespace Eurodan.WPF.ViewModels
         private string? _feeProposalText = string.Empty;
         private string? _invoicedAmountText;
         private string? _outstandingAmountText;
+        private DateTime? _selectedPaymentDueDate;
 
         public ObservableCollection<Client> Clients { get; } = new();
         public ObservableCollection<BuildingSelectionViewModel> BuildingOptions { get; } = new();
@@ -135,6 +136,8 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+
+
         public string? Comments
         {
             get => _comments;
@@ -200,6 +203,19 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+        public DateTime? SelectedPaymentDueDate
+        {
+            get => _selectedPaymentDueDate;
+            set
+            {
+                if (_selectedPaymentDueDate != value)
+                {
+                    _selectedPaymentDueDate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public int? SelectedClientId
         {
             get => _selectedClientId;
@@ -217,6 +233,7 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand SaveProjectCommand { get; }
         public RelayCommand ClearPbdbStatusCommand { get; }
         public RelayCommand ClearFserStatusCommand { get; }
+        public RelayCommand ClearPaymentDueDateCommand { get; }
 
         public ProjectViewModel(ProjectService projectService)
         {
@@ -225,6 +242,12 @@ namespace Eurodan.WPF.ViewModels
             SaveProjectCommand = new RelayCommand(SaveProject, CanSaveProject);
             ClearPbdbStatusCommand = new RelayCommand(ClearPbdbStatus);
             ClearFserStatusCommand = new RelayCommand(ClearFserStatus);
+            ClearPaymentDueDateCommand = new RelayCommand(ClearPaymentDueDate);
+        }
+
+        private void ClearPaymentDueDate(object? parameter)
+        {
+            SelectedPaymentDueDate = null;
         }
 
         private void ClearFserStatus(object? parameter)
@@ -301,6 +324,12 @@ namespace Eurodan.WPF.ViewModels
                 return;
             }
 
+            DateOnly? paymentDueDate = null;
+            if (SelectedPaymentDueDate.HasValue)
+            {
+                paymentDueDate = DateOnly.FromDateTime(SelectedPaymentDueDate.Value);
+            }
+
             Project project = new Project
             {
                 ProjectNumber = ProjectNumber,
@@ -326,7 +355,8 @@ namespace Eurodan.WPF.ViewModels
                 FserStatus = SelectedFserStatus,
                 FeeProposal = feeProposal,
                 OutstandingAmount = outstandingAmount,
-                InvoicedAmount = invoicedAmount
+                InvoicedAmount = invoicedAmount,
+                PaymentDueDate = paymentDueDate
             };
 
             try

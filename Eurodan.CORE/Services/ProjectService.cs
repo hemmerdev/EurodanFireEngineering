@@ -78,6 +78,9 @@ namespace Eurodan.Core.Services
             ValidateDecimalAmount(project.OutstandingAmount, "Outstanding amount");
             ValidateDecimalAmount(project.InvoicedAmount, "Invoiced amount");
 
+            // TODO: Confirm the rules for past payment due dates,
+            // including historical projects, before adding date restrictions.
+
             // Check if the project number is unique
             if (_projectRepository.GetAll()
                 .Any(existingProject => string.Equals(
