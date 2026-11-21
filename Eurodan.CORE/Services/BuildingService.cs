@@ -12,7 +12,33 @@ namespace Eurodan.Core.Services
             _buildingRepository = repository;
         }
 
+        public List<Building> GetAllBuildings()
+        {
+            return _buildingRepository.GetAll().ToList();
+        }
+
         public int RegisterBuilding(Building building)
+        {
+            ValidateBuilding(building);
+            _buildingRepository.Add(building);
+            return building.BuildingId;
+        }
+
+        public bool UpdateBuilding(Building building)
+        {
+            ValidateBuilding(building);
+            Building? existingBuilding = _buildingRepository.GetById(building.BuildingId);
+            if (existingBuilding == null)
+            {
+                return false;
+            }
+
+            _buildingRepository.Update(building);
+
+            return true;
+        }
+
+        private void ValidateBuilding(Building building)
         {
             ArgumentNullException.ThrowIfNull(building);
             if (string.IsNullOrWhiteSpace(building.Name) || string.IsNullOrWhiteSpace(building.Address))
@@ -29,9 +55,6 @@ namespace Eurodan.Core.Services
             {
                 throw new ArgumentException("Address cannot exceed 250 characters.");
             }
-
-            _buildingRepository.Add(building);
-            return building.BuildingId;
         }
     }
 }

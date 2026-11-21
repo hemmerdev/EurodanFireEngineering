@@ -1,6 +1,7 @@
 ﻿using Eurodan.Core.Models;
 using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
@@ -8,6 +9,28 @@ namespace Eurodan.WPF.ViewModels
     public class ClientViewModel : ViewModelBase
     {
         private readonly ClientService _clientService;
+
+        public ObservableCollection<Client> Clients { get; } = new();
+
+        private Client? _selectedClient;
+
+        public Client? SelectedClient
+        {
+            get => _selectedClient;
+            set
+            {
+                if (_selectedClient != value)
+                {
+                    _selectedClient = value;
+                    OnPropertyChanged();
+
+                    CompanyName = value?.CompanyName ?? string.Empty;
+                    ContactName = value?.ContactName;
+                    Email = value?.Email;
+                    Phone = value?.Phone;
+                }
+            }
+        }
 
         private string _companyName = string.Empty;
         public string CompanyName
@@ -81,11 +104,14 @@ namespace Eurodan.WPF.ViewModels
         }
 
         public ICommand RegisterClientCommand { get; }
+        public ICommand UpdateClientCommand { get; }
 
         public ClientViewModel(ClientService clientService)
         {
             _clientService = clientService;
             RegisterClientCommand = new RelayCommand(RegisterClient);
+            UpdateClientCommand = new RelayCommand(UpdateClient);
+            LoadClients();
         }
 
         private void RegisterClient(object? parameter)
@@ -109,6 +135,9 @@ namespace Eurodan.WPF.ViewModels
                 ContactName = "";
                 Email = "";
                 Phone = "";
+
+                SelectedClient = null;
+                LoadClients();
             }
             catch (ArgumentException ex)
             {
@@ -117,6 +146,57 @@ namespace Eurodan.WPF.ViewModels
             catch (Exception)
             {
                 StatusMessage = "Could not save the client.";
+            }
+        }
+
+        private void UpdateClient(object? parameter)
+        {
+            if (SelectedClient == null)
+            {
+                StatusMessage = "Please select a client to update.";
+                return;
+            }
+
+            var updatedClient = new Client
+            {
+                ClientId = SelectedClient.ClientId,
+                CompanyName = CompanyName,
+                ContactName = ContactName,
+                Email = Email,
+                Phone = Phone
+            };
+
+            try
+            {
+                bool updated = _clientService.UpdateClient(updatedClient);
+
+                if (updated)
+                {
+                    SelectedClient = null;
+                    LoadClients();
+                    StatusMessage = "Client updated successfully.";
+                }
+                else
+                {
+                    StatusMessage = "The selected client could not be found.";
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                StatusMessage = ex.Message;
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Could not update the client.";
+            }
+        }
+
+        private void LoadClients()
+        {
+            Clients.Clear();
+            foreach (var client in _clientService.GetAllClients())
+            {
+                Clients.Add(client);
             }
         }
     }
