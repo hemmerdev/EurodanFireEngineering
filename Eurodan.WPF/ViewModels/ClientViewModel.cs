@@ -137,15 +137,25 @@ namespace Eurodan.WPF.ViewModels
                 Phone = "";
 
                 SelectedClient = null;
-                LoadClients();
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
                 StatusMessage = "Could not save the client.";
+                return;
+            }
+
+            try
+            {
+                LoadClients();
+            }
+            catch (Exception)
+            {
+                StatusMessage = "The client was registered, but the list could not be refreshed.";
             }
         }
 

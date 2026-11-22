@@ -102,15 +102,25 @@ namespace Eurodan.WPF.ViewModels
                 Address = "";
 
                 SelectedBuilding = null;
-                LoadBuildings();
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
                 StatusMessage = "Could not save the building.";
+                return;
+            }
+
+            try
+            {
+                LoadBuildings();
+            }
+            catch (Exception)
+            {
+                StatusMessage = "The building was registered, but the list could not be refreshed.";
             }
         }
 
