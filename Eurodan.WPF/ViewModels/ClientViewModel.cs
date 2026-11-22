@@ -1,6 +1,7 @@
 ﻿using Eurodan.Core.Models;
 using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
@@ -8,6 +9,28 @@ namespace Eurodan.WPF.ViewModels
     public class ClientViewModel : ViewModelBase
     {
         private readonly ClientService _clientService;
+
+        public ObservableCollection<Client> Clients { get; } = new();
+
+        private Client? _selectedClient;
+
+        public Client? SelectedClient
+        {
+            get => _selectedClient;
+            set
+            {
+                if (_selectedClient != value)
+                {
+                    _selectedClient = value;
+                    OnPropertyChanged();
+
+                    CompanyName = value?.CompanyName ?? string.Empty;
+                    ContactName = value?.ContactName;
+                    Email = value?.Email;
+                    Phone = value?.Phone;
+                }
+            }
+        }
 
         private string _companyName = string.Empty;
         public string CompanyName
@@ -81,11 +104,14 @@ namespace Eurodan.WPF.ViewModels
         }
 
         public ICommand RegisterClientCommand { get; }
+        public ICommand UpdateClientCommand { get; }
 
         public ClientViewModel(ClientService clientService)
         {
             _clientService = clientService;
             RegisterClientCommand = new RelayCommand(RegisterClient);
+            UpdateClientCommand = new RelayCommand(UpdateClient);
+            LoadClients();
         }
 
         private void RegisterClient(object? parameter)
@@ -109,14 +135,88 @@ namespace Eurodan.WPF.ViewModels
                 ContactName = "";
                 Email = "";
                 Phone = "";
+
+                SelectedClient = null;
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
                 StatusMessage = "Could not save the client.";
+                return;
+            }
+
+            try
+            {
+                LoadClients();
+            }
+            catch (Exception)
+            {
+                StatusMessage = "The client was registered, but the list could not be refreshed.";
+            }
+        }
+
+        private void UpdateClient(object? parameter)
+        {
+            if (SelectedClient == null)
+            {
+                StatusMessage = "Please select a client to update.";
+                return;
+            }
+
+            var updatedClient = new Client
+            {
+                ClientId = SelectedClient.ClientId,
+                CompanyName = CompanyName,
+                ContactName = ContactName,
+                Email = Email,
+                Phone = Phone
+            };
+
+            try
+            {
+                bool updated = _clientService.UpdateClient(updatedClient);
+
+                if (!updated)
+                {
+                    StatusMessage = "The selected client could not be found.";
+                    return;
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Could not update the client.";
+                return;
+            }
+
+            try
+            {
+                SelectedClient = null;
+                LoadClients();
+                StatusMessage = "Client updated successfully.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = "The client was updated, but the list could not be refreshed.";
+            }
+        }
+
+        private void LoadClients()
+        {
+            var newClients = _clientService.GetAllClients();
+
+            Clients.Clear();
+            foreach (var client in newClients)
+            {
+                Clients.Add(client);
             }
         }
     }

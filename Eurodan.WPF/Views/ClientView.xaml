@@ -14,13 +14,37 @@
                    Margin="10" />
 
         <StackPanel>
-            <TextBlock Text="Contact name" Margin="10,70,10,3"/>
-            <TextBox Text="{Binding ContactName, UpdateSourceTrigger=PropertyChanged}"
+            <DataGrid Style="{StaticResource ManagementDataGridStyle}"
+                      Margin="10,70,10,12"
+                      ItemsSource="{Binding Clients}"
+                      SelectedItem="{Binding SelectedClient}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      MaxHeight="350">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Company"
+                                        Binding="{Binding CompanyName}"
+                                        ElementStyle="{StaticResource ManagementCellTextStyle}"/>
+                    <DataGridTextColumn Header="Contact"
+                                        Binding="{Binding ContactName}"
+                                        ElementStyle="{StaticResource ManagementCellTextStyle}"/>
+                    <DataGridTextColumn Header="Email"
+                                        Binding="{Binding Email}"
+                                        Width="*"
+                                        ElementStyle="{StaticResource ManagementCellTextStyle}"/>
+                    <DataGridTextColumn Header="Phone"
+                                        Binding="{Binding Phone}"
+                                        ElementStyle="{StaticResource ManagementCellTextStyle}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Text="Company name" Margin="10,0,10,3"/>
+            <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource InputTextBoxStyle}"
                      Margin="10,0,10,12"/>
 
-            <TextBlock Text="Company name" Margin="10,0,10,3"/>
-            <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
+            <TextBlock Text="Contact name" Margin="10,0,10,3"/>
+            <TextBox Text="{Binding ContactName, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource InputTextBoxStyle}"
                      Margin="10,0,10,12"/>
 
@@ -38,6 +62,9 @@
                 <Button Content="Register client" Command="{Binding RegisterClientCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Margin="10,0,8,0"/>
+                <Button Content="Save changes" Command="{Binding UpdateClientCommand}"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Margin="0,0,8,0"/>
             </WrapPanel>
 
             <TextBlock Text="{Binding StatusMessage}"
