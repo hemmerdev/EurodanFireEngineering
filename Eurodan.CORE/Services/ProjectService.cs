@@ -51,6 +51,7 @@ namespace Eurodan.Core.Services
             }
 
             project.ProjectNumber = project.ProjectNumber.Trim();
+            project.ProjectName = project.ProjectName.Trim();
 
             if (project.ProjectNumber.Length > 30)
             {
@@ -92,9 +93,11 @@ namespace Eurodan.Core.Services
             }
 
             // Validate ClientId
-            Client client = _clientRepository.GetById(project.ClientId)
-                ?? throw new ArgumentException(
+            if (_clientRepository.GetById(project.ClientId) is null)
+            {
+                throw new ArgumentException(
                     "Select an existing client before creating the project.");
+            }
 
             // Validate buildings
             if (project.Buildings is null || project.Buildings.Count == 0)
