@@ -170,24 +170,32 @@ namespace Eurodan.WPF.ViewModels
             {
                 bool updated = _clientService.UpdateClient(updatedClient);
 
-                if (updated)
-                {
-                    SelectedClient = null;
-                    LoadClients();
-                    StatusMessage = "Client updated successfully.";
-                }
-                else
+                if (!updated)
                 {
                     StatusMessage = "The selected client could not be found.";
+                    return;
                 }
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
                 StatusMessage = "Could not update the client.";
+                return;
+            }
+
+            try
+            {
+                SelectedClient = null;
+                LoadClients();
+                StatusMessage = "Client updated successfully.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = "The client was updated, but the list could not be refreshed.";
             }
         }
 

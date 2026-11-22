@@ -133,24 +133,32 @@ namespace Eurodan.WPF.ViewModels
             {
                 bool updated = _buildingService.UpdateBuilding(updatedBuilding);
 
-                if (updated)
-                {
-                    SelectedBuilding = null;
-                    LoadBuildings();
-                    StatusMessage = "Building updated successfully.";
-                }
-                else
+                if (!updated)
                 {
                     StatusMessage = "The selected building could not be found.";
+                    return;
                 }
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
                 StatusMessage = "Could not update the building.";
+                return;
+            }
+
+            try
+            {
+                SelectedBuilding = null;
+                LoadBuildings();
+                StatusMessage = "Building updated successfully.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = "The building was updated, but the list could not be refreshed.";
             }
         }
 
