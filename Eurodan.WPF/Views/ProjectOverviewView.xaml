@@ -5,11 +5,256 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Eurodan.WPF.Views"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Project Overview"
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="#202020" Foreground="#EEEEEE">
+
+    <UserControl.Resources>
+        <Style x:Key="OverviewCellTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource ManagementCellTextStyle}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="TextTrimming" Value="None" />
+            <Setter Property="Margin" Value="8,6" />
+            <Setter Property="ToolTip"
+                    Value="{Binding Text, RelativeSource={RelativeSource Self}}" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Project Overview"
                    FontSize="24"
                    FontWeight="Bold"
-                   Margin="10" />
+                   Margin="0,0,0,20" />
+
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="260" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <!-- Project Search -->
+            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                <TextBlock Text="Search by project name or number"
+                           Margin="0,0,0,6" />
+
+                <TextBox Text="{Binding ProjectSearchText,
+                         Mode=TwoWay,
+                         UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource InputTextBoxStyle}" />
+            </StackPanel>
+
+            <!-- Client Search -->
+            <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                <TextBlock Text="Search by client name"
+                           Margin="0,0,0,6" />
+
+                <TextBox Text="{Binding ClientSearchText,
+                         Mode=TwoWay,
+                         UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource InputTextBoxStyle}" />
+            </StackPanel>
+
+            <!-- Technical issues dropdown -->
+            <Grid Grid.Column="2"
+                  Width="140"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Bottom"
+                  Margin="0,0,12,0">
+
+                <ToggleButton x:Name="TechnicalIssueFilterButton"
+                              Style="{StaticResource FilterDropdownButtonStyle}">
+                    <DockPanel LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Right"
+                                   Text="▾"
+                                   FontSize="10"
+                                   Margin="12,0,0,0"
+                                   VerticalAlignment="Center" />
+
+                        <TextBlock Text="Technical issues"
+                                   VerticalAlignment="Center" />
+                    </DockPanel>
+                </ToggleButton>
+
+                <Popup Placement="Bottom"
+                       PlacementTarget="{Binding ElementName=TechnicalIssueFilterButton}"
+                       IsOpen="{Binding IsChecked,
+                       ElementName=TechnicalIssueFilterButton,
+                       Mode=TwoWay}"
+                       DataContext="{Binding PlacementTarget.DataContext,
+                       RelativeSource={RelativeSource Self}}"
+                       StaysOpen="False"
+                       AllowsTransparency="True">
+
+                    <Border Width="340"
+                            Background="#333333"
+                            BorderBrush="#595959"
+                            BorderThickness="1"
+                            CornerRadius="3"
+                            Padding="10">
+
+                        <StackPanel>
+                            <TextBlock Text="Projects must match all selected issues"
+                                       Foreground="#EEEEEE"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,10" />
+
+                            <ScrollViewer MaxHeight="200"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+
+                                <ItemsControl ItemsSource="{Binding TechnicalIssueOptions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected,
+                                                      Mode=TwoWay}"
+                                                      ToolTip="{Binding TechnicalIssue.Description}"
+                                                      Style="{StaticResource FilterCheckBoxStyle}"
+                                                      Margin="0,0,0,8">
+
+                                                <TextBlock Text="{Binding TechnicalIssue.Name}"
+                                                           TextWrapping="Wrap" />
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </Grid>
+
+            <Button Grid.Column="3"
+                    Content="Refresh projects"
+                    Command="{Binding LoadProjectsCommand}"
+                    Style="{StaticResource ActionButtonStyle}"
+                    VerticalAlignment="Bottom"
+                    MinHeight="36" />
+        </Grid>
+
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Projects}"
+                  Style="{StaticResource ManagementDataGridStyle}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserSortColumns="False"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  FrozenColumnCount="1"
+                  CanUserResizeColumns="True"
+                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                  GridLinesVisibility="All"
+                  VerticalGridLinesBrush="#505050">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Project number"
+                                    Binding="{Binding Project.ProjectNumber}"
+                                    Width="140"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Project name"
+                                    Binding="{Binding Project.ProjectName}"
+                                    Width="260" MinWidth="220"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Client"
+                                    Binding="{Binding ClientCompanyName}"
+                                    Width="200"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Buildings"
+                                    Binding="{Binding BuildingNames}"
+                                    Width="220"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Building classes"
+                                    Binding="{Binding BuildingClassCodes}"
+                                    Width="140"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Technical issues"
+                                    Binding="{Binding TechnicalIssueNames}"
+                                    Width="260"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Project manager"
+                                    Binding="{Binding Project.ProjectManager}"
+                                    Width="180" MinWidth="160"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Building surveyor"
+                                    Binding="{Binding Project.BuildingSurveyor}"
+                                    Width="180"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Fee proposal status"
+                                    Binding="{Binding Project.FeeProposalStatus}"
+                                    Width="160"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="PBDB status"
+                                    Binding="{Binding Project.PbdbStatus}"
+                                    Width="140"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="FSER status"
+                                    Binding="{Binding Project.FserStatus}"
+                                    Width="140"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Fee proposal amount"
+                                    Binding="{Binding Project.FeeProposal, StringFormat={}{0:N2}}"
+                                    Width="160"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Invoiced amount"
+                                    Binding="{Binding Project.InvoicedAmount, StringFormat={}{0:N2}}"
+                                    Width="150"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridTextColumn Header="Outstanding amount"
+                                    Binding="{Binding Project.OutstandingAmount, StringFormat={}{0:N2}}"
+                                    Width="170"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+
+                <DataGridCheckBoxColumn Header="Paid"
+                                        Binding="{Binding Project.IsPaid, Mode=OneWay}"
+                                        HeaderStyle="{StaticResource CenteredColumnHeaderStyle}"
+                                        IsReadOnly="True"
+                                        Width="80">
+                    <DataGridCheckBoxColumn.ElementStyle>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="IsHitTestVisible" Value="False" />
+                            <Setter Property="Focusable" Value="False" />
+                        </Style>
+                    </DataGridCheckBoxColumn.ElementStyle>
+                </DataGridCheckBoxColumn>
+
+                <DataGridTextColumn Header="Payment due date"
+                                    Binding="{Binding Project.PaymentDueDate, StringFormat={}{0:dd/MM/yyyy}}"
+                                    Width="160"
+                                    ElementStyle="{StaticResource OverviewCellTextStyle}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="3"
+                   Text="{Binding StatusMessage}"
+                   Style="{StaticResource MessageTextStyle}"
+                   Foreground="#AAAAAA"
+                   TextWrapping="Wrap"
+                   Margin="0,8,0,0" />
     </Grid>
 </UserControl>

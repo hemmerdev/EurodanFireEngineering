@@ -5,12 +5,14 @@ namespace Eurodan.Tests.Fakes
 {
     public class FakeClientRepository : IRepository<Client>
     {
+        public List<Client> Clients { get; } = new();
         public bool AddCalled { get; private set; }
 
         public void Add(Client entity)
         {
             AddCalled = true;
             entity.ClientId = 12;
+            Clients.Add(entity);
         }
 
         public void Delete(int id)
@@ -20,12 +22,19 @@ namespace Eurodan.Tests.Fakes
 
         public IEnumerable<Client> GetAll()
         {
-            throw new NotImplementedException();
+            return Clients;
         }
 
         public Client? GetById(int id)
         {
-            throw new NotImplementedException();
+            foreach (Client client in Clients)
+            {
+                if (client.ClientId == id)
+                {
+                    return client;
+                }
+            }
+            return null;
         }
 
         public void Update(Client entity)

@@ -46,20 +46,26 @@ namespace Eurodan.WPF
                 DatabaseConnectionTester connectionTester = new(connectionString);
                 connectionTester.TestConnection();
 
-                // Create SqlClientRepository and ClientService instances
-                SqlClientRepository sqlClientRepository = new(connectionString);
-                ClientService clientService = new(sqlClientRepository);
+                // Create SqlRepositories
+                SqlClientRepository clientRepository = new(connectionString);
+                SqlBuildingRepository buildingRepository = new(connectionString);
+                SqlTechnicalIssueRepository technicalIssueRepository = new(connectionString);
+                SqlBuildingClassRepository buildingClassRepository = new(connectionString);
+                SqlProjectRepository projectRepository = new(connectionString);
 
-                // Create SqlBuildingRepository and BuildingService instances
-                SqlBuildingRepository sqlBuildingRepository = new(connectionString);
-                BuildingService buildingService = new(sqlBuildingRepository);
-
-                // Create TechnicalIssueRepository and TechnicalIssueService instances
-                SqlTechnicalIssueRepository sqlTechnicalIssueRepository = new(connectionString);
-                TechnicalIssueService technicalIssueService = new(sqlTechnicalIssueRepository);
+                // Create service instances
+                ClientService clientService = new(clientRepository);
+                BuildingService buildingService = new(buildingRepository);
+                TechnicalIssueService technicalIssueService = new(technicalIssueRepository);
+                ProjectService projectService = new(
+                    projectRepository,
+                    clientRepository,
+                    buildingRepository,
+                    buildingClassRepository,
+                    technicalIssueRepository);
 
                 // Initialize the MainViewModel and MainWindow
-                MainViewModel mainViewModel = new(clientService, buildingService, technicalIssueService);
+                MainViewModel mainViewModel = new(clientService, buildingService, technicalIssueService, projectService);
                 MainWindow mainWindow = new(mainViewModel);
                 mainWindow.Show();
             }

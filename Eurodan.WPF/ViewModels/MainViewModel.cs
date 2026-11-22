@@ -56,19 +56,23 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand ShowClientCommand { get; }
         public RelayCommand ShowTechnicalIssueCommand { get; }
 
-        public MainViewModel(ClientService clientService, BuildingService buildingService, TechnicalIssueService technicalIssueService)
+        public MainViewModel(
+            ClientService clientService,
+            BuildingService buildingService,
+            TechnicalIssueService technicalIssueService,
+            ProjectService projectService)
         {
-            ProjectOverview = new ProjectOverviewViewModel();
-            ProjectManagement = new ProjectViewModel();
+            ProjectOverview = new ProjectOverviewViewModel(projectService);
+            ProjectManagement = new ProjectViewModel(projectService);
             ProjectDetails = new ProjectDetailsViewModel();
             BuildingManagement = new BuildingViewModel(buildingService);
             ClientManagement = new ClientViewModel(clientService);
             TechnicalIssueManagement = new TechnicalIssueViewModel(technicalIssueService);
-            CurrentViewModel = ProjectOverview; // Set the default view model
 
             ShowProjectOverviewCommand =
                 new RelayCommand(_ =>
                 {
+                    ProjectOverview.LoadProjectsCommand.Execute(null); // Load projects before navigating to ProjectOverview
                     // TODO: Refresh logic goes here once implemented and if needed
                     CurrentViewModel = ProjectOverview;
                 });
@@ -76,6 +80,8 @@ namespace Eurodan.WPF.ViewModels
             ShowProjectCommand =
                 new RelayCommand(_ =>
                 {
+                    ProjectManagement.LoadProjectLookups(); // Load lookups before navigating to ProjectManagement
+
                     // TODO: Refresh logic goes here once implemented and if needed
                     CurrentViewModel = ProjectManagement;
                 });
@@ -106,6 +112,8 @@ namespace Eurodan.WPF.ViewModels
                     // TODO: Refresh logic goes here once implemented and if needed
                     CurrentViewModel = TechnicalIssueManagement;
                 });
+
+            ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
     }
 }

@@ -5,12 +5,14 @@ namespace Eurodan.Tests.Fakes
 {
     public class FakeBuildingRepository : IRepository<Building>
     {
+        public List<Building> Buildings { get; } = new();
         public bool AddCalled { get; private set; }
 
         public void Add(Building entity)
         {
             AddCalled = true;
             entity.BuildingId = 42;
+            Buildings.Add(entity);
         }
 
         public void Delete(int id)
@@ -20,12 +22,20 @@ namespace Eurodan.Tests.Fakes
 
         public IEnumerable<Building> GetAll()
         {
-            throw new NotImplementedException();
+            return Buildings;
         }
 
         public Building? GetById(int id)
         {
-            throw new NotImplementedException();
+            foreach (Building building in Buildings)
+            {
+                if (building.BuildingId == id)
+                {
+                    return building;
+                }
+            }
+
+            return null;
         }
 
         public void Update(Building entity)
