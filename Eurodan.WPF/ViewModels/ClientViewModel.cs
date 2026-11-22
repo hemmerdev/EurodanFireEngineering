@@ -201,8 +201,10 @@ namespace Eurodan.WPF.ViewModels
 
         private void LoadClients()
         {
+            var newClients = _clientService.GetAllClients();
+
             Clients.Clear();
-            foreach (var client in _clientService.GetAllClients())
+            foreach (var client in newClients)
             {
                 Clients.Add(client);
             }

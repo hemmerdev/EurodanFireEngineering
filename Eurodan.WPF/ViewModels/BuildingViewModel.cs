@@ -164,8 +164,10 @@ namespace Eurodan.WPF.ViewModels
 
         private void LoadBuildings()
         {
+            var newBuildings = _buildingService.GetAllBuildings();
+
             Buildings.Clear();
-            foreach (var building in _buildingService.GetAllBuildings())
+            foreach (var building in newBuildings)
             {
                 Buildings.Add(building);
             }
