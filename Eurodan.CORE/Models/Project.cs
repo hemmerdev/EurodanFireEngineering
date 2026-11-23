@@ -19,6 +19,7 @@ namespace Eurodan.Core.Models
         public bool IsPaid =>
             InvoicedAmount.HasValue &&
             OutstandingAmount.HasValue && OutstandingAmount.Value == 0;
+        public bool IsArchived { get; set; }
         public string? Comments { get; set; }
         public int ClientId { get; set; }
         public List<Building> Buildings { get; set; } = new List<Building>();
