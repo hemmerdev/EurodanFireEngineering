@@ -80,11 +80,7 @@ namespace Eurodan.Data.Repositories
         public IEnumerable<Project> GetAll()
         {
             var projects = new List<Project>();
-            string projectQuery = @"SELECT ProjectId, ProjectNumber, ProjectName, FeeProposalStatus,
-                                           ProjectManager, FeeProposal, PbdbStatus, FserStatus,
-                                           PaymentDueDate, OutstandingAmount, InvoicedAmount,
-                                           BuildingSurveyor, Comments, ClientId
-                                    FROM dbo.PROJECT
+            string projectQuery = @"SELECT * FROM dbo.vwProjects
                                     ORDER BY ProjectId DESC";
 
             using (SqlConnection connection = new(_connectionString))
@@ -97,93 +93,53 @@ namespace Eurodan.Data.Repositories
 
                     while (reader.Read())
                     {
-                        projects.Add(new Project
-                        {
-                            ProjectId = reader.GetInt32(0),
-                            ProjectNumber = reader.GetString(1),
-                            ProjectName = reader.GetString(2),
-                            FeeProposalStatus = Enum.Parse<FeeProposalStatus>(reader.GetString(3)),
-                            ProjectManager = reader.IsDBNull(4) ? null : reader.GetString(4),
-                            FeeProposal = reader.IsDBNull(5) ? null : reader.GetDecimal(5),
-                            PbdbStatus = reader.IsDBNull(6) ? null : Enum.Parse<CompletionStatus>(reader.GetString(6)),
-                            FserStatus = reader.IsDBNull(7) ? null : Enum.Parse<CompletionStatus>(reader.GetString(7)),
-                            PaymentDueDate = reader.IsDBNull(8) ? null : DateOnly.FromDateTime(reader.GetDateTime(8)),
-                            OutstandingAmount = reader.IsDBNull(9) ? null : reader.GetDecimal(9),
-                            InvoicedAmount = reader.IsDBNull(10) ? null : reader.GetDecimal(10),
-                            BuildingSurveyor = reader.IsDBNull(11) ? null : reader.GetString(11),
-                            Comments = reader.IsDBNull(12) ? null : reader.GetString(12),
-                            ClientId = reader.GetInt32(13)
-                        });
+                        projects.Add(MapProject(reader));
                     }
                 }
 
                 // Fetch associated buildings for each project
-                string buildingQuery = @"SELECT b.BuildingId, b.Name, b.Address
-                                 FROM dbo.BUILDING b
-                                 INNER JOIN dbo.PROJECT_BUILDING pb
-                                    ON b.BuildingId = pb.BuildingId
-                                 WHERE pb.ProjectId = @ProjectId";
+                string buildingQuery = @"SELECT * FROM dbo.vwProjectBuildings pb
+                                         WHERE pb.ProjectId = @ProjectId";
 
                 foreach (var project in projects)
                 {
                     using SqlCommand buildingCmd = new(buildingQuery, connection);
-                    buildingCmd.Parameters.AddWithValue("@ProjectId", project.ProjectId);
+                    buildingCmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = project.ProjectId;
                     using SqlDataReader buildingReader = buildingCmd.ExecuteReader();
 
                     while (buildingReader.Read())
                     {
-                        project.Buildings.Add(new Building
-                        {
-                            BuildingId = buildingReader.GetInt32(0),
-                            Name = buildingReader.GetString(1),
-                            Address = buildingReader.GetString(2)
-                        });
+                        project.Buildings.Add(MapBuilding(buildingReader));
                     }
                 }
 
                 // Fetch associated building classes for each project
-                string buildingClassQuery = @"SELECT bc.BuildingClassId, bc.ClassCode, bc.Description
-                                              FROM dbo.BUILDINGCLASS bc
-                                              INNER JOIN dbo.PROJECT_BUILDINGCLASS pbc
-                                                  ON bc.BuildingClassId = pbc.BuildingClassId
+                string buildingClassQuery = @"SELECT * FROM dbo.vwProjectBuildingClasses pbc
                                               WHERE pbc.ProjectId = @ProjectId";
 
                 foreach (var project in projects)
                 {
                     using SqlCommand buildingClassCmd = new(buildingClassQuery, connection);
-                    buildingClassCmd.Parameters.AddWithValue("@ProjectId", project.ProjectId);
+                    buildingClassCmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = project.ProjectId;
                     using SqlDataReader buildingClassReader = buildingClassCmd.ExecuteReader();
                     while (buildingClassReader.Read())
                     {
-                        project.BuildingClasses.Add(new BuildingClass
-                        {
-                            BuildingClassId = buildingClassReader.GetInt32(0),
-                            ClassCode = buildingClassReader.GetString(1),
-                            Description = buildingClassReader.IsDBNull(2) ? null : buildingClassReader.GetString(2)
-                        });
+                        project.BuildingClasses.Add(MapBuildingClass(buildingClassReader));
                     }
                 }
 
                 // Fetch associated technical issues for each project
-                string technicalIssueQuery = @"SELECT ti.TechnicalIssueId, ti.Name, ti.Description
-                                             FROM dbo.TECHNICALISSUE ti
-                                             INNER JOIN dbo.PROJECT_TECHNICALISSUE pti
-                                                 ON ti.TechnicalIssueId = pti.TechnicalIssueId
+                string technicalIssueQuery = @"SELECT * FROM dbo.vwProjectTechnicalIssues pti
                                              WHERE pti.ProjectId = @ProjectId";
 
                 foreach (var project in projects)
                 {
                     using SqlCommand technicalIssueCmd = new(technicalIssueQuery, connection);
-                    technicalIssueCmd.Parameters.AddWithValue("@ProjectId", project.ProjectId);
+                    technicalIssueCmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = project.ProjectId;
                     using SqlDataReader technicalIssueReader = technicalIssueCmd.ExecuteReader();
                     while (technicalIssueReader.Read())
                     {
-                        project.TechnicalIssues.Add(new TechnicalIssue
-                        {
-                            TechnicalIssueId = technicalIssueReader.GetInt32(0),
-                            Name = technicalIssueReader.GetString(1),
-                            Description = technicalIssueReader.IsDBNull(2) ? null : technicalIssueReader.GetString(2)
-                        });
+                        project.TechnicalIssues.Add(MapTechnicalIssue(technicalIssueReader));
                     }
                 }
             }
@@ -194,17 +150,13 @@ namespace Eurodan.Data.Repositories
         public Project? GetById(int id)
         {
             Project? project = null;
-            string projectQuery = @"SELECT ProjectId, ProjectNumber, ProjectName, FeeProposalStatus,
-                                           ProjectManager, FeeProposal, PbdbStatus, FserStatus,
-                                           PaymentDueDate, OutstandingAmount, InvoicedAmount,
-                                           BuildingSurveyor, Comments, ClientId
-                                    FROM dbo.PROJECT
+            string projectQuery = @"SELECT * FROM dbo.vwProjects 
                                     WHERE ProjectId = @ProjectId";
 
             using (SqlConnection connection = new(_connectionString))
             {
                 using SqlCommand cmd = new(projectQuery, connection);
-                cmd.Parameters.AddWithValue("@ProjectId", id);
+                cmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = id;
                 connection.Open();
 
                 using (SqlDataReader reader = cmd.ExecuteReader())
@@ -212,23 +164,7 @@ namespace Eurodan.Data.Repositories
 
                     if (reader.Read())
                     {
-                        project = new Project
-                        {
-                            ProjectId = reader.GetInt32(0),
-                            ProjectNumber = reader.GetString(1),
-                            ProjectName = reader.GetString(2),
-                            FeeProposalStatus = Enum.Parse<FeeProposalStatus>(reader.GetString(3)),
-                            ProjectManager = reader.IsDBNull(4) ? null : reader.GetString(4),
-                            FeeProposal = reader.IsDBNull(5) ? null : reader.GetDecimal(5),
-                            PbdbStatus = reader.IsDBNull(6) ? null : Enum.Parse<CompletionStatus>(reader.GetString(6)),
-                            FserStatus = reader.IsDBNull(7) ? null : Enum.Parse<CompletionStatus>(reader.GetString(7)),
-                            PaymentDueDate = reader.IsDBNull(8) ? null : DateOnly.FromDateTime(reader.GetDateTime(8)),
-                            OutstandingAmount = reader.IsDBNull(9) ? null : reader.GetDecimal(9),
-                            InvoicedAmount = reader.IsDBNull(10) ? null : reader.GetDecimal(10),
-                            BuildingSurveyor = reader.IsDBNull(11) ? null : reader.GetString(11),
-                            Comments = reader.IsDBNull(12) ? null : reader.GetString(12),
-                            ClientId = reader.GetInt32(13)
-                        };
+                        project = MapProject(reader);
                     }
                 }
 
@@ -238,67 +174,46 @@ namespace Eurodan.Data.Repositories
                 }
 
                 // Fetch associated buildings for the project
-                string buildingQuery = @"SELECT b.BuildingId, b.Name, b.Address
-                                         FROM dbo.BUILDING b
-                                         INNER JOIN dbo.PROJECT_BUILDING pb ON b.BuildingId = pb.BuildingId
+                string buildingQuery = @"SELECT * FROM dbo.vwProjectBuildings pb
                                          WHERE pb.ProjectId = @ProjectId";
 
                 using SqlCommand buildingCmd = new(buildingQuery, connection);
-                buildingCmd.Parameters.AddWithValue("@ProjectId", id);
+                buildingCmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = id;
 
                 using (SqlDataReader buildingReader = buildingCmd.ExecuteReader())
                 {
                     while (buildingReader.Read())
                     {
-                        project.Buildings.Add(new Building
-                        {
-                            BuildingId = buildingReader.GetInt32(0),
-                            Name = buildingReader.GetString(1),
-                            Address = buildingReader.GetString(2)
-                        });
+                        project.Buildings.Add(MapBuilding(buildingReader));
                     }
                 }
 
                 // Fetch associated building classes for the project
-                string buildingClassQuery = @"SELECT bc.BuildingClassId, bc.ClassCode, bc.Description
-                                              FROM dbo.BUILDINGCLASS bc
-                                              INNER JOIN dbo.PROJECT_BUILDINGCLASS pbc ON bc.BuildingClassId = pbc.BuildingClassId
+                string buildingClassQuery = @"SELECT * FROM dbo.vwProjectBuildingClasses pbc
                                               WHERE pbc.ProjectId = @ProjectId";
 
                 using SqlCommand buildingClassCmd = new(buildingClassQuery, connection);
-                buildingClassCmd.Parameters.AddWithValue("@ProjectId", id);
+                buildingClassCmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = id;
 
                 using (SqlDataReader buildingClassReader = buildingClassCmd.ExecuteReader())
                 {
                     while (buildingClassReader.Read())
                     {
-                        project.BuildingClasses.Add(new BuildingClass
-                        {
-                            BuildingClassId = buildingClassReader.GetInt32(0),
-                            ClassCode = buildingClassReader.GetString(1),
-                            Description = buildingClassReader.IsDBNull(2) ? null : buildingClassReader.GetString(2)
-                        });
+                        project.BuildingClasses.Add(MapBuildingClass(buildingClassReader));
                     }
                 }
 
                 // Fetch associated technical issues for the project
-                string technicalIssueQuery = @"SELECT ti.TechnicalIssueId, ti.Name, ti.Description
-                                               FROM dbo.TECHNICALISSUE ti
-                                               INNER JOIN dbo.PROJECT_TECHNICALISSUE pti ON ti.TechnicalIssueId = pti.TechnicalIssueId
+                string technicalIssueQuery = @"SELECT * FROM dbo.vwProjectTechnicalIssues pti
                                                WHERE pti.ProjectId = @ProjectId";
 
                 using SqlCommand technicalIssueCmd = new(technicalIssueQuery, connection);
-                technicalIssueCmd.Parameters.AddWithValue("@ProjectId", id);
+                technicalIssueCmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = id;
 
                 using SqlDataReader technicalIssueReader = technicalIssueCmd.ExecuteReader();
                 while (technicalIssueReader.Read())
                 {
-                    project.TechnicalIssues.Add(new TechnicalIssue
-                    {
-                        TechnicalIssueId = technicalIssueReader.GetInt32(0),
-                        Name = technicalIssueReader.GetString(1),
-                        Description = technicalIssueReader.IsDBNull(2) ? null : technicalIssueReader.GetString(2)
-                    });
+                    project.TechnicalIssues.Add(MapTechnicalIssue(technicalIssueReader));
                 }
             }
 
@@ -403,6 +318,59 @@ namespace Eurodan.Data.Repositories
                 .Value = (object?)project.Comments ?? DBNull.Value;
             cmd.Parameters.Add("@ClientId", SqlDbType.Int)
                 .Value = project.ClientId;
+        }
+
+        // Helper methods to map SqlDataReader rows to entity objects
+        private static Project MapProject(SqlDataReader reader)
+        {
+            return new Project
+            {
+                ProjectId = reader.GetInt32(reader.GetOrdinal("ProjectId")),
+                ProjectNumber = reader.GetString(reader.GetOrdinal("ProjectNumber")),
+                ProjectName = reader.GetString(reader.GetOrdinal("ProjectName")),
+                FeeProposalStatus = Enum.Parse<FeeProposalStatus>(reader.GetString(reader.GetOrdinal("FeeProposalStatus"))),
+                ProjectManager = reader.IsDBNull(reader.GetOrdinal("ProjectManager")) ? null : reader.GetString(reader.GetOrdinal("ProjectManager")),
+                FeeProposal = reader.IsDBNull(reader.GetOrdinal("FeeProposal")) ? null : reader.GetDecimal(reader.GetOrdinal("FeeProposal")),
+                PbdbStatus = reader.IsDBNull(reader.GetOrdinal("PbdbStatus")) ? null : Enum.Parse<CompletionStatus>(reader.GetString(reader.GetOrdinal("PbdbStatus"))),
+                FserStatus = reader.IsDBNull(reader.GetOrdinal("FserStatus")) ? null : Enum.Parse<CompletionStatus>(reader.GetString(reader.GetOrdinal("FserStatus"))),
+                PaymentDueDate = reader.IsDBNull(reader.GetOrdinal("PaymentDueDate")) ? null : DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("PaymentDueDate"))),
+                OutstandingAmount = reader.IsDBNull(reader.GetOrdinal("OutstandingAmount")) ? null : reader.GetDecimal(reader.GetOrdinal("OutstandingAmount")),
+                InvoicedAmount = reader.IsDBNull(reader.GetOrdinal("InvoicedAmount")) ? null : reader.GetDecimal(reader.GetOrdinal("InvoicedAmount")),
+                BuildingSurveyor = reader.IsDBNull(reader.GetOrdinal("BuildingSurveyor")) ? null : reader.GetString(reader.GetOrdinal("BuildingSurveyor")),
+                Comments = reader.IsDBNull(reader.GetOrdinal("Comments")) ? null : reader.GetString(reader.GetOrdinal("Comments")),
+                ClientId = reader.GetInt32(reader.GetOrdinal("ClientId")),
+                IsArchived = reader.GetBoolean(reader.GetOrdinal("IsArchived"))
+            };
+        }
+
+        private static Building MapBuilding(SqlDataReader reader)
+        {
+            return new Building
+            {
+                BuildingId = reader.GetInt32(reader.GetOrdinal("BuildingId")),
+                Name = reader.GetString(reader.GetOrdinal("Name")),
+                Address = reader.GetString(reader.GetOrdinal("Address"))
+            };
+        }
+
+        private static BuildingClass MapBuildingClass(SqlDataReader reader)
+        {
+            return new BuildingClass
+            {
+                BuildingClassId = reader.GetInt32(reader.GetOrdinal("BuildingClassId")),
+                ClassCode = reader.GetString(reader.GetOrdinal("ClassCode")),
+                Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description"))
+            };
+        }
+
+        private static TechnicalIssue MapTechnicalIssue(SqlDataReader reader)
+        {
+            return new TechnicalIssue
+            {
+                TechnicalIssueId = reader.GetInt32(reader.GetOrdinal("TechnicalIssueId")),
+                Name = reader.GetString(reader.GetOrdinal("Name")),
+                Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description"))
+            };
         }
 
         // Helper method to insert associated buildings, building classes, and technical issues for a project
