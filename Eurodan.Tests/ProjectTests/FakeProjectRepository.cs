@@ -3,7 +3,7 @@ using Eurodan.Core.Models;
 
 namespace Eurodan.Tests.ProjectTests
 {
-    public class FakeProjectRepository : IRepository<Project>
+    public class FakeProjectRepository : IProjectRepository
     {
         public List<Project> Projects { get; } = new();
 
@@ -18,17 +18,17 @@ namespace Eurodan.Tests.ProjectTests
             Projects.Add(entity);
         }
 
-        void IRepository<Project>.Update(Project entity)
+        public void Update(Project entity)
         {
             throw new NotImplementedException();
         }
 
-        void IRepository<Project>.Delete(int id)
+        public void Archive(int projectId)
         {
             throw new NotImplementedException();
         }
 
-        Project? IReadOnlyRepository<Project>.GetById(int id)
+        public Project? GetById(int id)
         {
             throw new NotImplementedException();
         }

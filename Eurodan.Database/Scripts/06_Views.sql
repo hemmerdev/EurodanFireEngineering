@@ -16,4 +16,3 @@ SELECT pti.ProjectId, ti.TechnicalIssueId, ti.Name, ti.Description
     INNER JOIN dbo.PROJECT_TECHNICALISSUE pti
        ON ti.TechnicalIssueId = pti.TechnicalIssueId;
 GO
-
