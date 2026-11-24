@@ -189,6 +189,18 @@ namespace Eurodan.Core.Services
             return _projectRepository.GetAll().ToList();
         }
 
+        public Project? GetProjectDetails(int projectId)
+        { 
+            return _projectRepository.GetById(projectId); 
+        }
+
+        public Client? GetClientById(int clientId)
+        {
+            return _clientRepository.GetById(clientId);
+        }
+
+
+
         public List<Client> GetAllClients()
         {
             return _clientRepository.GetAll().ToList();

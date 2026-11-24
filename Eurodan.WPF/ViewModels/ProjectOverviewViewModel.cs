@@ -18,6 +18,22 @@ namespace Eurodan.WPF.ViewModels
         public ObservableCollection<ProjectOverviewRowViewModel> Projects { get; } = new();
         public ObservableCollection<TechnicalIssueSelectionViewModel> TechnicalIssueOptions { get; } = new();
 
+        private ProjectOverviewRowViewModel? _selectedProjectRow;
+
+        public ProjectOverviewRowViewModel? SelectedProjectRow
+        {
+            get => _selectedProjectRow;
+            set
+            {
+                if (_selectedProjectRow != value)
+                {
+                    _selectedProjectRow = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
         public string ProjectSearchText
         {
             get => _projectSearchText;
@@ -57,6 +73,9 @@ namespace Eurodan.WPF.ViewModels
                 }
             }
         }
+
+    
+
 
         public RelayCommand LoadProjectsCommand { get; }
 

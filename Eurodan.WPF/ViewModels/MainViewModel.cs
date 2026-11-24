@@ -1,6 +1,7 @@
 ﻿using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
 using Eurodan.WPF.ViewModels.enums;
+using System.ComponentModel;
 
 namespace Eurodan.WPF.ViewModels
 {
@@ -64,7 +65,7 @@ namespace Eurodan.WPF.ViewModels
         {
             ProjectOverview = new ProjectOverviewViewModel(projectService);
             ProjectManagement = new ProjectViewModel(projectService);
-            ProjectDetails = new ProjectDetailsViewModel();
+            ProjectDetails = new ProjectDetailsViewModel(projectService);
             BuildingManagement = new BuildingViewModel(buildingService);
             ClientManagement = new ClientViewModel(clientService);
             TechnicalIssueManagement = new TechnicalIssueViewModel(technicalIssueService);
@@ -87,10 +88,10 @@ namespace Eurodan.WPF.ViewModels
                 });
 
             ShowProjectDetailsCommand =
-                new RelayCommand(_ =>
+                new RelayCommand(parameter =>
                 {
-                    // TODO: Refresh logic goes here once implemented and if needed
-                    CurrentViewModel = ProjectDetails;
+                    ProjectDetails.LoadProjectCommand.Execute(parameter);
+                    CurrentViewModel = ProjectOverview;
                 });
 
             ShowBuildingCommand =
@@ -113,7 +114,26 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = TechnicalIssueManagement;
                 });
 
+
+
+            ProjectOverview.PropertyChanged += ProjectOverviewPropertyChanged;
+
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
+        }
+
+        // Event handler for when ProjectOverview's SelectedProjectRow property changes!!
+        private void ProjectOverviewPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ProjectOverviewViewModel.SelectedProjectRow))
+            {
+                var selectedRow = ProjectOverview.SelectedProjectRow;
+
+                if (selectedRow != null)
+                {
+                    ShowProjectDetailsCommand.Execute(
+                        selectedRow.Project.ProjectId);
+                }
+            }
         }
     }
 }

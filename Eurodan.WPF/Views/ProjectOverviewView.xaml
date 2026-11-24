@@ -142,6 +142,7 @@
 
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Projects}"
+                  SelectedItem="{Binding SelectedProjectRow}"
                   Style="{StaticResource ManagementDataGridStyle}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
