@@ -4,13 +4,13 @@ using Eurodan.Core.Models;
 namespace Eurodan.Core.Services
 {
     public class ProjectService(
-        IRepository<Project> projectRepository,
+        IProjectRepository projectRepository,
         IReadOnlyRepository<Client> clientRepository,
         IReadOnlyRepository<Building> buildingRepository,
         IReadOnlyRepository<BuildingClass> buildingClassRepository,
         IReadOnlyRepository<TechnicalIssue> technicalIssueRepository)
     {
-        private readonly IRepository<Project> _projectRepository = projectRepository;
+        private readonly IProjectRepository _projectRepository = projectRepository;
         private readonly IReadOnlyRepository<Client> _clientRepository = clientRepository;
         private readonly IReadOnlyRepository<Building> _buildingRepository = buildingRepository;
         private readonly IReadOnlyRepository<BuildingClass> _buildingClassRepository = buildingClassRepository;
