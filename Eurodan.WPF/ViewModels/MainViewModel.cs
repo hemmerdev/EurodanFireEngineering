@@ -46,6 +46,7 @@ namespace Eurodan.WPF.ViewModels
 
         // Navigation commands 
         public RelayCommand ShowProjectOverviewCommand { get; }
+        public RelayCommand CloseProjectDetailsCommand { get; }
         public RelayCommand ShowProjectCommand { get; }
 
         // TODO: Open details from the project overview using SelectedProject as CommandParameter.
@@ -94,6 +95,14 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = ProjectOverview;
                 });
 
+
+            CloseProjectDetailsCommand =
+                new RelayCommand(_ =>
+                {
+                     ProjectOverview.SelectedProjectRow = null;
+                });
+
+          
             ShowBuildingCommand =
                 new RelayCommand(_ =>
                 {
