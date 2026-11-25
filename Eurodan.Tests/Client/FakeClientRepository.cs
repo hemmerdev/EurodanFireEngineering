@@ -7,6 +7,7 @@ namespace Eurodan.Tests.Fakes
     {
         public List<Client> Clients { get; } = new();
         public bool AddCalled { get; private set; }
+        public bool DeleteCalled { get; private set; }
 
         public void Add(Client entity)
         {
@@ -17,7 +18,7 @@ namespace Eurodan.Tests.Fakes
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            DeleteCalled = true;
         }
 
         public IEnumerable<Client> GetAll()

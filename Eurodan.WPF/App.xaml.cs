@@ -54,7 +54,9 @@ namespace Eurodan.WPF
                 SqlProjectRepository projectRepository = new(connectionString);
 
                 // Create service instances
-                ClientService clientService = new(clientRepository);
+                ClientService clientService = new(
+                    clientRepository,
+                    projectRepository);
                 BuildingService buildingService = new(buildingRepository);
                 TechnicalIssueService technicalIssueService = new(
                     technicalIssueRepository,

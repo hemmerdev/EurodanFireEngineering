@@ -101,8 +101,7 @@ namespace Eurodan.Core.Services
             {
                 throw new InvalidOperationException("The technical issue tag cannot be deleted, as it is assigned to a project.");
             }
-            // TODO: Use the repository to check for project links in PROJECT_TECHNICALISSUE before deleting.
-            // If linked, reject deletion with a clear message. Keep the foreign key constraint as protection.
+            
             _technicalIssueRepository.Delete(issueId);
             return true;
 
