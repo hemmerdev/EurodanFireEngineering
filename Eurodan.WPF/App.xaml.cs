@@ -56,7 +56,9 @@ namespace Eurodan.WPF
                 // Create service instances
                 ClientService clientService = new(clientRepository);
                 BuildingService buildingService = new(buildingRepository);
-                TechnicalIssueService technicalIssueService = new(technicalIssueRepository);
+                TechnicalIssueService technicalIssueService = new(
+                    technicalIssueRepository,
+                    projectRepository);
                 ProjectService projectService = new(
                     projectRepository,
                     clientRepository,

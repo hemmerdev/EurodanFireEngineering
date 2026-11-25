@@ -6,10 +6,12 @@ namespace Eurodan.Core.Services
     public class TechnicalIssueService
     {
         private readonly IRepository<TechnicalIssue> _technicalIssueRepository;
+        private readonly IReadOnlyRepository<Project> _projectRepository;
 
-        public TechnicalIssueService(IRepository<TechnicalIssue> technicalIssueRepository)
+        public TechnicalIssueService(IRepository<TechnicalIssue> technicalIssueRepository, IReadOnlyRepository<Project> projectRepository)
         {
             _technicalIssueRepository = technicalIssueRepository;
+            _projectRepository = projectRepository;
         }
 
         public List<TechnicalIssue> GetAllTechnicalIssues()
@@ -93,6 +95,12 @@ namespace Eurodan.Core.Services
                 return false;
             }
 
+            if (_projectRepository.GetAll()
+                .Any(project => project.TechnicalIssues
+                .Any(issue => issue.TechnicalIssueId == issueId)))
+            {
+                throw new InvalidOperationException("The technical issue tag cannot be deleted, as it is assigned to a project.");
+            }
             // TODO: Use the repository to check for project links in PROJECT_TECHNICALISSUE before deleting.
             // If linked, reject deletion with a clear message. Keep the foreign key constraint as protection.
             _technicalIssueRepository.Delete(issueId);

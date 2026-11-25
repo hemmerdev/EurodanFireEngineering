@@ -130,7 +130,7 @@ namespace Eurodan.WPF.ViewModels
 
                 StatusMessage = $"New client registered! ID: {id}";
 
-                // Clearing the fields to avoid doubleclicking for double registering
+                // Clearing the fields to avoid double-clicking for double registering
                 CompanyName = "";
                 ContactName = "";
                 Email = "";

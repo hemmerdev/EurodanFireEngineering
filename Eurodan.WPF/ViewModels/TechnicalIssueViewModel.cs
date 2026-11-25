@@ -212,6 +212,10 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = ex.Message;
                 return;
             }
+            catch (InvalidOperationException ex)
+            {
+                StatusMessage = ex.Message;
+            }
             catch (Exception)
             {
                 StatusMessage = "Could not delete the technical issue.";

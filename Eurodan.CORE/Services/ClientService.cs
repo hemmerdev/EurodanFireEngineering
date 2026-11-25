@@ -7,9 +7,9 @@ namespace Eurodan.Core.Services
     {
         private readonly IRepository<Client> _clientRepository;
 
-        public ClientService(IRepository<Client> repository)
+        public ClientService(IRepository<Client> clientRepository)
         {
-            _clientRepository = repository;
+            _clientRepository = clientRepository;
         }
 
         public List<Client> GetAllClients()
@@ -65,6 +65,11 @@ namespace Eurodan.Core.Services
             {
                 throw new ArgumentException("Email cannot exceed 254 characters");
             }
+        }
+
+        public bool DeleteClient(Client client)
+        {
+            throw new NotImplementedException();
         }
     }
 }
