@@ -57,7 +57,9 @@ namespace Eurodan.WPF
                 ClientService clientService = new(
                     clientRepository,
                     projectRepository);
-                BuildingService buildingService = new(buildingRepository);
+                BuildingService buildingService = new(
+                    buildingRepository,
+                    projectRepository);
                 TechnicalIssueService technicalIssueService = new(
                     technicalIssueRepository,
                     projectRepository);

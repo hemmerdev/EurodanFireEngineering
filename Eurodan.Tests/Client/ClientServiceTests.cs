@@ -81,6 +81,36 @@ namespace Eurodan.Tests
             {
                 ProjectId = 23,
                 ClientId = 5,
+                IsArchived = false
+            };
+
+            var client = new Client
+            {
+                ClientId = 5,
+                CompanyName = "Smoke Control"
+            };
+
+
+            clientRepository.Clients.Add(client);
+            projectRepository.Projects.Add(project);
+
+            Assert.ThrowsExactly<InvalidOperationException>(() => service.DeleteClient(5));
+            Assert.IsFalse(clientRepository.DeleteCalled);
+        }
+
+        //Tests whether deletion can be completed when Client is still assigned to an archived project.
+        [TestMethod]
+        public void DeleteClient_Still_Assigned_Archived()
+        {
+            var clientRepository = new FakeClientRepository();
+            var projectRepository = new FakeProjectRepository();
+
+            var service = new ClientService(clientRepository, projectRepository);
+
+            var project = new Project
+            {
+                ProjectId = 23,
+                ClientId = 5,
                 IsArchived = true
             };
 
@@ -98,7 +128,7 @@ namespace Eurodan.Tests
             Assert.IsFalse(clientRepository.DeleteCalled);
         }
 
-        //Tests whether deletion can be completed when Client is still assigned to project.
+        //Tests whether deletion can be completed when ClientId does not exist.
         [TestMethod]
         public void DeleteClient_Unknown_Id()
         {
@@ -124,6 +154,37 @@ namespace Eurodan.Tests
         //Tests whether deletion can be completed when Client is not assigned to a project. 
         [TestMethod]
         public void DeleteClient_Not_Assigned()
+        {
+            var clientRepository = new FakeClientRepository();
+            var projectRepository = new FakeProjectRepository();
+
+            var service = new ClientService(clientRepository, projectRepository);
+
+            var project = new Project
+            {
+                ClientId = 6,
+                ProjectId = 12,
+                IsArchived = false
+            };
+
+            var client = new Client
+            {
+                ClientId = 5,
+                CompanyName = "Smoke Control"
+            };
+
+            clientRepository.Clients.Add(client);
+            projectRepository.Projects.Add(project);
+
+            bool deleted = service.DeleteClient(5);
+
+            Assert.IsTrue(deleted);
+            Assert.IsTrue(clientRepository.DeleteCalled);
+        }
+
+        //Tests whether deletion can be completed when Client is not assigned to an archived project. 
+        [TestMethod]
+        public void DeleteClient_Not_Assigned_Archived()
         {
             var clientRepository = new FakeClientRepository();
             var projectRepository = new FakeProjectRepository();

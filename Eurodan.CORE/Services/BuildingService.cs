@@ -6,10 +6,12 @@ namespace Eurodan.Core.Services
     public class BuildingService
     {
         private readonly IRepository<Building> _buildingRepository;
+        private readonly IReadOnlyRepository<Project> _projectRepository;
 
-        public BuildingService(IRepository<Building> repository)
+        public BuildingService(IRepository<Building> buildingRepository, IReadOnlyRepository<Project> projectRepository)
         {
-            _buildingRepository = repository;
+            _buildingRepository = buildingRepository;
+            _projectRepository = projectRepository;
         }
 
         public List<Building> GetAllBuildings()
@@ -55,6 +57,25 @@ namespace Eurodan.Core.Services
             {
                 throw new ArgumentException("Address cannot exceed 250 characters.");
             }
+        }
+
+        public bool DeleteBuilding(int buildingId)
+        {
+            if (_buildingRepository.GetById(buildingId) == null)
+            {
+                return false;
+            }
+
+            if (_projectRepository.GetAll()
+                .Any(project => project.Buildings
+                .Any(building => building.BuildingId == buildingId)))
+            {
+                throw new InvalidOperationException("The building cannot be deleted, as it is assigned to a project.");
+            }
+
+            _buildingRepository.Delete(buildingId);
+            return true;
+
         }
     }
 }

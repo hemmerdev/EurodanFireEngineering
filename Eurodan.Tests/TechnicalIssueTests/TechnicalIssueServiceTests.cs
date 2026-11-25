@@ -70,6 +70,36 @@ namespace Eurodan.Tests
             var project = new Project
             {
                 ProjectId = 12,
+                IsArchived = false
+            };
+
+            var issue = new TechnicalIssue
+            {
+                TechnicalIssueId = 5,
+                Name = "Smoke Control"
+            };
+
+            technicalIssueRepository.Issues.Add(issue);
+            project.TechnicalIssues.Add(issue);
+
+            projectRepository.Projects.Add(project);
+
+            Assert.ThrowsExactly<InvalidOperationException>(() => service.DeleteTechnicalIssue(5));
+            Assert.IsFalse(technicalIssueRepository.DeleteCalled);
+        }
+
+        //Tests whether deletion can be completed when TechnicalIssue is still assigned to an archived project.
+        [TestMethod]
+        public void DeleteTechnicalIssue_Still_Assigned_Archived()
+        {
+            var technicalIssueRepository = new FakeTechnicalIssueRepository();
+            var projectRepository = new FakeProjectRepository();
+
+            var service = new TechnicalIssueService(technicalIssueRepository, projectRepository);
+
+            var project = new Project
+            {
+                ProjectId = 12,
                 IsArchived = true
             };
 
@@ -114,6 +144,36 @@ namespace Eurodan.Tests
         //Tests whether deletion can be completed when TechnicalIssue is not assigned to a project. 
         [TestMethod]
         public void DeleteTechnicalIssue_Not_Assigned()
+        {
+            var technicalIssueRepository = new FakeTechnicalIssueRepository();
+            var projectRepository = new FakeProjectRepository();
+
+            var service = new TechnicalIssueService(technicalIssueRepository, projectRepository);
+
+            var project = new Project
+            {
+                ProjectId = 12,
+                IsArchived = false
+            };
+
+            var issue = new TechnicalIssue
+            {
+                TechnicalIssueId = 5,
+                Name = "Smoke Control"
+            };
+
+            technicalIssueRepository.Issues.Add(issue);
+            projectRepository.Projects.Add(project);
+
+            bool deleted = service.DeleteTechnicalIssue(5);
+
+            Assert.IsTrue(deleted);
+            Assert.IsTrue(technicalIssueRepository.DeleteCalled);
+        }
+
+        //Tests whether deletion can be completed when TechnicalIssue is not assigned to an archived project.
+        [TestMethod]
+        public void DeleteTechnicalIssue_Not_Assigned_Archived()
         {
             var technicalIssueRepository = new FakeTechnicalIssueRepository();
             var projectRepository = new FakeProjectRepository();
