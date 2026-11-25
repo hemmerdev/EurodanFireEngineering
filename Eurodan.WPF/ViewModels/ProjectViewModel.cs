@@ -25,6 +25,8 @@ namespace Eurodan.WPF.ViewModels
         private string? _invoicedAmountText;
         private string? _outstandingAmountText;
         private DateTime? _selectedPaymentDueDate;
+        private bool _isEditMode;
+        private Project? _selectedProject;
 
         public ObservableCollection<Client> Clients { get; } = new();
         public ObservableCollection<BuildingSelectionViewModel> BuildingOptions { get; } = new();
@@ -230,6 +232,22 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+
+        // True when the form is editing an existing project.
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                if (_isEditMode != value)
+                {
+                    _isEditMode = value;
+                    OnPropertyChanged();
+                    SaveProjectCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
         public RelayCommand SaveProjectCommand { get; }
         public RelayCommand ClearPbdbStatusCommand { get; }
         public RelayCommand ClearFserStatusCommand { get; }
@@ -313,6 +331,8 @@ namespace Eurodan.WPF.ViewModels
             SelectedFserStatus = null;
             SelectedPaymentDueDate = null;
             SelectedFeeProposalStatus = FeeProposalStatus.Pending;
+            _selectedProject = null;
+            IsEditMode = false;
 
             foreach (var buildingOption in BuildingOptions)
             {
@@ -334,7 +354,9 @@ namespace Eurodan.WPF.ViewModels
 
         private bool CanSaveProject(object? parameter)
         {
-            return !string.IsNullOrWhiteSpace(ProjectNumber) &&
+            // TODO: Enable saving edits when UpdateProject is connected.
+            return !IsEditMode &&
+                   !string.IsNullOrWhiteSpace(ProjectNumber) &&
                    !string.IsNullOrWhiteSpace(ProjectName) &&
                    SelectedClientId.HasValue &&
                    BuildingOptions.Any(b => b.IsSelected);
@@ -425,7 +447,77 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        public void LoadProjectLookups()
+        public bool LoadProjectForEditing(int projectId)
+        {
+            try
+            {
+                Project? loadedProject = _projectService.GetProjectDetails(projectId);
+
+                if (loadedProject == null)
+                {
+                    StatusMessage = "Project could not be found.";
+                    return false;
+                }
+
+                if (!LoadProjectLookups())
+                {
+                    return false; // If loading lookups failed, return false
+                }
+
+                ResetProjectForm();
+                _selectedProject = loadedProject;
+                IsEditMode = true;
+
+                ProjectNumber = _selectedProject.ProjectNumber;
+                ProjectName = _selectedProject.ProjectName;
+                SelectedClientId = _selectedProject.ClientId;
+                ProjectManager = _selectedProject.ProjectManager;
+                BuildingSurveyor = _selectedProject.BuildingSurveyor;
+                Comments = _selectedProject.Comments;
+
+                SelectedFeeProposalStatus = _selectedProject.FeeProposalStatus;
+                SelectedPbdbStatus = _selectedProject.PbdbStatus;
+                SelectedFserStatus = _selectedProject.FserStatus;
+
+                FeeProposalText = _selectedProject.FeeProposal?.ToString();
+                InvoicedAmountText = _selectedProject.InvoicedAmount?.ToString();
+                OutstandingAmountText = _selectedProject.OutstandingAmount?.ToString();
+
+                SelectedPaymentDueDate =
+                    _selectedProject.PaymentDueDate?.ToDateTime(TimeOnly.MinValue);
+
+                // Restore the project's selected buildings, classes and technical issues! 
+
+                foreach (var buildingOption in BuildingOptions)
+                {
+                    buildingOption.IsSelected = _selectedProject.Buildings
+                        .Any(building => building.BuildingId == buildingOption.Building.BuildingId);
+                }
+
+                foreach (var buildingClassOption in BuildingClassOptions)
+                {
+                    buildingClassOption.IsSelected = _selectedProject.BuildingClasses
+                        .Any(buildingClass =>
+                            buildingClass.BuildingClassId == buildingClassOption.BuildingClass.BuildingClassId);
+                }
+
+                foreach (var technicalIssueOption in TechnicalIssueOptions)
+                {
+                    technicalIssueOption.IsSelected = _selectedProject.TechnicalIssues
+                        .Any(technicalIssue =>
+                            technicalIssue.TechnicalIssueId == technicalIssueOption.TechnicalIssue.TechnicalIssueId);
+                }
+
+                return true;
+            }
+            catch (DbException)
+            {
+                StatusMessage = "Could not load the project for editing.";
+                return false;
+            }
+        }
+
+        public bool LoadProjectLookups()
         {
             try
             {
@@ -530,10 +622,12 @@ namespace Eurodan.WPF.ViewModels
 
                 SaveProjectCommand.RaiseCanExecuteChanged(); // Update the command's ability to execute based on the new data
                 StatusMessage = ""; // Clear any previous status message
+                return true;
             }
             catch (DbException)
             {
                 StatusMessage = $"Could not load the project choices. Please try again.";
+                return false;
             }
         }
     }

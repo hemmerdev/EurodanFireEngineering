@@ -26,6 +26,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0"
@@ -142,6 +143,7 @@
 
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Projects}"
+                  SelectedItem="{Binding SelectedProjectRow}"
                   Style="{StaticResource ManagementDataGridStyle}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
@@ -256,5 +258,25 @@
                    Foreground="#AAAAAA"
                    TextWrapping="Wrap"
                    Margin="0,8,0,0" />
+
+        <!-- Display the existing Details ViewModel below the project list. -->
+        <ContentControl Grid.Row="4"
+                Content="{Binding DataContext.ProjectDetails,
+                          RelativeSource={RelativeSource AncestorType=Window}}"
+                HorizontalContentAlignment="Stretch"
+                MaxHeight="300"
+                Margin="0,12,0,0">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Style.Triggers>
+                        <!-- Hide the panel when no project row is selected. -->
+                        <DataTrigger Binding="{Binding SelectedProjectRow}"
+                             Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
     </Grid>
 </UserControl>

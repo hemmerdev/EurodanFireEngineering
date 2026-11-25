@@ -1,6 +1,7 @@
 ﻿using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
 using Eurodan.WPF.ViewModels.enums;
+using System.ComponentModel;
 
 namespace Eurodan.WPF.ViewModels
 {
@@ -21,7 +22,6 @@ namespace Eurodan.WPF.ViewModels
                 }
             }
         }
-
 
         // Properties for ViewModel instances
         public ProjectOverviewViewModel ProjectOverview { get; }
@@ -46,12 +46,10 @@ namespace Eurodan.WPF.ViewModels
         // Navigation commands 
         public RelayCommand ShowProjectOverviewCommand { get; }
         public RelayCommand ShowProjectCommand { get; }
-
-        // TODO: Open details from the project overview using SelectedProject as CommandParameter.
-        // Bind to this command through MainWindow's DataContext using RelativeSource.
-        // Disable when no project is selected and pass the project to ProjectDetails before navigating.
-        // Keep Project Overview highlighted and add a Back button using ShowProjectOverviewCommand.
+        // Shows the selected project's details in the bottom panel of Project Overview.
         public RelayCommand ShowProjectDetailsCommand { get; }
+        public RelayCommand CloseProjectDetailsCommand { get; }
+        public RelayCommand OpenProjectFormForEditingCommand { get; }
         public RelayCommand ShowBuildingCommand { get; }
         public RelayCommand ShowClientCommand { get; }
         public RelayCommand ShowTechnicalIssueCommand { get; }
@@ -64,7 +62,7 @@ namespace Eurodan.WPF.ViewModels
         {
             ProjectOverview = new ProjectOverviewViewModel(projectService);
             ProjectManagement = new ProjectViewModel(projectService);
-            ProjectDetails = new ProjectDetailsViewModel();
+            ProjectDetails = new ProjectDetailsViewModel(projectService);
             BuildingManagement = new BuildingViewModel(buildingService);
             ClientManagement = new ClientViewModel(clientService);
             TechnicalIssueManagement = new TechnicalIssueViewModel(technicalIssueService);
@@ -87,11 +85,28 @@ namespace Eurodan.WPF.ViewModels
                 });
 
             ShowProjectDetailsCommand =
+                new RelayCommand(parameter =>
+                {
+                    ProjectDetails.LoadProjectDetailsCommand.Execute(parameter);
+                    CurrentViewModel = ProjectOverview;
+                });
+
+            CloseProjectDetailsCommand =
                 new RelayCommand(_ =>
                 {
-                    // TODO: Refresh logic goes here once implemented and if needed
-                    CurrentViewModel = ProjectDetails;
+                    // Clear selection to hide the panel and allow the same project to reopen!
+                    ProjectOverview.SelectedProjectRow = null;
                 });
+
+            OpenProjectFormForEditingCommand = new RelayCommand(
+                parameter =>                                            // Execute: Open the selected project for editing
+                {
+                    if (parameter is int projectId && projectId > 0)
+                    {
+                        OpenProjectFormForEditing(projectId);
+                    }
+                },
+                parameter => parameter is int projectId && projectId > 0); // CanExecute: Only allow if parameter is a valid projectId
 
             ShowBuildingCommand =
                 new RelayCommand(_ =>
@@ -113,7 +128,35 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = TechnicalIssueManagement;
                 });
 
+            // Listen for project selection changes in the overview.
+            ProjectOverview.PropertyChanged += ProjectOverviewPropertyChanged;
+
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
+        }
+
+        public void OpenProjectFormForEditing(int projectId)
+        {
+            if (!ProjectManagement.LoadProjectForEditing(projectId))
+            {
+                ProjectDetails.ShowError(ProjectManagement.StatusMessage);
+                return; // If loading the project for editing failed, do not switch views.
+            }
+            CurrentViewModel = ProjectManagement;
+        }
+
+        // Event handler for when ProjectOverview's SelectedProjectRow property changes!!
+        private void ProjectOverviewPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ProjectOverviewViewModel.SelectedProjectRow))
+            {
+                var selectedRow = ProjectOverview.SelectedProjectRow;
+
+                if (selectedRow != null)
+                {
+                    ShowProjectDetailsCommand.Execute(
+                        selectedRow.Project.ProjectId);
+                }
+            }
         }
     }
 }
