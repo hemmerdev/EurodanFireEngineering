@@ -12,9 +12,11 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!-- Keep the heading and Close button visible while the details scroll. -->
         <DockPanel Grid.Row="0"
                LastChildFill="True"
                Margin="0,0,0,20">
+            <!-- The Close command belongs to MainViewModel on the containing window. -->
             <Button DockPanel.Dock="Right"
                 Content="X"
                 Command="{Binding DataContext.CloseProjectDetailsCommand,
@@ -22,6 +24,12 @@
                 Style="{StaticResource ActionButtonStyle}"
                 MinWidth="36"
                 ToolTip="Close project details" />
+
+            <Button DockPanel.Dock="Right"
+        Content="Edit"
+        Command="{Binding EditProjectCommand}"
+        Style="{StaticResource ActionButtonStyle}"
+        Margin="0,0,8,0" />
 
             <TextBlock Text="Project details"
                    FontSize="24"

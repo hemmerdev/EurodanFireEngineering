@@ -259,6 +259,7 @@
                    TextWrapping="Wrap"
                    Margin="0,8,0,0" />
 
+        <!-- Display the existing Details ViewModel below the project list. -->
         <ContentControl Grid.Row="4"
                 Content="{Binding DataContext.ProjectDetails,
                           RelativeSource={RelativeSource AncestorType=Window}}"
@@ -268,6 +269,7 @@
             <ContentControl.Style>
                 <Style TargetType="ContentControl">
                     <Style.Triggers>
+                        <!-- Hide the panel when no project row is selected. -->
                         <DataTrigger Binding="{Binding SelectedProjectRow}"
                              Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" />

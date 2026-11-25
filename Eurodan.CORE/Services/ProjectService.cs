@@ -189,11 +189,13 @@ namespace Eurodan.Core.Services
             return _projectRepository.GetAll().ToList();
         }
 
+        // Retrieves the selected project for the details panel.
         public Project? GetProjectDetails(int projectId)
         { 
             return _projectRepository.GetById(projectId); 
         }
 
+        // Retrieves the project's client so its contact details can be displayed.
         public Client? GetClientById(int clientId)
         {
             return _clientRepository.GetById(clientId);

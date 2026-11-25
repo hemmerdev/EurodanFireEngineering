@@ -49,10 +49,7 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand CloseProjectDetailsCommand { get; }
         public RelayCommand ShowProjectCommand { get; }
 
-        // TODO: Open details from the project overview using SelectedProject as CommandParameter.
-        // Bind to this command through MainWindow's DataContext using RelativeSource.
-        // Disable when no project is selected and pass the project to ProjectDetails before navigating.
-        // Keep Project Overview highlighted and add a Back button using ShowProjectOverviewCommand.
+        // Shows the selected project's details in the bottom panel of Project Overview.
         public RelayCommand ShowProjectDetailsCommand { get; }
         public RelayCommand ShowBuildingCommand { get; }
         public RelayCommand ShowClientCommand { get; }
@@ -66,7 +63,7 @@ namespace Eurodan.WPF.ViewModels
         {
             ProjectOverview = new ProjectOverviewViewModel(projectService);
             ProjectManagement = new ProjectViewModel(projectService);
-            ProjectDetails = new ProjectDetailsViewModel(projectService);
+            ProjectDetails = new ProjectDetailsViewModel(projectService, EditProject);
             BuildingManagement = new BuildingViewModel(buildingService);
             ClientManagement = new ClientViewModel(clientService);
             TechnicalIssueManagement = new TechnicalIssueViewModel(technicalIssueService);
@@ -99,6 +96,7 @@ namespace Eurodan.WPF.ViewModels
             CloseProjectDetailsCommand =
                 new RelayCommand(_ =>
                 {
+                     // Clear selection to hide the panel and allow the same project to reopen!
                      ProjectOverview.SelectedProjectRow = null;
                 });
 
@@ -125,10 +123,21 @@ namespace Eurodan.WPF.ViewModels
 
 
 
+            // Listen for project selection changes in the overview.
             ProjectOverview.PropertyChanged += ProjectOverviewPropertyChanged;
 
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
+
+
+        public void EditProject(int projectId)
+        {
+            ProjectManagement.LoadProjectLookups();
+            ProjectManagement.LoadProject(projectId);
+            CurrentViewModel = ProjectManagement;
+        }
+
+
 
         // Event handler for when ProjectOverview's SelectedProjectRow property changes!!
         private void ProjectOverviewPropertyChanged(object? sender, PropertyChangedEventArgs e)

@@ -20,6 +20,7 @@ namespace Eurodan.WPF.ViewModels
 
         private ProjectOverviewRowViewModel? _selectedProjectRow;
 
+        // Holds the row selected in the Project Overview table.
         public ProjectOverviewRowViewModel? SelectedProjectRow
         {
             get => _selectedProjectRow;
