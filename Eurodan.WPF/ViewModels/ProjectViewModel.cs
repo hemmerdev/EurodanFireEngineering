@@ -447,22 +447,25 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-
-        public void LoadProject(int projectId)
+        public bool LoadProjectForEditing(int projectId)
         {
-            ResetProjectForm();
-            StatusMessage = string.Empty;
-
             try
             {
-                _selectedProject = _projectService.GetProjectDetails(projectId);
+                Project? loadedProject = _projectService.GetProjectDetails(projectId);
 
-                if (_selectedProject == null)
+                if (loadedProject == null)
                 {
                     StatusMessage = "Project could not be found.";
-                    return;
+                    return false;
                 }
 
+                if (!LoadProjectLookups())
+                {
+                    return false; // If loading lookups failed, return false
+                }
+
+                ResetProjectForm();
+                _selectedProject = loadedProject;
                 IsEditMode = true;
 
                 ProjectNumber = _selectedProject.ProjectNumber;
@@ -505,15 +508,16 @@ namespace Eurodan.WPF.ViewModels
                             technicalIssue.TechnicalIssueId == technicalIssueOption.TechnicalIssue.TechnicalIssueId);
                 }
 
+                return true;
             }
             catch (DbException)
             {
                 StatusMessage = "Could not load the project for editing.";
+                return false;
             }
         }
 
-
-        public void LoadProjectLookups()
+        public bool LoadProjectLookups()
         {
             try
             {
@@ -618,10 +622,12 @@ namespace Eurodan.WPF.ViewModels
 
                 SaveProjectCommand.RaiseCanExecuteChanged(); // Update the command's ability to execute based on the new data
                 StatusMessage = ""; // Clear any previous status message
+                return true;
             }
             catch (DbException)
             {
                 StatusMessage = $"Could not load the project choices. Please try again.";
+                return false;
             }
         }
     }

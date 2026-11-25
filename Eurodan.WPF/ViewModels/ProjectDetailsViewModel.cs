@@ -8,14 +8,11 @@ namespace Eurodan.WPF.ViewModels
     public class ProjectDetailsViewModel : ViewModelBase
     {
         private readonly ProjectService _projectService;
-        private readonly Action<int> _editProject;
         private Project? _selectedProject;
         private Client? _selectedClient;
         private string _statusMessage = string.Empty;
 
-        public RelayCommand LoadProjectCommand { get; }
-        public RelayCommand EditProjectCommand { get; }
-
+        public RelayCommand LoadProjectDetailsCommand { get; }
 
         public Project? SelectedProject
         {
@@ -26,8 +23,6 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _selectedProject = value;
                     OnPropertyChanged();
-
-                    EditProjectCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -47,7 +42,6 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-
         public string StatusMessage
         {
             get => _statusMessage;
@@ -59,39 +53,21 @@ namespace Eurodan.WPF.ViewModels
                     OnPropertyChanged();
                 }
             }
-         }
+        }
 
-       
-        public ProjectDetailsViewModel( ProjectService projectService, Action<int> editProject)
+        public ProjectDetailsViewModel(ProjectService projectService)
         {
             _projectService = projectService;
 
-            // Main supplies the method that opens the project for editing.
-            _editProject = editProject;
-
-            LoadProjectCommand = new RelayCommand(LoadProject);
-            EditProjectCommand = new RelayCommand(EditProject, CanEditProject);
+            LoadProjectDetailsCommand = new RelayCommand(LoadProjectDetails);
         }
 
-
-        private bool CanEditProject(object? parameter)
+        public void ShowError(string message)
         {
-            return SelectedProject != null;
+            StatusMessage = message;
         }
 
-        private void EditProject(object? parameter)
-        {
-            if (SelectedProject == null)
-            {
-                return;
-            }
-
-            // Ask Main to open this project in Manage Projects.
-            _editProject(SelectedProject.ProjectId);
-        }
-
-
-        private void LoadProject(object? parameter)
+        private void LoadProjectDetails(object? parameter)
         {
             // Clear the previous details before loading the next selected project.
             SelectedProject = null;
@@ -122,7 +98,5 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = "Could not load project details.";
             }
         }
-
-
     }
 }

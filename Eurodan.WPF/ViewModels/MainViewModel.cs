@@ -23,7 +23,6 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-
         // Properties for ViewModel instances
         public ProjectOverviewViewModel ProjectOverview { get; }
         public ProjectViewModel ProjectManagement { get; }
@@ -46,11 +45,11 @@ namespace Eurodan.WPF.ViewModels
 
         // Navigation commands 
         public RelayCommand ShowProjectOverviewCommand { get; }
-        public RelayCommand CloseProjectDetailsCommand { get; }
         public RelayCommand ShowProjectCommand { get; }
-
         // Shows the selected project's details in the bottom panel of Project Overview.
         public RelayCommand ShowProjectDetailsCommand { get; }
+        public RelayCommand CloseProjectDetailsCommand { get; }
+        public RelayCommand OpenProjectFormForEditingCommand { get; }
         public RelayCommand ShowBuildingCommand { get; }
         public RelayCommand ShowClientCommand { get; }
         public RelayCommand ShowTechnicalIssueCommand { get; }
@@ -63,7 +62,7 @@ namespace Eurodan.WPF.ViewModels
         {
             ProjectOverview = new ProjectOverviewViewModel(projectService);
             ProjectManagement = new ProjectViewModel(projectService);
-            ProjectDetails = new ProjectDetailsViewModel(projectService, EditProject);
+            ProjectDetails = new ProjectDetailsViewModel(projectService);
             BuildingManagement = new BuildingViewModel(buildingService);
             ClientManagement = new ClientViewModel(clientService);
             TechnicalIssueManagement = new TechnicalIssueViewModel(technicalIssueService);
@@ -88,19 +87,27 @@ namespace Eurodan.WPF.ViewModels
             ShowProjectDetailsCommand =
                 new RelayCommand(parameter =>
                 {
-                    ProjectDetails.LoadProjectCommand.Execute(parameter);
+                    ProjectDetails.LoadProjectDetailsCommand.Execute(parameter);
                     CurrentViewModel = ProjectOverview;
                 });
-
 
             CloseProjectDetailsCommand =
                 new RelayCommand(_ =>
                 {
-                     // Clear selection to hide the panel and allow the same project to reopen!
-                     ProjectOverview.SelectedProjectRow = null;
+                    // Clear selection to hide the panel and allow the same project to reopen!
+                    ProjectOverview.SelectedProjectRow = null;
                 });
 
-          
+            OpenProjectFormForEditingCommand = new RelayCommand(
+                parameter =>                                            // Execute: Open the selected project for editing
+                {
+                    if (parameter is int projectId && projectId > 0)
+                    {
+                        OpenProjectFormForEditing(projectId);
+                    }
+                },
+                parameter => parameter is int projectId && projectId > 0); // CanExecute: Only allow if parameter is a valid projectId
+
             ShowBuildingCommand =
                 new RelayCommand(_ =>
                 {
@@ -121,23 +128,21 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = TechnicalIssueManagement;
                 });
 
-
-
             // Listen for project selection changes in the overview.
             ProjectOverview.PropertyChanged += ProjectOverviewPropertyChanged;
 
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
 
-
-        public void EditProject(int projectId)
+        public void OpenProjectFormForEditing(int projectId)
         {
-            ProjectManagement.LoadProjectLookups();
-            ProjectManagement.LoadProject(projectId);
+            if (!ProjectManagement.LoadProjectForEditing(projectId))
+            {
+                ProjectDetails.ShowError(ProjectManagement.StatusMessage);
+                return; // If loading the project for editing failed, do not switch views.
+            }
             CurrentViewModel = ProjectManagement;
         }
-
-
 
         // Event handler for when ProjectOverview's SelectedProjectRow property changes!!
         private void ProjectOverviewPropertyChanged(object? sender, PropertyChangedEventArgs e)
