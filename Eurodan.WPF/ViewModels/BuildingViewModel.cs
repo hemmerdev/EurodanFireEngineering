@@ -24,6 +24,9 @@ namespace Eurodan.WPF.ViewModels
                     _selectedBuilding = value;
                     OnPropertyChanged();
 
+                    DeleteBuildingCommand.RaiseCanExecuteChanged();
+                    UpdateBuildingCommand.RaiseCanExecuteChanged();
+
                     Name = value?.Name ?? string.Empty;
                     Address = value?.Address ?? string.Empty;
                 }
@@ -73,15 +76,19 @@ namespace Eurodan.WPF.ViewModels
         }
 
         public ICommand RegisterBuildingCommand { get; }
-        public ICommand UpdateBuildingCommand { get; }
-        public ICommand DeleteBuildingCommand { get; }
+        public RelayCommand UpdateBuildingCommand { get; }
+        public RelayCommand DeleteBuildingCommand { get; }
 
         public BuildingViewModel(BuildingService buildingService)
         {
             _buildingService = buildingService;
             RegisterBuildingCommand = new RelayCommand(RegisterBuilding);
-            UpdateBuildingCommand = new RelayCommand(UpdateBuilding);
-            DeleteBuildingCommand = new RelayCommand(DeleteBuilding);
+            UpdateBuildingCommand = new RelayCommand(
+                UpdateBuilding,
+                _ => SelectedBuilding != null);
+            DeleteBuildingCommand = new RelayCommand(
+                DeleteBuilding,
+                _ => SelectedBuilding != null);
             LoadBuildings();
         }
 
@@ -181,21 +188,17 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = "Please select a building to delete.";
                 return;
             }
-
-            var buildingToDelete = new Building
-            {
-                BuildingId = SelectedBuilding.BuildingId,
-                Name = SelectedBuilding.Name,
-                Address = SelectedBuilding.Address
-            };
+            
+            int buildingId = SelectedBuilding.BuildingId;
+            string name = SelectedBuilding.Name;
 
             try
             {
-                bool deleted = _buildingService.DeleteBuilding(SelectedBuilding.BuildingId);
+                bool deleted = _buildingService.DeleteBuilding(buildingId);
 
                 if (!deleted)
                 {
-                    StatusMessage = $"The building {buildingToDelete.Name} could not be deleted.";
+                    StatusMessage = $"The building {name} could not be deleted.";
                     return;
                 }
             }
@@ -222,7 +225,7 @@ namespace Eurodan.WPF.ViewModels
                 Name = "";
                 Address = "";
                 LoadBuildings();
-                StatusMessage = $"{buildingToDelete.Name} deleted successfully.";
+                StatusMessage = $"{name} deleted successfully.";
             }
             catch (Exception)
             {

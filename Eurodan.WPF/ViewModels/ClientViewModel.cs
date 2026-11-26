@@ -24,6 +24,9 @@ namespace Eurodan.WPF.ViewModels
                     _selectedClient = value;
                     OnPropertyChanged();
 
+                    DeleteClientCommand.RaiseCanExecuteChanged();
+                    UpdateClientCommand.RaiseCanExecuteChanged();
+
                     CompanyName = value?.CompanyName ?? string.Empty;
                     ContactName = value?.ContactName;
                     Email = value?.Email;
@@ -104,15 +107,19 @@ namespace Eurodan.WPF.ViewModels
         }
 
         public ICommand RegisterClientCommand { get; }
-        public ICommand UpdateClientCommand { get; }
-        public ICommand DeleteClientCommand { get; }
+        public RelayCommand UpdateClientCommand { get; }
+        public RelayCommand DeleteClientCommand { get; }
 
         public ClientViewModel(ClientService clientService)
         {
             _clientService = clientService;
             RegisterClientCommand = new RelayCommand(RegisterClient);
-            UpdateClientCommand = new RelayCommand(UpdateClient);
-            DeleteClientCommand = new RelayCommand(DeleteClient);
+            UpdateClientCommand = new RelayCommand(
+                UpdateClient,
+                _ => SelectedClient != null);
+            DeleteClientCommand = new RelayCommand(
+                DeleteClient,
+                _ => SelectedClient != null);
             LoadClients();
         }
 
@@ -219,22 +226,16 @@ namespace Eurodan.WPF.ViewModels
                 return;
             }
 
-            var clientToDelete = new Client
-            {
-                ClientId = SelectedClient.ClientId,
-                CompanyName = SelectedClient.CompanyName,
-                ContactName = SelectedClient.ContactName,
-                Email = SelectedClient.Email,
-                Phone = SelectedClient.Phone
-            };
+            int clientId = SelectedClient.ClientId;
+            string companyName = SelectedClient.CompanyName;
 
             try
             {
-                bool deleted = _clientService.DeleteClient(SelectedClient.ClientId);
+                bool deleted = _clientService.DeleteClient(clientId);
 
                 if (!deleted)
                 {
-                    StatusMessage = $"The client {clientToDelete.CompanyName} could not be deleted.";
+                    StatusMessage = $"The client {companyName} could not be deleted.";
                     return;
                 }
             }
@@ -263,7 +264,7 @@ namespace Eurodan.WPF.ViewModels
                 Email = "";
                 Phone = "";
                 LoadClients();
-                StatusMessage = $"{clientToDelete.CompanyName} deleted successfully.";
+                StatusMessage = $"{companyName} deleted successfully.";
             }
             catch (Exception)
             {
