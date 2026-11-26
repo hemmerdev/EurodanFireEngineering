@@ -169,22 +169,24 @@ namespace Eurodan.WPF.ViewModels
 
                 CurrentViewModel = ProjectOverview;
 
-                if (!loadedSuccessfully)
+                if (!loadedSuccessfully) // If the refresh fails, clear the selection and show a message
                 {
                     ProjectOverview.SelectedProjectRow = null; // Clear selection to avoid showing the previous project details
                     ProjectOverview.ShowMessage("The project was updated, but the overview could not be refreshed.");
-                    return;
+                    return; // Prevent further processing since the refresh failed
                 }
 
                 // Search the filtered list. The result is null if the current search or filters hide the updated project.
-                ProjectOverviewRowViewModel? updatedRow = ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
+                ProjectOverviewRowViewModel? updatedRow =
+                    ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
 
                 // Keep the user's filters, but tell them why the updated project is not shown.
                 if (updatedRow == null)
                 {
                     // Clear selection so panel doesn't show the previously open project pre-edit
                     ProjectOverview.SelectedProjectRow = null;
-                    ProjectOverview.ShowMessage("The project was updated, but it is hidden by the current search or filters.");
+                    ProjectOverview.ShowMessage(
+                        "The project was updated, but it is hidden by the current search or filters.");
                 }
                 else
                 {
