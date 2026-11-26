@@ -429,36 +429,50 @@ namespace Eurodan.WPF.ViewModels
                 PaymentDueDate = paymentDueDate
             };
 
+            // Remember edit mode now, because ResetProjectForm sets IsEditMode to false before we raise ProjectUpdated.
+            bool isEditing = IsEditMode;
+
+            // Only the save goes in this try, so a later failure is not shown as a save error
             try
             {
-                // One shared form: IsEditMode decides whether Save creates or updates
-                if (IsEditMode)
+                // One shared form: isEditing (was IsEditMode) decides whether Save creates or updates
+                if (isEditing)
                 {
                     _projectService.UpdateProject(project);
-                    ResetProjectForm(); // Leave edit mode so the next visit to Project Management opens a blank create form
-                    StatusMessage = "Project updated.";
-                    ProjectUpdated?.Invoke(this, project.ProjectId);
                 }
                 else
                 {
-                    int projectId = _projectService.CreateProject(project);
-
-                    StatusMessage = $"Project created successfully with ID: {projectId}";
-
-                    ResetProjectForm(); // Clear the form after successful creation
+                    _projectService.CreateProject(project);
                 }
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = $"Error: {ex.Message}";
+                return;
             }
             catch (DbException)
             {
                 StatusMessage = "Could not save the project. Please try again.";
+                return;
             }
             catch (Exception)
             {
                 StatusMessage = "An unexpected error occurred";
+                return;
+            }
+
+            // Reached only when the save worked.
+            // ProjectUpdated is raised outside the try, so errors in Main's handler are not shown as save errors.
+            ResetProjectForm();
+
+            if (isEditing)
+            {
+                StatusMessage = "Project updated.";
+                ProjectUpdated?.Invoke(this, project.ProjectId);
+            }
+            else
+            {
+                StatusMessage = $"Project created successfully with ID: {project.ProjectId}";
             }
         }
 
