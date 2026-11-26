@@ -189,6 +189,9 @@ public class ProjectServiceTests
         // it would pass even if Update did nothing.
         _validProject.ProjectId = 5;
 
+        // Stored has building 1, update only selects building 2, so building 1 must be removed, not kept.
+        _validProject.Buildings.RemoveAt(0);
+
         // Act
         _projectService.UpdateProject(_validProject);
 
@@ -203,7 +206,61 @@ public class ProjectServiceTests
         Assert.AreEqual(1, savedProject.ClientId);
 
         CollectionAssert.AreEquivalent(
-            new[] { 1, 2 }, savedProject.Buildings.Select(b => b.BuildingId).ToList());
+            new[] { 2 }, savedProject.Buildings.Select(b => b.BuildingId).ToList());
+    }
+
+    // UC04: Clearing all building classes removes the stored links.
+    [TestMethod]
+    public void UpdateProject_ClearedBuildingClasses_RemovesThem()
+    {
+        // Arrange
+        var existingProject = new Project
+        {
+            ProjectId = 5,
+            ProjectNumber = "1",
+            ProjectName = "Old name",
+            ClientId = 1,
+            Buildings = new() { _validProject.Buildings[0] },
+            BuildingClasses = new() { _validProject.BuildingClasses[0] }
+        };
+
+        _projectRepository.Projects.Add(existingProject);
+
+        _validProject.ProjectId = 5;
+        _validProject.BuildingClasses.Clear();
+
+        // Act
+        _projectService.UpdateProject(_validProject);
+
+        // Assert
+        Assert.HasCount(0, _projectRepository.Projects[0].BuildingClasses);
+    }
+
+    // UC04: Clearing all technical issues removes the stored links.
+    [TestMethod]
+    public void UpdateProject_ClearedTechnicalIssues_RemovesThem()
+    {
+        // Arrange
+        var existingProject = new Project
+        {
+            ProjectId = 5,
+            ProjectNumber = "1",
+            ProjectName = "Old name",
+            ClientId = 1,
+            Buildings = new() { _validProject.Buildings[0] },
+            TechnicalIssues = new() { _validProject.TechnicalIssues[0] }
+        };
+
+        _projectRepository.Projects.Add(existingProject);
+
+        _validProject.ProjectId = 5;
+        _validProject.TechnicalIssues.Clear();
+
+        // Act
+        _projectService.UpdateProject(_validProject);
+
+        // Assert
+        Assert.HasCount(0, _projectRepository.Projects[0].TechnicalIssues);
     }
 
     // UC04: Changed links must not contain duplicates.
