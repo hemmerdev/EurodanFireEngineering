@@ -75,8 +75,11 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-    
-
+        // Lets MainViewModel show a message on the overview, because StatusMessage has a private setter.
+        public void ShowMessage(string message)
+        {
+            StatusMessage = message;
+        }
 
         public RelayCommand LoadProjectsCommand { get; }
 
@@ -84,7 +87,8 @@ namespace Eurodan.WPF.ViewModels
         {
             _projectService = projectService;
 
-            LoadProjectsCommand = new RelayCommand(LoadProjects);
+            LoadProjectsCommand = new RelayCommand(
+                _ => LoadProjects(null)); // Lambda because LoadProjects now returns a bool, but RelayCommand expects void. So we discard the return value.
         }
 
         // Event handler for when a TechnicalIssueOption's IsSelected property changes
@@ -96,7 +100,7 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        private void LoadProjects(object? parameter)
+        public bool LoadProjects(object? parameter)
         {
             try
             {
@@ -146,10 +150,13 @@ namespace Eurodan.WPF.ViewModels
 
                 _allProjectRows = rows; // Store the complete list of rows for future filtering
                 ApplyFilters();
+
+                return true;
             }
             catch (DbException)
             {
                 StatusMessage = "Could not load projects. Please try again later.";
+                return false;
             }
         }
 

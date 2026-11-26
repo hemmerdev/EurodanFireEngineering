@@ -128,8 +128,10 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = TechnicalIssueManagement;
                 });
 
-            // Listen for project selection changes in the overview.
+            // Listen for project selection changes in the overview
+            // After an edit is saved, go back to the overview and show the updated project
             ProjectOverview.PropertyChanged += ProjectOverviewPropertyChanged;
+            ProjectManagement.ProjectUpdated += ProjectManagementProjectUpdated;
 
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
@@ -156,6 +158,46 @@ namespace Eurodan.WPF.ViewModels
                     ShowProjectDetailsCommand.Execute(
                         selectedRow.Project.ProjectId);
                 }
+            }
+        }
+
+        private void ProjectManagementProjectUpdated(object? sender, int projectId)
+        {
+            try
+            {
+                bool loadedSuccessfully = ProjectOverview.LoadProjects(null); // Refresh the overview to reflect the updated project
+
+                CurrentViewModel = ProjectOverview;
+
+                if (!loadedSuccessfully) // If the refresh fails, clear the selection and show a message
+                {
+                    ProjectOverview.SelectedProjectRow = null; // Clear selection to avoid showing the previous project details
+                    ProjectOverview.ShowMessage("The project was updated, but the overview could not be refreshed.");
+                    return; // Prevent further processing since the refresh failed
+                }
+
+                // Search the filtered list. The result is null if the current search or filters hide the updated project.
+                ProjectOverviewRowViewModel? updatedRow =
+                    ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
+
+                // Keep the user's filters, but tell them why the updated project is not shown.
+                if (updatedRow == null)
+                {
+                    // Clear selection so panel doesn't show the previously open project pre-edit
+                    ProjectOverview.SelectedProjectRow = null;
+                    ProjectOverview.ShowMessage(
+                        "The project was updated, but it is hidden by the current search or filters.");
+                }
+                else
+                {
+                    ProjectOverview.SelectedProjectRow = updatedRow;
+                }
+            }
+            catch (Exception)
+            {
+                CurrentViewModel = ProjectOverview; // Go back to the overview even if the refresh fails
+                // The save already worked. If the refresh fails, say that, instead of reporting a save error.
+                ProjectOverview.ShowMessage("The project was updated, but the overview could not be refreshed.");
             }
         }
     }

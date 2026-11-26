@@ -168,4 +168,193 @@ public class ProjectServiceTests
         Assert.HasCount(1, _projectRepository.Projects);
         Assert.AreEqual(99, _projectRepository.Projects[0].ProjectId);
     }
+
+    // UC04: An edit replaces attributes and links, and may keep its own project number.
+    [TestMethod]
+    public void UpdateProject_ValidChanges_ReplacesValuesAndLinks()
+    {
+        // Arrange
+        var existingProject = new Project
+        {
+            ProjectId = 5,
+            ProjectNumber = "1",
+            ProjectName = "Old name",
+            ClientId = 1,
+            Buildings = new() { _validProject.Buildings[0] }
+        };
+
+        _projectRepository.Projects.Add(existingProject);
+
+        // Stored and edited are separate objects. If the test changed the stored object directly,
+        // it would pass even if Update did nothing.
+        _validProject.ProjectId = 5;
+
+        // Stored has building 1, update only selects building 2, so building 1 must be removed, not kept.
+        _validProject.Buildings.RemoveAt(0);
+
+        // Act
+        _projectService.UpdateProject(_validProject);
+
+        // Assert
+        Assert.HasCount(1, _projectRepository.Projects);
+
+        Project savedProject = _projectRepository.Projects[0];
+
+        Assert.AreEqual(5, savedProject.ProjectId);
+        Assert.AreEqual("1", savedProject.ProjectNumber);
+        Assert.AreEqual("Test Project", savedProject.ProjectName);
+        Assert.AreEqual(1, savedProject.ClientId);
+
+        CollectionAssert.AreEquivalent(
+            new[] { 2 }, savedProject.Buildings.Select(b => b.BuildingId).ToList());
+    }
+
+    // UC04: Clearing all building classes removes the stored links.
+    [TestMethod]
+    public void UpdateProject_ClearedBuildingClasses_RemovesThem()
+    {
+        // Arrange
+        var existingProject = new Project
+        {
+            ProjectId = 5,
+            ProjectNumber = "1",
+            ProjectName = "Old name",
+            ClientId = 1,
+            Buildings = new() { _validProject.Buildings[0] },
+            BuildingClasses = new() { _validProject.BuildingClasses[0] }
+        };
+
+        _projectRepository.Projects.Add(existingProject);
+
+        _validProject.ProjectId = 5;
+        _validProject.BuildingClasses.Clear();
+
+        // Act
+        _projectService.UpdateProject(_validProject);
+
+        // Assert
+        Assert.HasCount(0, _projectRepository.Projects[0].BuildingClasses);
+    }
+
+    // UC04: Clearing all technical issues removes the stored links.
+    [TestMethod]
+    public void UpdateProject_ClearedTechnicalIssues_RemovesThem()
+    {
+        // Arrange
+        var existingProject = new Project
+        {
+            ProjectId = 5,
+            ProjectNumber = "1",
+            ProjectName = "Old name",
+            ClientId = 1,
+            Buildings = new() { _validProject.Buildings[0] },
+            TechnicalIssues = new() { _validProject.TechnicalIssues[0] }
+        };
+
+        _projectRepository.Projects.Add(existingProject);
+
+        _validProject.ProjectId = 5;
+        _validProject.TechnicalIssues.Clear();
+
+        // Act
+        _projectService.UpdateProject(_validProject);
+
+        // Assert
+        Assert.HasCount(0, _projectRepository.Projects[0].TechnicalIssues);
+    }
+
+    // UC04: Changed links must not contain duplicates.
+    [TestMethod]
+    public void UpdateProject_DuplicateBuilding_ThrowsWithoutSaving()
+    {
+        // Arrange
+        var existingProject = new Project
+        {
+            ProjectId = 5,
+            ProjectNumber = "1",
+            ProjectName = "Old name",
+            ClientId = 1,
+            Buildings = new() { _validProject.Buildings[0] }
+        };
+
+        _projectRepository.Projects.Add(existingProject);
+
+        // Stored and edited are separate objects. If the test changed the stored object directly,
+        // it would pass even if Update did nothing.
+        _validProject.ProjectId = 5;
+
+        // The same building twice is a duplicate link.
+        _validProject.Buildings.Add(_validProject.Buildings[0]);
+
+        // Act and Assert
+        ArgumentException exception =
+            Assert.ThrowsExactly<ArgumentException>(
+                () => _projectService.UpdateProject(_validProject));
+
+        StringAssert.Contains(exception.Message, "more than once");
+
+        Assert.AreEqual("Old name", _projectRepository.Projects[0].ProjectName);
+    }
+
+    // UC04: A project cannot take another project's number.
+    [TestMethod]
+    public void UpdateProject_NumberUsedByAnotherProject_ThrowsWithoutSaving()
+    {
+        // Arrange
+        var existingProject = new Project
+        {
+            ProjectId = 5,
+            ProjectNumber = "1",
+            ProjectName = "Old name",
+            ClientId = 1,
+            Buildings = new() { _validProject.Buildings[0] }
+        };
+
+        _projectRepository.Projects.Add(existingProject);
+
+        var otherProject = new Project
+        {
+            ProjectId = 6,
+            ProjectNumber = "2",
+            ProjectName = "Other project",
+            ClientId = 1,
+            Buildings = new() { _validProject.Buildings[0] }
+        };
+
+        _projectRepository.Projects.Add(otherProject);
+
+        // Stored and edited are separate objects. If the test changed the stored object directly,
+        // it would pass even if Update did nothing.
+        _validProject.ProjectId = 5;
+
+        _validProject.ProjectNumber = "2";
+
+        // Act and Assert
+        ArgumentException exception =
+            Assert.ThrowsExactly<ArgumentException>(
+                () => _projectService.UpdateProject(_validProject));
+
+        StringAssert.Contains(exception.Message, "already exists");
+
+        Assert.AreEqual("Old name", _projectRepository.Projects[0].ProjectName);
+    }
+
+    // UC04: Editing a project that no longer exists fails with a clear message.
+    [TestMethod]
+    public void UpdateProject_UnknownProject_Throws()
+    {
+        // Arrange
+        
+        // No project has this ID, like one that was deleted while the form was open.
+        _validProject.ProjectId = 999;
+
+        // Act and Assert
+        ArgumentException exception =
+            Assert.ThrowsExactly<ArgumentException>(
+                () => _projectService.UpdateProject(_validProject));
+
+        StringAssert.Contains(exception.Message, "could not be found");
+
+        Assert.HasCount(0, _projectRepository.Projects);
+    }
 }

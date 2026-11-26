@@ -20,7 +20,14 @@ namespace Eurodan.Tests.ProjectTests
 
         public void Update(Project entity)
         {
-            throw new NotImplementedException();
+            // Same effect as SqlProjectRepository.Update (the stored project is replaced), but without a database
+            for (var index = 0; index < Projects.Count; index++)
+            {
+                if (Projects[index].ProjectId == entity.ProjectId)
+                {
+                    Projects[index] = entity;
+                }
+            }
         }
 
         public void Archive(int projectId)
@@ -28,9 +35,18 @@ namespace Eurodan.Tests.ProjectTests
             throw new NotImplementedException();
         }
 
+        // Let the service check that a project exists without a database
         public Project? GetById(int id)
         {
-            throw new NotImplementedException();
+            foreach (Project project in Projects)
+            {
+                if (project.ProjectId == id)
+                {
+                    return project;
+                }
+            }
+
+            return null;
         }
     }
 }

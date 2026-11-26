@@ -253,6 +253,10 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand ClearFserStatusCommand { get; }
         public RelayCommand ClearPaymentDueDateCommand { get; }
         public RelayCommand ClearProjectFormCommand { get; }
+        
+        // Raised after an edit is saved, carrying the ProjectId
+        // MainViewModel owns navigation, so it listens and shows the updated details
+        public event EventHandler<int>? ProjectUpdated;
 
         public ProjectViewModel(ProjectService projectService)
         {
@@ -354,9 +358,8 @@ namespace Eurodan.WPF.ViewModels
 
         private bool CanSaveProject(object? parameter)
         {
-            // TODO: Enable saving edits when UpdateProject is connected.
-            return !IsEditMode &&
-                   !string.IsNullOrWhiteSpace(ProjectNumber) &&
+            // Same rule in both modes: the shared form needs a number, name, client and at least one building
+            return !string.IsNullOrWhiteSpace(ProjectNumber) &&
                    !string.IsNullOrWhiteSpace(ProjectName) &&
                    SelectedClientId.HasValue &&
                    BuildingOptions.Any(b => b.IsSelected);
@@ -397,6 +400,8 @@ namespace Eurodan.WPF.ViewModels
 
             Project project = new Project
             {
+                // Edit mode keeps the original ProjectId so the service knows which project to update - 0 means new project
+                ProjectId = _selectedProject?.ProjectId ?? 0,
                 ProjectNumber = ProjectNumber,
                 ProjectName = ProjectName,
                 ClientId = SelectedClientId.Value,
@@ -424,26 +429,50 @@ namespace Eurodan.WPF.ViewModels
                 PaymentDueDate = paymentDueDate
             };
 
+            // Remember edit mode now, because ResetProjectForm sets IsEditMode to false before we raise ProjectUpdated.
+            bool isEditing = IsEditMode;
+
+            // Only the save goes in this try, so a later failure is not shown as a save error
             try
             {
-                int projectId = _projectService.CreateProject(project);
-
-                StatusMessage = $"Project created successfully with ID: {projectId}";
-
-                ResetProjectForm(); // Clear the form after successful creation
-
+                // One shared form: isEditing decides whether Save creates or updates
+                if (isEditing)
+                {
+                    _projectService.UpdateProject(project);
+                }
+                else
+                {
+                    _projectService.CreateProject(project);
+                }
             }
             catch (ArgumentException ex)
             {
                 StatusMessage = $"Error: {ex.Message}";
+                return;
             }
             catch (DbException)
             {
                 StatusMessage = "Could not save the project. Please try again.";
+                return;
             }
             catch (Exception)
             {
                 StatusMessage = "An unexpected error occurred";
+                return;
+            }
+
+            // Reached only when the save worked.
+            // ProjectUpdated is raised outside the try, so errors in Main's handler are not shown as save errors.
+            ResetProjectForm();
+
+            if (isEditing)
+            {
+                StatusMessage = "Project updated.";
+                ProjectUpdated?.Invoke(this, project.ProjectId);
+            }
+            else
+            {
+                StatusMessage = $"Project created successfully with ID: {project.ProjectId}";
             }
         }
 
