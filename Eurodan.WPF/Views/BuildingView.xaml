@@ -51,6 +51,10 @@
                         Command="{Binding UpdateBuildingCommand}"
                         Style="{StaticResource ActionButtonStyle}"
                         Margin="0,0,8,0"/>
+                <Button Content="Delete" 
+                        Command="{Binding DeleteBuildingCommand}"
+                        Style="{StaticResource WarningButtonStyle}"
+                        Margin="0,0,8,0"/>
             </WrapPanel>
 
             <TextBlock Text="{Binding StatusMessage}"

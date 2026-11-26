@@ -105,12 +105,14 @@ namespace Eurodan.WPF.ViewModels
 
         public ICommand RegisterClientCommand { get; }
         public ICommand UpdateClientCommand { get; }
+        public ICommand DeleteClientCommand { get; }
 
         public ClientViewModel(ClientService clientService)
         {
             _clientService = clientService;
             RegisterClientCommand = new RelayCommand(RegisterClient);
             UpdateClientCommand = new RelayCommand(UpdateClient);
+            DeleteClientCommand = new RelayCommand(DeleteClient);
             LoadClients();
         }
 
@@ -206,6 +208,67 @@ namespace Eurodan.WPF.ViewModels
             catch (Exception)
             {
                 StatusMessage = "The client was updated, but the list could not be refreshed.";
+            }
+        }
+        
+        private void DeleteClient(object? parameter)
+        {
+            if (SelectedClient == null)
+            {
+                StatusMessage = "Please select a client to delete.";
+                return;
+            }
+
+            var clientToDelete = new Client
+            {
+                ClientId = SelectedClient.ClientId,
+                CompanyName = SelectedClient.CompanyName,
+                ContactName = SelectedClient.ContactName,
+                Email = SelectedClient.Email,
+                Phone = SelectedClient.Phone
+            };
+
+            try
+            {
+                bool deleted = _clientService.DeleteClient(SelectedClient.ClientId);
+
+                if (!deleted)
+                {
+                    StatusMessage = $"The client {clientToDelete.CompanyName} could not be deleted.";
+                    return;
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
+            }
+            catch (InvalidOperationException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Could not delete the client.";
+                return;
+            }
+
+            // Successfully deleted, clear the fields and reload the issues
+            try
+            {
+                SelectedClient = null;
+                ContactName = "";
+                CompanyName = "";
+                Email = "";
+                Phone = "";
+                LoadClients();
+                StatusMessage = $"{clientToDelete.CompanyName} deleted successfully.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = $"The client was deleted, but could not reload the list.";
+                return;
             }
         }
 

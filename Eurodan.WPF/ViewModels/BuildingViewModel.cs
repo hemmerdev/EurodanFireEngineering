@@ -74,12 +74,14 @@ namespace Eurodan.WPF.ViewModels
 
         public ICommand RegisterBuildingCommand { get; }
         public ICommand UpdateBuildingCommand { get; }
+        public ICommand DeleteBuildingCommand { get; }
 
         public BuildingViewModel(BuildingService buildingService)
         {
             _buildingService = buildingService;
             RegisterBuildingCommand = new RelayCommand(RegisterBuilding);
             UpdateBuildingCommand = new RelayCommand(UpdateBuilding);
+            DeleteBuildingCommand = new RelayCommand(DeleteBuilding);
             LoadBuildings();
         }
 
@@ -97,7 +99,7 @@ namespace Eurodan.WPF.ViewModels
 
                 StatusMessage = $"New building registered. ID: {id}";
 
-                // Clearing the fields to avoid doubleclicking for double registering
+                // Clearing the fields to avoid double-clicking for double registering
                 Name = "";
                 Address = "";
 
@@ -169,6 +171,63 @@ namespace Eurodan.WPF.ViewModels
             catch (Exception)
             {
                 StatusMessage = "The building was updated, but the list could not be refreshed.";
+            }
+        }
+
+        private void DeleteBuilding(object? parameter)
+        {
+            if (SelectedBuilding == null)
+            {
+                StatusMessage = "Please select a building to delete.";
+                return;
+            }
+
+            var buildingToDelete = new Building
+            {
+                BuildingId = SelectedBuilding.BuildingId,
+                Name = SelectedBuilding.Name,
+                Address = SelectedBuilding.Address
+            };
+
+            try
+            {
+                bool deleted = _buildingService.DeleteBuilding(SelectedBuilding.BuildingId);
+
+                if (!deleted)
+                {
+                    StatusMessage = $"The building {buildingToDelete.Name} could not be deleted.";
+                    return;
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
+            }
+            catch (InvalidOperationException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Could not delete the building.";
+                return;
+            }
+
+            // Successfully deleted, clear the fields and reload the issues
+            try
+            {
+                SelectedBuilding = null;
+                Name = "";
+                Address = "";
+                LoadBuildings();
+                StatusMessage = $"{buildingToDelete.Name} deleted successfully.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = $"The building was deleted, but could not reload the list.";
+                return;
             }
         }
 

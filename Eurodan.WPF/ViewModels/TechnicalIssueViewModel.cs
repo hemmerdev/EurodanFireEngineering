@@ -215,6 +215,7 @@ namespace Eurodan.WPF.ViewModels
             catch (InvalidOperationException ex)
             {
                 StatusMessage = ex.Message;
+                return;
             }
             catch (Exception)
             {
