@@ -168,8 +168,20 @@ namespace Eurodan.WPF.ViewModels
                 // Reloads projects from the database so the table shows the saved values, then switches to the overview
                 ShowProjectOverviewCommand.Execute(null);
 
-                // Selecting the row reuses the existing path that opens the details panel
-                ProjectOverview.SelectedProjectRow = ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
+                // Search the filtered list. The result is null if the current search or filters hide the updated project.
+                ProjectOverviewRowViewModel? updatedRow = ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
+
+                // Keep the user's filters, but tell them why the updated project is not shown.
+                if (updatedRow == null)
+                {
+                    // Clear selection so panel doesn't show the previously open project pre-edit
+                    ProjectOverview.SelectedProjectRow = null;
+                    ProjectOverview.ShowMessage("The project was updated, but it is hidden by the current search or filters.");
+                }
+                else
+                {
+                    ProjectOverview.SelectedProjectRow = updatedRow;
+                }
             }
             catch (Exception)
             {
