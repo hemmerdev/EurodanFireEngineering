@@ -163,11 +163,20 @@ namespace Eurodan.WPF.ViewModels
 
         private void ProjectManagementProjectUpdated(object? sender, int projectId)
         {
-            // Reloads projects from the database so the table shows the saved values, then switches to the overview
-            ShowProjectOverviewCommand.Execute(null);
+            try
+            {
+                // Reloads projects from the database so the table shows the saved values, then switches to the overview
+                ShowProjectOverviewCommand.Execute(null);
 
-            // Selecting the row reuses the existing path that opens the details panel
-            ProjectOverview.SelectedProjectRow = ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
+                // Selecting the row reuses the existing path that opens the details panel
+                ProjectOverview.SelectedProjectRow = ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
+            }
+            catch (Exception)
+            {
+                // The save already worked. If the refresh fails, say that, instead of reporting a save error.
+                CurrentViewModel = ProjectOverview;
+                ProjectOverview.ShowMessage("The project was updated, but the overview could not be refreshed.");
+            }
         }
     }
 }

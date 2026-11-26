@@ -435,7 +435,7 @@ namespace Eurodan.WPF.ViewModels
             // Only the save goes in this try, so a later failure is not shown as a save error
             try
             {
-                // One shared form: isEditing (was IsEditMode) decides whether Save creates or updates
+                // One shared form: isEditing decides whether Save creates or updates
                 if (isEditing)
                 {
                     _projectService.UpdateProject(project);

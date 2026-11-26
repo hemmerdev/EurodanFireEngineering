@@ -75,8 +75,11 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-    
-
+        // Lets MainViewModel show a message on the overview, because StatusMessage has a private setter.
+        public void ShowMessage(string message)
+        {
+            StatusMessage = message;
+        }
 
         public RelayCommand LoadProjectsCommand { get; }
 
