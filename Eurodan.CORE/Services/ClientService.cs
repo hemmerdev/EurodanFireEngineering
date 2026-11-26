@@ -6,10 +6,12 @@ namespace Eurodan.Core.Services
     public class ClientService
     {
         private readonly IRepository<Client> _clientRepository;
+        private readonly IReadOnlyRepository<Project> _projectRepository;
 
-        public ClientService(IRepository<Client> repository)
+        public ClientService(IRepository<Client> clientRepository, IReadOnlyRepository<Project> projectRepository)
         {
-            _clientRepository = repository;
+            _clientRepository = clientRepository;
+            _projectRepository = projectRepository;
         }
 
         public List<Client> GetAllClients()
@@ -65,6 +67,23 @@ namespace Eurodan.Core.Services
             {
                 throw new ArgumentException("Email cannot exceed 254 characters");
             }
+        }
+
+        public bool DeleteClient(int clientId)
+        {
+            if (_clientRepository.GetById(clientId) == null)
+            {
+                return false;
+            }
+
+            if (_projectRepository.GetAll()
+                .Any(project => project.ClientId == clientId))
+            {
+                throw new InvalidOperationException("The client cannot be deleted, as it is assigned to a project.");
+            }
+
+            _clientRepository.Delete(clientId);
+            return true;
         }
     }
 }

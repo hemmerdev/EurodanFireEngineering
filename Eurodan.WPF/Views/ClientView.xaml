@@ -65,6 +65,9 @@
                 <Button Content="Save changes" Command="{Binding UpdateClientCommand}"
                         Style="{StaticResource ActionButtonStyle}"
                         Margin="0,0,8,0"/>
+                <Button Content="Delete" Command="{Binding DeleteClientCommand}"
+                        Style="{StaticResource WarningButtonStyle}"
+                        Margin="0,0,8,0"/>
             </WrapPanel>
 
             <TextBlock Text="{Binding StatusMessage}"

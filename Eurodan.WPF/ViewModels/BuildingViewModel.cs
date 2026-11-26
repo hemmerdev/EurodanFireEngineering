@@ -24,6 +24,9 @@ namespace Eurodan.WPF.ViewModels
                     _selectedBuilding = value;
                     OnPropertyChanged();
 
+                    DeleteBuildingCommand.RaiseCanExecuteChanged();
+                    UpdateBuildingCommand.RaiseCanExecuteChanged();
+
                     Name = value?.Name ?? string.Empty;
                     Address = value?.Address ?? string.Empty;
                 }
@@ -73,13 +76,19 @@ namespace Eurodan.WPF.ViewModels
         }
 
         public ICommand RegisterBuildingCommand { get; }
-        public ICommand UpdateBuildingCommand { get; }
+        public RelayCommand UpdateBuildingCommand { get; }
+        public RelayCommand DeleteBuildingCommand { get; }
 
         public BuildingViewModel(BuildingService buildingService)
         {
             _buildingService = buildingService;
             RegisterBuildingCommand = new RelayCommand(RegisterBuilding);
-            UpdateBuildingCommand = new RelayCommand(UpdateBuilding);
+            UpdateBuildingCommand = new RelayCommand(
+                UpdateBuilding,
+                _ => SelectedBuilding != null);
+            DeleteBuildingCommand = new RelayCommand(
+                DeleteBuilding,
+                _ => SelectedBuilding != null);
             LoadBuildings();
         }
 
@@ -97,7 +106,7 @@ namespace Eurodan.WPF.ViewModels
 
                 StatusMessage = $"New building registered. ID: {id}";
 
-                // Clearing the fields to avoid doubleclicking for double registering
+                // Clearing the fields to avoid double-clicking for double registering
                 Name = "";
                 Address = "";
 
@@ -169,6 +178,59 @@ namespace Eurodan.WPF.ViewModels
             catch (Exception)
             {
                 StatusMessage = "The building was updated, but the list could not be refreshed.";
+            }
+        }
+
+        private void DeleteBuilding(object? parameter)
+        {
+            if (SelectedBuilding == null)
+            {
+                StatusMessage = "Please select a building to delete.";
+                return;
+            }
+            
+            int buildingId = SelectedBuilding.BuildingId;
+            string name = SelectedBuilding.Name;
+
+            try
+            {
+                bool deleted = _buildingService.DeleteBuilding(buildingId);
+
+                if (!deleted)
+                {
+                    StatusMessage = $"The building {name} could not be deleted.";
+                    return;
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
+            }
+            catch (InvalidOperationException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Could not delete the building.";
+                return;
+            }
+
+            // Successfully deleted, clear the fields and reload the issues
+            try
+            {
+                SelectedBuilding = null;
+                Name = "";
+                Address = "";
+                LoadBuildings();
+                StatusMessage = $"{name} deleted successfully.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = $"The building was deleted, but could not reload the list.";
+                return;
             }
         }
 

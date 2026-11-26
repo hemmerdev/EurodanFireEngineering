@@ -9,6 +9,7 @@ namespace Eurodan.Tests.Fakes
 
         public bool AddCalled { get; private set; }
         public bool UpdateCalled { get; private set; }
+        public bool DeleteCalled { get; private set; }
 
         public IEnumerable<TechnicalIssue> GetAll()
         {
@@ -42,7 +43,7 @@ namespace Eurodan.Tests.Fakes
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            DeleteCalled = true;
         }
     }
 }

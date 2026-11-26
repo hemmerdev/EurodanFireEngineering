@@ -14,8 +14,11 @@ namespace Eurodan.WPF.ViewModels
 
         private TechnicalIssue? _selectedIssue;
 
+
+
         public TechnicalIssue? SelectedIssue
         {
+
             get => _selectedIssue;
             set
             {
@@ -23,6 +26,9 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _selectedIssue = value;
                     OnPropertyChanged();
+                    
+                    DeleteIssueCommand.RaiseCanExecuteChanged();
+                    UpdateIssueCommand.RaiseCanExecuteChanged();
 
                     Name = value?.Name ?? string.Empty;
                     Description = value?.Description;
@@ -74,16 +80,20 @@ namespace Eurodan.WPF.ViewModels
         }
 
         public ICommand AddIssueCommand { get; }
-        public ICommand UpdateIssueCommand { get; }
-        public ICommand DeleteIssueCommand { get; }
+        public RelayCommand UpdateIssueCommand { get; }
+        public RelayCommand DeleteIssueCommand { get; }
 
 
         public TechnicalIssueViewModel(TechnicalIssueService technicalIssueService)
         {
             _technicalIssueService = technicalIssueService;
             AddIssueCommand = new RelayCommand(AddIssue);
-            UpdateIssueCommand = new RelayCommand(UpdateIssue);
-            DeleteIssueCommand = new RelayCommand(DeleteIssue);
+            UpdateIssueCommand = new RelayCommand(
+                UpdateIssue,
+                _ => SelectedIssue != null);
+            DeleteIssueCommand = new RelayCommand(
+                DeleteIssue,
+                _ => SelectedIssue != null);
 
             LoadIssues();
         }
@@ -190,24 +200,25 @@ namespace Eurodan.WPF.ViewModels
                 return;
             }
 
-            var issueToDelete = new TechnicalIssue
-            {
-                TechnicalIssueId = SelectedIssue.TechnicalIssueId,
-                Name = SelectedIssue.Name,
-                Description = SelectedIssue.Description
-            };
+            int technicalIssueId = SelectedIssue.TechnicalIssueId;
+            string name = SelectedIssue.Name;
 
             try
             {
-                bool deleted = _technicalIssueService.DeleteTechnicalIssue(SelectedIssue.TechnicalIssueId);
+                bool deleted = _technicalIssueService.DeleteTechnicalIssue(technicalIssueId);
 
                 if (!deleted)
                 {
-                    StatusMessage = $"The technical issue {issueToDelete.Name} could not be deleted.";
+                    StatusMessage = $"The technical issue {name} could not be deleted.";
                     return;
                 }
             }
             catch (ArgumentException ex)
+            {
+                StatusMessage = ex.Message;
+                return;
+            }
+            catch (InvalidOperationException ex)
             {
                 StatusMessage = ex.Message;
                 return;
@@ -225,7 +236,7 @@ namespace Eurodan.WPF.ViewModels
                 Name = "";
                 Description = "";
                 LoadIssues();
-                StatusMessage = $"Technical issue: {issueToDelete.Name} deleted successfully.";
+                StatusMessage = $"Technical issue: {name} deleted successfully.";
             }
             catch (Exception)
             {
