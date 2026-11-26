@@ -16,7 +16,6 @@ namespace Eurodan.Core.Services
         private readonly IReadOnlyRepository<BuildingClass> _buildingClassRepository = buildingClassRepository;
         private readonly IReadOnlyRepository<TechnicalIssue> _technicalIssueRepository = technicalIssueRepository;
 
-
         private static void ValidateDecimalAmount(decimal? amount, string propertyName)
         {
             if (!amount.HasValue)
@@ -30,6 +29,7 @@ namespace Eurodan.Core.Services
                 throw new ArgumentException(
                     $"{propertyName} must be between -99,999,999.99 and 99,999,999.99.");
             }
+
             if (value != decimal.Round(value, 2))
             {
                 throw new ArgumentException(
@@ -37,11 +37,12 @@ namespace Eurodan.Core.Services
             }
         }
 
-        public int CreateProject(Project project)
+        // Shared by CreateProject and UpdateProject so both enforce the same business rules
+        private void ValidateProject(Project project)
         {
             if (project == null)
             {
-                throw new ArgumentNullException(nameof(project), "Project could not be created.");
+                throw new ArgumentNullException(nameof(project), "Project could not be saved.");
             }
 
             if (string.IsNullOrWhiteSpace(project.ProjectNumber) ||
@@ -82,11 +83,13 @@ namespace Eurodan.Core.Services
             // TODO: Confirm the rules for past payment due dates,
             // including historical projects, before adding date restrictions.
 
-            // Check if the project number is unique
+            // Check if the project number is unique - on update, its own number is already in the database
+            // New projects have ProjectId 0, which no saved project has, so the same check works for create
             if (_projectRepository.GetAll()
                 .Any(existingProject => string.Equals(
                     existingProject.ProjectNumber, project.ProjectNumber,
-                    StringComparison.OrdinalIgnoreCase)))
+                    StringComparison.OrdinalIgnoreCase) &&
+                    existingProject.ProjectId != project.ProjectId))
             {
                 throw new ArgumentException(
                     $"A project with this number ({project.ProjectNumber}) already exists.");
@@ -96,14 +99,14 @@ namespace Eurodan.Core.Services
             if (_clientRepository.GetById(project.ClientId) is null)
             {
                 throw new ArgumentException(
-                    "Select an existing client before creating the project.");
+                    "Select an existing client before saving the project.");
             }
 
             // Validate buildings
             if (project.Buildings is null || project.Buildings.Count == 0)
             {
                 throw new ArgumentException(
-                    "Select at least one building before creating the project.");
+                    "Select at least one building before saving the project.");
             }
 
             List<int> validatedBuildingIds = new List<int>();
@@ -167,6 +170,7 @@ namespace Eurodan.Core.Services
                     throw new ArgumentException(
                         "The same technical issue cannot be selected more than once.");
                 }
+
                 if (_technicalIssueRepository.GetById(
                     technicalIssue.TechnicalIssueId) == null)
                 {
@@ -177,11 +181,15 @@ namespace Eurodan.Core.Services
 
                 validatedTechnicalIssueIds.Add(technicalIssue.TechnicalIssueId);
             }
+        }
+
+        public int CreateProject(Project project)
+        {
+            ValidateProject(project);
 
             // All validations passed, add the project to the repository
             _projectRepository.Add(project);
             return project.ProjectId;
-
         }
 
         public List<Project> ViewProjectOverview()
@@ -191,8 +199,8 @@ namespace Eurodan.Core.Services
 
         // Retrieves the selected project for the details panel.
         public Project? GetProjectDetails(int projectId)
-        { 
-            return _projectRepository.GetById(projectId); 
+        {
+            return _projectRepository.GetById(projectId);
         }
 
         // Retrieves the project's client so its contact details can be displayed.
@@ -200,8 +208,6 @@ namespace Eurodan.Core.Services
         {
             return _clientRepository.GetById(clientId);
         }
-
-
 
         public List<Client> GetAllClients()
         {
