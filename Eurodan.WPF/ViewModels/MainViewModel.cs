@@ -128,8 +128,10 @@ namespace Eurodan.WPF.ViewModels
                     CurrentViewModel = TechnicalIssueManagement;
                 });
 
-            // Listen for project selection changes in the overview.
+            // Listen for project selection changes in the overview
+            // After an edit is saved, go back to the overview and show the updated project
             ProjectOverview.PropertyChanged += ProjectOverviewPropertyChanged;
+            ProjectManagement.ProjectUpdated += ProjectManagementProjectUpdated;
 
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
@@ -157,6 +159,15 @@ namespace Eurodan.WPF.ViewModels
                         selectedRow.Project.ProjectId);
                 }
             }
+        }
+
+        private void ProjectManagementProjectUpdated(object? sender, int projectId)
+        {
+            // Reloads projects from the database so the table shows the saved values, then switches to the overview
+            ShowProjectOverviewCommand.Execute(null);
+
+            // Selecting the row reuses the existing path that opens the details panel
+            ProjectOverview.SelectedProjectRow = ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
         }
     }
 }
