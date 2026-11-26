@@ -192,6 +192,20 @@ namespace Eurodan.Core.Services
             return project.ProjectId;
         }
 
+        // UC04: saves changes to an existing project.
+        // Same rules as CreateProject, plus the project must still exist
+        public void UpdateProject(Project project)
+        {
+            ValidateProject(project);
+
+            if (_projectRepository.GetById(project.ProjectId) == null)
+            {
+                throw new ArgumentException("The project to update could not be found.");
+            }
+
+            _projectRepository.Update(project);
+        }
+
         public List<Project> ViewProjectOverview()
         {
             return _projectRepository.GetAll().ToList();
