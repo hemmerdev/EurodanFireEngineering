@@ -253,6 +253,10 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand ClearFserStatusCommand { get; }
         public RelayCommand ClearPaymentDueDateCommand { get; }
         public RelayCommand ClearProjectFormCommand { get; }
+        
+        // Raised after an edit is saved, carrying the ProjectId
+        // MainViewModel owns navigation, so it listens and shows the updated details
+        public event EventHandler<int>? ProjectUpdated;
 
         public ProjectViewModel(ProjectService projectService)
         {
@@ -354,9 +358,8 @@ namespace Eurodan.WPF.ViewModels
 
         private bool CanSaveProject(object? parameter)
         {
-            // TODO: Enable saving edits when UpdateProject is connected.
-            return !IsEditMode &&
-                   !string.IsNullOrWhiteSpace(ProjectNumber) &&
+            // Same rule in both modes: the shared form needs a number, name, client and at least one building
+            return !string.IsNullOrWhiteSpace(ProjectNumber) &&
                    !string.IsNullOrWhiteSpace(ProjectName) &&
                    SelectedClientId.HasValue &&
                    BuildingOptions.Any(b => b.IsSelected);
@@ -397,6 +400,8 @@ namespace Eurodan.WPF.ViewModels
 
             Project project = new Project
             {
+                // Edit mode keeps the original ProjectId so the service knows which project to update - 0 means new project
+                ProjectId = _selectedProject?.ProjectId ?? 0,
                 ProjectNumber = ProjectNumber,
                 ProjectName = ProjectName,
                 ClientId = SelectedClientId.Value,
@@ -426,12 +431,22 @@ namespace Eurodan.WPF.ViewModels
 
             try
             {
-                int projectId = _projectService.CreateProject(project);
+                // One shared form: IsEditMode decides whether Save creates or updates
+                if (IsEditMode)
+                {
+                    _projectService.UpdateProject(project);
+                    ResetProjectForm(); // Leave edit mode so the next visit to Project Management opens a blank create form
+                    StatusMessage = "Project updated.";
+                    ProjectUpdated?.Invoke(this, project.ProjectId);
+                }
+                else
+                {
+                    int projectId = _projectService.CreateProject(project);
 
-                StatusMessage = $"Project created successfully with ID: {projectId}";
+                    StatusMessage = $"Project created successfully with ID: {projectId}";
 
-                ResetProjectForm(); // Clear the form after successful creation
-
+                    ResetProjectForm(); // Clear the form after successful creation
+                }
             }
             catch (ArgumentException ex)
             {
