@@ -165,8 +165,16 @@ namespace Eurodan.WPF.ViewModels
         {
             try
             {
-                // Reloads projects from the database so the table shows the saved values, then switches to the overview
-                ShowProjectOverviewCommand.Execute(null);
+                bool loadedSuccessfully = ProjectOverview.LoadProjects(null); // Refresh the overview to reflect the updated project
+
+                CurrentViewModel = ProjectOverview;
+
+                if (!loadedSuccessfully)
+                {
+                    ProjectOverview.SelectedProjectRow = null; // Clear selection to avoid showing the previous project details
+                    ProjectOverview.ShowMessage("The project was updated, but the overview could not be refreshed.");
+                    return;
+                }
 
                 // Search the filtered list. The result is null if the current search or filters hide the updated project.
                 ProjectOverviewRowViewModel? updatedRow = ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
@@ -185,8 +193,8 @@ namespace Eurodan.WPF.ViewModels
             }
             catch (Exception)
             {
+                CurrentViewModel = ProjectOverview; // Go back to the overview even if the refresh fails
                 // The save already worked. If the refresh fails, say that, instead of reporting a save error.
-                CurrentViewModel = ProjectOverview;
                 ProjectOverview.ShowMessage("The project was updated, but the overview could not be refreshed.");
             }
         }
