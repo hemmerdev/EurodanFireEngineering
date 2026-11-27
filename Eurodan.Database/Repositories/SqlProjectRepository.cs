@@ -77,6 +77,28 @@ namespace Eurodan.Data.Repositories
             }
         }
 
+        public void Restore(int projectId)
+        {
+            using SqlConnection connection = new(_connectionString);
+
+            using SqlCommand cmd = new("dbo.uspRestoreProject", connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = projectId;
+
+            connection.Open();
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex) when (ex.Number == 50001) // Custom error number for project not found
+            {
+                // Handle specific SQL exceptions if needed
+                throw new InvalidOperationException(
+                    ex.Message, ex);
+            }
+        }
+
         public IEnumerable<Project> GetAll()
         {
             var projects = new List<Project>();

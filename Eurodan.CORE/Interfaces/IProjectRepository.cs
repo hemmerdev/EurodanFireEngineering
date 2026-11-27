@@ -7,5 +7,6 @@ namespace Eurodan.Core.Interfaces
         void Add(Project project);
         void Update(Project project);
         void Archive(int projectId);
+        void Restore(int projectId); // Opposite of Archive: sets IsArchived back to false
     }
 }
