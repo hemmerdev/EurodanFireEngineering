@@ -17,6 +17,22 @@ BEGIN
 END;
 GO
 
+CREATE OR ALTER PROCEDURE dbo.uspArchiveProject
+	@ProjectId INT
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
+
+	UPDATE dbo.PROJECT
+		SET IsArchived = 1
+		WHERE ProjectId = @ProjectId;
+
+	IF @@ROWCOUNT = 0
+		THROW 50001, 'No project found with the specified ProjectId.', 1;
+END;
+GO
+
 CREATE OR ALTER PROCEDURE dbo.uspInsertProject
 	@ProjectNumber NVARCHAR(30),
     @ProjectName NVARCHAR(200),
