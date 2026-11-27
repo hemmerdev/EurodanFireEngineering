@@ -198,9 +198,17 @@ namespace Eurodan.Core.Services
         {
             ValidateProject(project);
 
-            if (_projectRepository.GetById(project.ProjectId) == null)
+            Project? existingProject = _projectRepository.GetById(project.ProjectId);
+
+            if (existingProject == null)
             {
                 throw new ArgumentException("The project to update could not be found.");
+            }
+
+            // Check the stored project, not the one from the form: the form builds a new project, so its IsArchived is always false
+            if (existingProject.IsArchived)
+            {
+                throw new InvalidOperationException("Archived projects cannot be edited. Restore the project first.");
             }
 
             _projectRepository.Update(project);
