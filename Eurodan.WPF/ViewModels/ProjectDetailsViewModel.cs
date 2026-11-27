@@ -30,9 +30,20 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _selectedProject = value;
                     OnPropertyChanged();
+
+                    // Calculated from SelectedProject, so announce it here
+                    OnPropertyChanged(nameof(IsSelectedProjectArchived));
+                    OnPropertyChanged(nameof(IsSelectedProjectActive));
                 }
             }
         }
+
+        // Yes/no flags for the Archive/Restore buttons - both are false when no project is loaded,
+        // so an empty panel shows neither button.
+        public bool IsSelectedProjectArchived =>
+            SelectedProject != null && SelectedProject.IsArchived;
+        public bool IsSelectedProjectActive =>
+            SelectedProject != null && !SelectedProject.IsArchived;
 
         public Client? SelectedClient
         {
