@@ -206,6 +206,44 @@ namespace Eurodan.Core.Services
             _projectRepository.Update(project);
         }
 
+        // UC05: Archiving sets a flag, so the project's details, client, buildings, classes and issues stay as history
+        // The service checks existence and current state first, so the rules hold for any repository (SQL or fake), and archiving twice is reported
+        // instead of silently "succeeding".
+        public void ArchiveProject(int projectId)
+        {
+            Project? project = _projectRepository.GetById(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException("The project to archive could not be found.");
+            }
+
+            if (project.IsArchived)
+            {
+                throw new InvalidOperationException("The project is already archived.");
+            }
+
+            _projectRepository.Archive(projectId);
+        }
+
+        // UC05: Restoring sets IsArchived back to false. An archived project must be restored before it can be edited.
+        public void RestoreProject(int projectId)
+        {
+            Project? project = _projectRepository.GetById(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException("The project to restore could not be found.");
+            }
+
+            if (!project.IsArchived)
+            {
+                throw new InvalidOperationException("The project is not archived.");
+            }
+
+            _projectRepository.Restore(projectId);
+        }
+
         public List<Project> ViewProjectOverview()
         {
             return _projectRepository.GetAll().ToList();
