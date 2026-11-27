@@ -40,10 +40,8 @@ namespace Eurodan.Tests.ProjectTests
             {
                 throw new InvalidOperationException("Project not found.");
             }
-            else
-            {
-                project.IsArchived = true;
-            }
+
+            project.IsArchived = true;
         }
 
         public void Restore(int projectId)
@@ -54,10 +52,8 @@ namespace Eurodan.Tests.ProjectTests
             {
                 throw new InvalidOperationException("Project not found.");
             }
-            else
-            {
-                project.IsArchived = false;
-            }
+
+            project.IsArchived = false;
         }
 
         // Let the service check that a project exists without a database
