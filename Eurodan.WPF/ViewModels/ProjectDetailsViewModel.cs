@@ -17,9 +17,10 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand ArchiveProjectCommand { get; }
         public RelayCommand RestoreProjectCommand { get; }
 
-        // Raised after a successful archive or restore, carrying the projectId
-        // MainViewModel owns the overview, so it reloads the list and shows the result message
-        public event EventHandler<int>? ProjectArchiveStateChanged;
+        // Raised after a successful archive or restore, carrying the projectId.
+        // Two events instead of one, so MainViewModel knows whether to say "archived" or "restored".
+        public event EventHandler<int>? ProjectArchived;
+        public event EventHandler<int>? ProjectRestored;
 
         public Project? SelectedProject
         {
@@ -172,7 +173,7 @@ namespace Eurodan.WPF.ViewModels
                 return;
             }
 
-            ProjectArchiveStateChanged?.Invoke(this, projectId);
+            ProjectArchived?.Invoke(this, projectId);
         }
 
         // UC05: No confirmation here. Restoring is harmless and can be undone by archiving again.
@@ -211,7 +212,7 @@ namespace Eurodan.WPF.ViewModels
                 return;
             }
 
-            ProjectArchiveStateChanged?.Invoke(this, projectId);
+            ProjectRestored?.Invoke(this, projectId);
         }
     }
 }
