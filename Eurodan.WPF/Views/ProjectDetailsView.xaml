@@ -31,7 +31,25 @@
                     RelativeSource={RelativeSource AncestorType=Window}}"
                     CommandParameter="{Binding SelectedProject.ProjectId}"
                     Style="{StaticResource ActionButtonStyle}"
-                    Margin="0,0,8,0" />
+                    Margin="0,0,8,0"
+                    IsEnabled="{Binding IsSelectedProjectActive}"/>
+
+            <!-- Archive and Restore swap places based on the project's state. Their commands live
+            on this panel's own ViewModel, so no RelativeSource is needed -->
+
+            <Button DockPanel.Dock="Right"
+                    Content="Archive"
+                    Command="{Binding ArchiveProjectCommand}"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Margin="0,0,8,0"
+                    Visibility="{Binding IsSelectedProjectActive, Converter={StaticResource BoolToVisibility}}"/>
+
+            <Button DockPanel.Dock="Right"
+                    Content="Restore"
+                    Command="{Binding RestoreProjectCommand}"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Margin="0,0,8,0"
+                    Visibility="{Binding IsSelectedProjectArchived, Converter={StaticResource BoolToVisibility}}"/>
 
             <TextBlock Text="Project details"
                        FontSize="24"
@@ -43,6 +61,9 @@
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
+                <TextBlock Text="This project is archived. Restore it to edit."
+                           Margin="0,0,0,20"
+                           Visibility="{Binding IsSelectedProjectArchived, Converter={StaticResource BoolToVisibility}}"/>
 
                 <TextBlock Text="Company name"
                            Margin="0,0,0,3" />
