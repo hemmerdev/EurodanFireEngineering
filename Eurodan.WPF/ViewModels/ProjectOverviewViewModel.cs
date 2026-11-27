@@ -13,6 +13,7 @@ namespace Eurodan.WPF.ViewModels
         private string _statusMessage = string.Empty;
         private string _projectSearchText = string.Empty;
         private string _clientSearchText = string.Empty;
+        private bool _showArchivedProjects;
         private List<ProjectOverviewRowViewModel> _allProjectRows = new();
 
         public ObservableCollection<ProjectOverviewRowViewModel> Projects { get; } = new();
@@ -56,6 +57,20 @@ namespace Eurodan.WPF.ViewModels
                 if (_clientSearchText != value)
                 {
                     _clientSearchText = value;
+                    OnPropertyChanged();
+                    ApplyFilters();
+                }
+            }
+        }
+
+        public bool ShowArchivedProjects
+        {
+            get => _showArchivedProjects;
+            set
+            {
+                if (_showArchivedProjects != value)
+                {
+                    _showArchivedProjects = value;
                     OnPropertyChanged();
                     ApplyFilters();
                 }
@@ -197,10 +212,14 @@ namespace Eurodan.WPF.ViewModels
                     }
                 }
 
+                // A row passes if archived projects are shown, or if the project is not archived.
+                bool matchesArchiveFilter = ShowArchivedProjects || !row.Project.IsArchived;
+
                 // Only add the row to the displayed list if it matches all filters
                 if (matchesProjectSearch &&
                     matchesClientSearch &&
-                    matchesTechnicalIssues)
+                    matchesTechnicalIssues &&
+                    matchesArchiveFilter)
                 {
                     Projects.Add(row);
                 }
