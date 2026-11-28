@@ -140,8 +140,6 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-
-
         public string? Comments
         {
             get => _comments;
@@ -234,7 +232,6 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-
         // True when the form is editing an existing project.
         public bool IsEditMode
         {
@@ -250,10 +247,35 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+        // Calculated properties to display selections in project form
+        public string SelectedBuildingsSummary =>
+            !BuildingOptions.Any(b => b.IsSelected)
+            ? "No buildings selected"
+            : "Selected: " + string.Join(", ", BuildingOptions
+                .Where(b => b.IsSelected)
+                .Select(b => b.Building.Name));
+
+        public string SelectedBuildingClassesSummary =>
+            !BuildingClassOptions.Any(bc => bc.IsSelected)
+                ? "No building classes selected"
+                : "Selected: " + string.Join(", ", BuildingClassOptions
+                    .Where(bc => bc.IsSelected)
+                    .Select(bc => bc.BuildingClass.ClassCode));
+
+        public string SelectedTechnicalIssuesSummary =>
+            !TechnicalIssueOptions.Any(ti => ti.IsSelected)
+                ? "No technical issues selected"
+                : "Selected: " + string.Join(", ", TechnicalIssueOptions
+                    .Where(ti => ti.IsSelected)
+                    .Select(ti => ti.TechnicalIssue.Name));
+
         public RelayCommand SaveProjectCommand { get; }
         public RelayCommand ClearPbdbStatusCommand { get; }
         public RelayCommand ClearFserStatusCommand { get; }
         public RelayCommand ClearPaymentDueDateCommand { get; }
+        public RelayCommand ClearBuildingsSelectionCommand { get; }
+        public RelayCommand ClearBuildingClassesSelectionCommand { get; }
+        public RelayCommand ClearIssuesSelectionCommand { get; }
         public RelayCommand ClearProjectFormCommand { get; }
 
         // Raised after an edit is saved, carrying the ProjectId
@@ -269,6 +291,9 @@ namespace Eurodan.WPF.ViewModels
             ClearFserStatusCommand = new RelayCommand(ClearFserStatus);
             ClearPaymentDueDateCommand = new RelayCommand(ClearPaymentDueDate);
             ClearProjectFormCommand = new RelayCommand(ClearProjectForm);
+            ClearBuildingsSelectionCommand = new RelayCommand(ClearBuildingsSelection);
+            ClearBuildingClassesSelectionCommand = new RelayCommand(ClearBuildingClassesSelection);
+            ClearIssuesSelectionCommand = new RelayCommand(ClearIssuesSelection);
         }
 
         private void ClearProjectForm(object? parameter)
@@ -292,12 +317,59 @@ namespace Eurodan.WPF.ViewModels
             SelectedPbdbStatus = null;
         }
 
+        private void ClearBuildingsSelection(object? parameter)
+        {
+            foreach (var buildingOption in BuildingOptions)
+            {
+                buildingOption.IsSelected = false;
+            }
+        }
+
+        private void ClearBuildingClassesSelection(object? parameter)
+        {
+            foreach (var buildingClassOption in BuildingClassOptions)
+            {
+                buildingClassOption.IsSelected = false;
+            }
+        }
+
+        private void ClearIssuesSelection(object? parameter)
+        {
+            foreach (var technicalIssueOption in TechnicalIssueOptions)
+            {
+                technicalIssueOption.IsSelected = false;
+            }
+        }
+
         // Event handler for when a BuildingOption's IsSelected property changes, to update the SaveProjectCommand's ability to execute.
-        private void BuildingOptionPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void BuildingOptionPropertyChanged(
+            object? sender,
+            PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(BuildingSelectionViewModel.IsSelected))
             {
                 SaveProjectCommand.RaiseCanExecuteChanged();
+                OnPropertyChanged(nameof(SelectedBuildingsSummary)); // Notify that the summary has changed
+            }
+        }
+
+        private void BuildingClassOptionPropertyChanged(
+            object? sender,
+            PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(BuildingClassSelectionViewModel.IsSelected))
+            {
+                OnPropertyChanged(nameof(SelectedBuildingClassesSummary)); // Notify that the summary has changed
+            }
+        }
+
+        private void TechnicalIssueOptionPropertyChanged(
+            object? sender,
+            PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(TechnicalIssueSelectionViewModel.IsSelected))
+            {
+                OnPropertyChanged(nameof(SelectedTechnicalIssuesSummary)); // Notify that the summary has changed
             }
         }
 
@@ -664,6 +736,8 @@ namespace Eurodan.WPF.ViewModels
                         selectedBuildingClassIds.Add(
                             buildingClassOption.BuildingClass.BuildingClassId);
                     }
+
+                    buildingClassOption.PropertyChanged -= BuildingClassOptionPropertyChanged;
                 }
 
                 // Store the currently selected technical issue IDs before clearing the collection
@@ -674,6 +748,8 @@ namespace Eurodan.WPF.ViewModels
                         selectedTechnicalIssueIds.Add(
                             technicalIssueOption.TechnicalIssue.TechnicalIssueId);
                     }
+
+                    technicalIssueOption.PropertyChanged -= TechnicalIssueOptionPropertyChanged;
                 }
 
                 // Clear existing collections and add the retrieved data
@@ -709,6 +785,7 @@ namespace Eurodan.WPF.ViewModels
                     };
 
                     BuildingClassOptions.Add(buildingClassOption);
+                    buildingClassOption.PropertyChanged += BuildingClassOptionPropertyChanged;
                 }
 
                 foreach (var technicalIssue in technicalIssues)
@@ -720,6 +797,7 @@ namespace Eurodan.WPF.ViewModels
                     };
 
                     TechnicalIssueOptions.Add(technicalIssueOption);
+                    technicalIssueOption.PropertyChanged += TechnicalIssueOptionPropertyChanged;
                 }
 
                 // Restore the previously selected client ID if it still exists in the new list
@@ -734,6 +812,9 @@ namespace Eurodan.WPF.ViewModels
                 }
 
                 SaveProjectCommand.RaiseCanExecuteChanged(); // Update the command's ability to execute based on the new data
+                OnPropertyChanged(nameof(SelectedBuildingsSummary));
+                OnPropertyChanged(nameof(SelectedBuildingClassesSummary));
+                OnPropertyChanged(nameof(SelectedTechnicalIssuesSummary));
                 StatusMessage = ""; // Clear any previous status message
                 return true;
             }

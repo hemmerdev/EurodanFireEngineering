@@ -583,4 +583,66 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+
+    <Style x:Key="InputExpanderStyle" TargetType="Expander">
+        <Setter Property="Foreground" Value="#EEEEEE" />
+        <Setter Property="Background" Value="#333333" />
+        <Setter Property="BorderBrush" Value="#595959" />
+        <Setter Property="BorderThickness" Value="1" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <ToggleButton x:Name="HeaderSite"
+                                      Grid.Row="0"
+                                      MinHeight="36"
+                                      Focusable="True"
+                                      ClickMode="Release"
+                                      Style="{StaticResource ComboBoxToggleButtonStyle}"
+                                      Background="{TemplateBinding Background}"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      BorderThickness="{TemplateBinding BorderThickness}"
+                                      IsChecked="{Binding IsExpanded,
+                                      RelativeSource={RelativeSource TemplatedParent},
+                                      Mode=TwoWay}" />
+
+                        <ContentPresenter Grid.Row="0"
+                                          ContentSource="Header"
+                                          VerticalAlignment="Center"
+                                          Margin="8,6,30,6"
+                                          IsHitTestVisible="False" />
+
+                        <Border x:Name="ExpandedContent"
+                                Grid.Row="1"
+                                Visibility="Collapsed"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3"
+                                Padding="8"
+                                Margin="0,4,0,0">
+                            <ContentPresenter ContentSource="Content" />
+                        </Border>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ExpandedContent"
+                                    Property="Visibility" Value="Visible" />
+                            <Setter TargetName="HeaderSite"
+                                    Property="Background" Value="#444444" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
