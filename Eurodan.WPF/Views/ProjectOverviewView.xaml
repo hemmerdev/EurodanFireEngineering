@@ -238,17 +238,20 @@
                                     ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Fee proposal amount"
-                                    Binding="{Binding Project.FeeProposal, StringFormat={}{0:N2}}"
+                                    Binding="{Binding Project.FeeProposal,
+                                    StringFormat={}{0:N2}, ConverterCulture=en-AU}"
                                     Width="160"
                                     ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Invoiced amount"
-                                    Binding="{Binding Project.InvoicedAmount, StringFormat={}{0:N2}}"
+                                    Binding="{Binding Project.InvoicedAmount,
+                                    StringFormat={}{0:N2}, ConverterCulture=en-AU}"
                                     Width="150"
                                     ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
                 <DataGridTextColumn Header="Outstanding amount"
-                                    Binding="{Binding Project.OutstandingAmount, StringFormat={}{0:N2}}"
+                                    Binding="{Binding Project.OutstandingAmount,
+                                    StringFormat={}{0:N2}, ConverterCulture=en-AU}"
                                     Width="170"
                                     ElementStyle="{StaticResource OverviewCellTextStyle}" />
 

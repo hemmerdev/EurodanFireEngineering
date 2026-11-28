@@ -24,7 +24,7 @@ namespace Eurodan.Core.Services
             }
 
             decimal value = amount.Value;
-            if (value < -99_999_999.99m || value > 99_999_999.99m)
+            if (value < -99_999_999.99m || value > 99_999_999.99m) // TODO: confirm whether negative amounts are allowed. If not, change the lower limit to 0.
             {
                 throw new ArgumentException(
                     $"{propertyName} must be between -99,999,999.99 and 99,999,999.99.");
@@ -91,8 +91,7 @@ namespace Eurodan.Core.Services
             ValidateDecimalAmount(project.OutstandingAmount, "Outstanding amount");
             ValidateDecimalAmount(project.InvoicedAmount, "Invoiced amount");
 
-            // TODO: Confirm the rules for past payment due dates,
-            // including historical projects, before adding date restrictions.
+            // Past payment due dates are intentionally allowed.
 
             // Check if the project number is unique - on update, its own number is already in the database
             // New projects have ProjectId 0, which no saved project has, so the same check works for create

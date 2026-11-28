@@ -5,12 +5,14 @@ using Eurodan.WPF.Commands;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Common;
+using System.Globalization;
 
 namespace Eurodan.WPF.ViewModels
 {
     public class ProjectViewModel : ViewModelBase
     {
         private readonly ProjectService _projectService;
+        private readonly CultureInfo _amountCulture = CultureInfo.GetCultureInfo("en-AU"); // Use Australian culture for decimal parsing and formatting
         private string _projectNumber = string.Empty;
         private string _projectName = string.Empty;
         private string _statusMessage = string.Empty;
@@ -253,7 +255,7 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand ClearFserStatusCommand { get; }
         public RelayCommand ClearPaymentDueDateCommand { get; }
         public RelayCommand ClearProjectFormCommand { get; }
-        
+
         // Raised after an edit is saved, carrying the ProjectId
         // MainViewModel owns navigation, so it listens and shows the updated details
         public event EventHandler<int>? ProjectUpdated;
@@ -307,16 +309,93 @@ namespace Eurodan.WPF.ViewModels
                 return true; // Null or empty is valid for optional amounts
             }
 
-            if (decimal.TryParse(text, out decimal parsedAmount))
+            if (!HasValidAmountGrouping(text)) // Check for valid grouping of commas and decimal point
+            {
+                StatusMessage =
+                    $"Invalid {propertyName}. Enter a number such as 1234.56 or 1,234.56, using a dot for decimals.";
+                return false;
+            }
+
+            if (decimal.TryParse(
+                text,
+                NumberStyles.Number,
+                _amountCulture,
+                out decimal parsedAmount))
             {
                 amount = parsedAmount;
                 return true;
             }
             else
             {
-                StatusMessage = $"Invalid {propertyName}. Please enter a valid decimal number.";
+                StatusMessage =
+                    $"Invalid {propertyName}. Enter a number such as 1234.56 or 1,234.56, using a dot for decimals.";
                 return false;
             }
+        }
+
+        private static bool HasValidAmountGrouping(string amount)
+        {
+            // Checks separator placement for our chosen Australian number format:
+            // - A dot separates decimals: 1234.56
+            // - Commas are optional thousands separators: 1,234,567.89
+            // - When commas are used, the first group contains 1-3 digits,
+            //   and every following group contains exactly 3 digits.
+            // - Only one decimal point is allowed, with no commas after it.
+            //
+            // This check is needed because decimal.TryParse can accept misplaced
+            // commas. For example, it can interpret "1234,56" as 123456.
+            //
+            // The method checks a local copy, removing surrounding whitespace
+            // and ignoring one leading + or - when checking group lengths.
+            // It returns true if separator placement is valid, otherwise false.
+            //
+            // The caller must still use decimal.TryParse to check the numeric
+            // characters and convert the text. ProjectService checks the allowed
+            // amount range and decimal places.
+
+            string trimmedAmount = amount.Trim();
+
+            if (trimmedAmount.StartsWith('-') ||
+                trimmedAmount.StartsWith('+'))
+            {
+                trimmedAmount = trimmedAmount.Substring(1);
+            }
+
+            var parts = trimmedAmount.Split('.');
+
+            if (parts.Length > 2)
+            {
+                return false; // More than one decimal point
+            }
+
+            // If theres a fractional part, reject commas in it
+            if (parts.Length == 2 && parts[1].Contains(','))
+            {
+                return false; // Commas in the fractional part
+            }
+
+            var integerPart = parts[0].Split(',');
+            if (integerPart.Length == 1)
+            {
+                return true; // No commas, valid
+            }
+
+            // 1st group can be 1-3 digits, subsequent groups must be exactly 3 digits
+            if (integerPart[0].Length > 3 ||
+                string.IsNullOrEmpty(integerPart[0]))
+            {
+                return false; // The first group can have 1-3 digits
+            }
+
+            for (int i = 1; i < integerPart.Length; i++)
+            {
+                if (integerPart[i].Length != 3)
+                {
+                    return false; // Subsequent groups must be exactly 3 digits
+                }
+            }
+
+            return true;
         }
 
         private void ResetProjectForm()
@@ -513,9 +592,9 @@ namespace Eurodan.WPF.ViewModels
                 SelectedPbdbStatus = _selectedProject.PbdbStatus;
                 SelectedFserStatus = _selectedProject.FserStatus;
 
-                FeeProposalText = _selectedProject.FeeProposal?.ToString();
-                InvoicedAmountText = _selectedProject.InvoicedAmount?.ToString();
-                OutstandingAmountText = _selectedProject.OutstandingAmount?.ToString();
+                FeeProposalText = _selectedProject.FeeProposal?.ToString("F2", _amountCulture); // Format the decimal as a string with two decimal places using Australian culture
+                InvoicedAmountText = _selectedProject.InvoicedAmount?.ToString("F2", _amountCulture);
+                OutstandingAmountText = _selectedProject.OutstandingAmount?.ToString("F2", _amountCulture);
 
                 SelectedPaymentDueDate =
                     _selectedProject.PaymentDueDate?.ToDateTime(TimeOnly.MinValue);
