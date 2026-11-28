@@ -49,7 +49,7 @@ namespace Eurodan.Tests
         [TestMethod]
         public void RegisterClient_ValidClient_ReturnsClientId()
         {
-            
+
             var clientRepository = new FakeClientRepository();
             var projectRepository = new FakeProjectRepository();
 
@@ -211,6 +211,127 @@ namespace Eurodan.Tests
 
             Assert.IsTrue(deleted);
             Assert.IsTrue(clientRepository.DeleteCalled);
+        }
+
+        [TestMethod]
+        public void RegisterClient_InvalidEmail_ThrowsArgumentException()
+        {
+            // Arrange
+            var clientRepository = new FakeClientRepository();
+            var projectRepository = new FakeProjectRepository();
+            var clientService = new ClientService(clientRepository, projectRepository);
+
+            var client = new Client
+            {
+                CompanyName = "Valid Company",
+                ContactName = "Valid Contact",
+                Email = "invalid-email"
+            };
+
+            // Act & Assert
+            Assert.ThrowsExactly<ArgumentException>(
+                () => clientService.RegisterClient(client));
+
+            Assert.IsFalse(clientRepository.AddCalled);
+        }
+
+        [TestMethod]
+        public void RegisterClient_PhoneContainsLetters_ThrowsArgumentException()
+        {
+            // Arrange
+            var clientRepository = new FakeClientRepository();
+            var projectRepository = new FakeProjectRepository();
+            var clientService = new ClientService(clientRepository, projectRepository);
+
+            var client = new Client
+            {
+                CompanyName = "Valid Company",
+                ContactName = "Valid Contact",
+                Phone = "123-ABC-4567"
+            };
+
+            // Act & Assert
+            Assert.ThrowsExactly<ArgumentException>(
+                () => clientService.RegisterClient(client));
+
+            Assert.IsFalse(clientRepository.AddCalled);
+        }
+
+        [TestMethod]
+        public void RegisterClient_WhitespaceEmailAndPhone_ReturnClientId()
+        {
+            // Arrange
+            var clientRepository = new FakeClientRepository();
+            var projectRepository = new FakeProjectRepository();
+            var clientService = new ClientService(clientRepository, projectRepository);
+
+            var client = new Client
+            {
+                CompanyName = "Valid Company",
+                Email = " ",
+                Phone = " "
+            };
+
+            // Act
+            var returnedId = clientService.RegisterClient(client);
+
+            // Assert
+            Assert.IsTrue(clientRepository.AddCalled);
+            Assert.AreEqual(12, returnedId);
+        }
+
+        [TestMethod]
+        public void RegisterClient_FormattedInternationalPhone_PreservesFormatting()
+        {
+            // Arrange
+            var clientRepository = new FakeClientRepository();
+            var projectRepository = new FakeProjectRepository();
+            var clientService = new ClientService(clientRepository, projectRepository);
+
+            var client = new Client
+            {
+                CompanyName = "Valid Company",
+                Phone = "  +61 (2) 1234-5678"
+            };
+
+            // Act
+            var returnedId = clientService.RegisterClient(client);
+
+            // Assert
+            Assert.IsTrue(clientRepository.AddCalled);
+            Assert.AreEqual(12, returnedId);
+            Assert.AreEqual("+61 (2) 1234-5678", client.Phone);
+        }
+
+        [TestMethod]
+        public void UpdateClient_InvalidEmail_ThrowsWithoutUpdating()
+        {
+            // Arrange
+            var clientRepository = new FakeClientRepository();
+            var projectRepository = new FakeProjectRepository();
+            var clientService = new ClientService(clientRepository, projectRepository);
+
+            var validClient = new Client
+            {
+                ClientId = 5,
+                CompanyName = "Valid Company",
+                Email = "valid@example.com"
+            };
+
+            clientRepository.Clients.Add(validClient);
+
+            var updatedClient = new Client
+            {
+                ClientId = 5,
+                CompanyName = "Valid Company",
+                Email = "invalid-email"
+            };
+
+            // Act & Assert
+            Assert.ThrowsExactly<ArgumentException>(
+                () => clientService.UpdateClient(updatedClient));
+
+            Assert.IsFalse(clientRepository.UpdatedCalled);
         }
     }
 }
