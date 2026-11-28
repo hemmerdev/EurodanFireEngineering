@@ -34,7 +34,13 @@
                 </DataGrid.Columns>
             </DataGrid>
 
-            <TextBlock Text="Name" Margin="10,0,10,3"/>
+            <!-- Required fields are marked with an asterisk -->
+            <TextBlock Text="Required fields are marked with an asterisk (*)"
+                       FontSize="12"
+                       Foreground="#AAAAAA"
+                       Margin="10,0,0,12" />
+
+            <TextBlock Text="Name *" Margin="10,0,10,3"/>
             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource InputTextBoxStyle}"
                      MaxLength="150"

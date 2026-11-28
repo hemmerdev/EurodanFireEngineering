@@ -27,53 +27,59 @@
                                FontWeight="Bold"
                                Margin="0,0,0,20" />
 
-                    <TextBlock Text="Project number"
+                    <!-- Required fields are marked with an asterisk -->
+                    <TextBlock Text="Required fields are marked with an asterisk (*)"
+                               FontSize="12"
+                               Foreground="#AAAAAA"
+                               Margin="0,0,0,12" />
+
+                    <TextBlock Text="Project number *"
                                Margin="0,0,0,4" />
                     <TextBox Text="{Binding ProjectNumber, UpdateSourceTrigger=PropertyChanged}"
                              MaxLength="30"
                              Style="{StaticResource InputTextBoxStyle}"
                              Margin="0,0,0,12" />
 
-                    <TextBlock Text="Project name"
+                    <TextBlock Text="Project name *"
                                Margin="0,0,0,4" />
                     <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
                              MaxLength="200"
                              Style="{StaticResource InputTextBoxStyle}"
                              Margin="0,0,0,12" />
 
-                    <TextBlock Text="Project Manager (optional)"
+                    <TextBlock Text="Project Manager"
                                Margin="0,0,0,4" />
                     <TextBox Text="{Binding ProjectManager, UpdateSourceTrigger=PropertyChanged}"
                              MaxLength="100"
                              Style="{StaticResource InputTextBoxStyle}"
                              Margin="0,0,0,12" />
 
-                    <TextBlock Text="Building Surveyor (optional)"
+                    <TextBlock Text="Building Surveyor"
                                Margin="0,0,0,4" />
                     <TextBox Text="{Binding BuildingSurveyor, UpdateSourceTrigger=PropertyChanged}"
                              MaxLength="100"
                              Style="{StaticResource InputTextBoxStyle}"
                              Margin="0,0,0,12" />
 
-                    <TextBlock Text="Fee proposal amount (optional)"
+                    <TextBlock Text="Fee proposal amount"
                                Margin="0,0,0,4" />
                     <TextBox Text="{Binding FeeProposalText, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource InputTextBoxStyle}"
                              Margin="0,0,0,12" />
 
-                    <TextBlock Text="Invoiced amount (optional)"
+                    <TextBlock Text="Invoiced amount"
                                Margin="0,0,0,4" />
                     <TextBox  Text="{Binding InvoicedAmountText, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource InputTextBoxStyle}"
                              Margin="0,0,0,12" />
 
-                    <TextBlock Text="Outstanding amount (optional)"
+                    <TextBlock Text="Outstanding amount"
                                Margin="0,0,0,4" />
                     <TextBox  Text="{Binding OutstandingAmountText, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource InputTextBoxStyle}"
                              Margin="0,0,0,12" />
 
-                    <TextBlock Text="Payment due date (optional)"
+                    <TextBlock Text="Payment due date"
                                Margin="0,0,0,4"/>
 
                     <Grid Margin="0,0,0,12">
@@ -93,17 +99,15 @@
                                 Margin="8,0,0,0"/>
                     </Grid>
 
-
-                    <TextBlock Text="Fee Proposal Status"
+                    <TextBlock Text="Fee Proposal Status *"
                                Margin="0,0,0,4" />
                     <ComboBox ItemsSource="{Binding FeeProposalStatuses}"
                               SelectedItem="{Binding SelectedFeeProposalStatus, Mode=TwoWay}"
                               Style="{StaticResource InputComboBoxStyle}"
                               Margin="0,0,0,12" />
 
-
                     <!-- PBDB status -->
-                    <TextBlock Text="PBDB status (optional)"
+                    <TextBlock Text="PBDB status"
                                Margin="0,0,0,4" />
 
                     <Grid Margin="0,0,0,12">
@@ -124,7 +128,7 @@
                     </Grid>
 
                     <!-- FSER Status-->
-                    <TextBlock Text="FSER status (optional)"
+                    <TextBlock Text="FSER status"
                                Margin="0,0,0,4" />
 
                     <Grid Margin="0,0,0,12">
@@ -145,7 +149,7 @@
                     </Grid>
 
                     <!-- Client dropdown-->
-                    <TextBlock Text="Client"
+                    <TextBlock Text="Client *"
                                Margin="0,0,0,4" />
                     <ComboBox ItemsSource="{Binding Clients}"
                               DisplayMemberPath="CompanyName"
@@ -155,7 +159,7 @@
                               Margin="0,0,0,12" />
 
                     <!-- Building options -->
-                    <TextBlock Text="Buildings (select at least one)"
+                    <TextBlock Text="Buildings * (Select at least one)"
                                Margin="0,0,0,8" />
 
                     <ScrollViewer MaxHeight="250"
@@ -185,7 +189,7 @@
                     </ScrollViewer>
 
                     <!-- Building Classes -->
-                    <TextBlock Text="Building Classes (optional)"
+                    <TextBlock Text="Building Classes"
                                Margin="0,0,0,8" />
 
                     <ScrollViewer MaxHeight="250"
@@ -213,7 +217,7 @@
                     </ScrollViewer>
 
                     <!-- Technical Issues -->
-                    <TextBlock Text="Technical issues (optional)"
+                    <TextBlock Text="Technical issues"
                                Margin="0,12,0,8" />
 
                     <ScrollViewer MaxHeight="250"
@@ -235,7 +239,7 @@
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <TextBlock Text="Comments (optional)"
+                    <TextBlock Text="Comments"
                                Margin="0,0,0,4" />
                     <TextBox Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True"

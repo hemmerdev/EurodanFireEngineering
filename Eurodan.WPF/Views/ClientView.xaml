@@ -38,25 +38,36 @@
                                         ElementStyle="{StaticResource ManagementCellTextStyle}"/>
                 </DataGrid.Columns>
             </DataGrid>
-            <TextBlock Text="Company name" Margin="10,0,10,3"/>
+
+            <!-- Required fields are marked with an asterisk -->
+            <TextBlock Text="Required fields are marked with an asterisk (*)"
+                       FontSize="12"
+                       Foreground="#AAAAAA"
+                       Margin="10,0,0,12" />
+
+            <TextBlock Text="Company name *" Margin="10,0,10,3"/>
             <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource InputTextBoxStyle}"
-                     Margin="10,0,10,12"/>
+                     Margin="10,0,10,12"
+                     MaxLength="150"/>
 
             <TextBlock Text="Contact name" Margin="10,0,10,3"/>
             <TextBox Text="{Binding ContactName, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource InputTextBoxStyle}"
-                     Margin="10,0,10,12"/>
+                     Margin="10,0,10,12"
+                     MaxLength="100"/>
 
             <TextBlock Text="Email" Margin="10,0,10,3"/>
             <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource InputTextBoxStyle}"
-                     Margin="10,0,10,12"/>
+                     Margin="10,0,10,12"
+                     MaxLength="254"/>
 
             <TextBlock Text="Phone" Margin="10,0,10,3"/>
             <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource InputTextBoxStyle}"
-                     Margin="10,0,10,12"/>
+                     Margin="10,0,10,12"
+                     MaxLength="30"/>
 
             <WrapPanel>
                 <Button Content="Register client" Command="{Binding RegisterClientCommand}"
