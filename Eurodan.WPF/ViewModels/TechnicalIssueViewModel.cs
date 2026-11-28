@@ -268,5 +268,28 @@ namespace Eurodan.WPF.ViewModels
                 TechnicalIssues.Add(issue);
             }
         }
+
+        public void Refresh()
+        {
+            SelectedIssue = null;
+            Name = "";
+            Description = "";
+            StatusMessage = "";
+
+            try
+            {
+                LoadIssues();
+            }
+            catch (DbException)
+            {
+                StatusMessage = "Could not load the technical issues because of a database error. Please try again.";
+                return;
+            }
+            catch (Exception)
+            {
+                StatusMessage = "An unexpected error occurred while loading the technical issues.";
+                return;
+            }
+        }
     }
 }

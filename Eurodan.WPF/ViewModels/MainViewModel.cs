@@ -70,17 +70,14 @@ namespace Eurodan.WPF.ViewModels
             ShowProjectOverviewCommand =
                 new RelayCommand(_ =>
                 {
-                    ProjectOverview.LoadProjectsCommand.Execute(null); // Load projects before navigating to ProjectOverview
-                    // TODO: Refresh logic goes here once implemented and if needed
+                    ProjectOverview.Refresh();
                     CurrentViewModel = ProjectOverview;
                 });
 
             ShowProjectCommand =
                 new RelayCommand(_ =>
                 {
-                    ProjectManagement.LoadProjectLookups(); // Load lookups before navigating to ProjectManagement
-
-                    // TODO: Refresh logic goes here once implemented and if needed
+                    ProjectManagement.Refresh();
                     CurrentViewModel = ProjectManagement;
                 });
 
@@ -111,20 +108,20 @@ namespace Eurodan.WPF.ViewModels
             ShowBuildingCommand =
                 new RelayCommand(_ =>
                 {
-                    // TODO: Refresh logic goes here once implemented and if needed
+                    BuildingManagement.Refresh();
                     CurrentViewModel = BuildingManagement;
                 });
 
             ShowClientCommand = new RelayCommand(_ =>
             {
-                // TODO: Refresh logic goes here once implemented and if needed
+                ClientManagement.Refresh();
                 CurrentViewModel = ClientManagement;
             });
 
             ShowTechnicalIssueCommand =
                 new RelayCommand(_ =>
                 {
-                    // TODO: Refresh logic goes here once implemented and if needed
+                    TechnicalIssueManagement.Refresh();
                     CurrentViewModel = TechnicalIssueManagement;
                 });
 

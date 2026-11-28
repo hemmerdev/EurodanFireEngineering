@@ -743,5 +743,20 @@ namespace Eurodan.WPF.ViewModels
                 return false;
             }
         }
+
+        public void Refresh()
+        {
+            StatusMessage = "";
+
+            try
+            {
+                LoadProjectLookups(); // This method already catches DbException and sets StatusMessage, so we don't need to handle it here.
+            }
+            catch (Exception)
+            {
+                StatusMessage = "An unexpected error occurred while refreshing the project choices.";
+                return;
+            }
+        }
     }
 }

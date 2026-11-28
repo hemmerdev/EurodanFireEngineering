@@ -255,5 +255,20 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = $"{Projects.Count} project(s) displayed.";
             }
         }
+
+        public void Refresh()
+        {
+            SelectedProjectRow = null;
+            StatusMessage = "";
+
+            try
+            {
+                LoadProjects(null); // Load projects already catches DbException and sets StatusMessage, so we don't need to handle it here.
+            }
+            catch (Exception)
+            {
+                StatusMessage = "An unexpected error occurred while refreshing the project list.";
+            }
+        }
     }
 }

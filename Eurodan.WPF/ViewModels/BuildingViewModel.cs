@@ -260,5 +260,26 @@ namespace Eurodan.WPF.ViewModels
                 Buildings.Add(building);
             }
         }
+
+        public void Refresh()
+        {
+            SelectedBuilding = null;
+            Name = "";
+            Address = "";
+            StatusMessage = "";
+
+            try
+            {
+                LoadBuildings();
+            }
+            catch (DbException)
+            {
+                StatusMessage = "Could not refresh the building list because of a database error. Please try again.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = "An unexpected error occurred while refreshing the building list.";
+            }
+        }
     }
 }

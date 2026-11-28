@@ -3,7 +3,6 @@ using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
 using System.Collections.ObjectModel;
 using System.Data.Common;
-using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
 {
@@ -24,9 +23,11 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _selectedClient = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsEditMode));
 
                     DeleteClientCommand.RaiseCanExecuteChanged();
                     UpdateClientCommand.RaiseCanExecuteChanged();
+                    RegisterClientCommand.RaiseCanExecuteChanged();
 
                     CompanyName = value?.CompanyName ?? string.Empty;
                     ContactName = value?.ContactName;
@@ -107,20 +108,27 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        public ICommand RegisterClientCommand { get; }
+        public bool IsEditMode => SelectedClient != null;  // Editing when a client is selected, otherwise registering a new client.
+
+        public RelayCommand RegisterClientCommand { get; }
         public RelayCommand UpdateClientCommand { get; }
         public RelayCommand DeleteClientCommand { get; }
+        public RelayCommand ClearClientFormCommand { get; }
 
         public ClientViewModel(ClientService clientService)
         {
             _clientService = clientService;
-            RegisterClientCommand = new RelayCommand(RegisterClient);
+            RegisterClientCommand = new RelayCommand(
+                RegisterClient,
+                _ => !IsEditMode);
             UpdateClientCommand = new RelayCommand(
                 UpdateClient,
                 _ => SelectedClient != null);
             DeleteClientCommand = new RelayCommand(
                 DeleteClient,
                 _ => SelectedClient != null);
+            ClearClientFormCommand = new RelayCommand(
+                _ => ClearClientForm()); // Lambda expression to call ClearClientForm without parameters
             LoadClients();
         }
 
@@ -297,6 +305,33 @@ namespace Eurodan.WPF.ViewModels
             foreach (var client in newClients)
             {
                 Clients.Add(client);
+            }
+        }
+
+        private void ClearClientForm()
+        {
+            SelectedClient = null;
+            CompanyName = "";
+            ContactName = "";
+            Email = "";
+            Phone = "";
+            StatusMessage = "";
+        }
+
+        public void Refresh()
+        {
+            ClearClientForm();
+            try
+            {
+                LoadClients();
+            }
+            catch (DbException)
+            {
+                StatusMessage = "Could not refresh the client list due to a database error. Please try again.";
+            }
+            catch (Exception)
+            {
+                StatusMessage = "An unexpected error occurred while refreshing the client list.";
             }
         }
     }
