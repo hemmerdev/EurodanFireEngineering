@@ -29,6 +29,9 @@ namespace Eurodan.WPF.ViewModels
         private DateTime? _selectedPaymentDueDate;
         private bool _isEditMode;
         private Project? _selectedProject;
+        private string _buildingSearchText = string.Empty;
+        private string _buildingClassSearchText = string.Empty;
+        private string _technicalIssueSearchText = string.Empty;
 
         public ObservableCollection<Client> Clients { get; } = new();
         public ObservableCollection<BuildingSelectionViewModel> BuildingOptions { get; } = new();
@@ -247,6 +250,94 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+        public string BuildingSearchText
+        {
+            get => _buildingSearchText;
+            set
+            {
+                if (_buildingSearchText != value)
+                {
+                    _buildingSearchText = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FilteredBuildingOptions));
+                }
+            }
+        }
+
+        public string BuildingClassSearchText
+        {
+            get => _buildingClassSearchText;
+            set
+            {
+                if (_buildingClassSearchText != value)
+                {
+                    _buildingClassSearchText = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FilteredBuildingClassOptions));
+                }
+            }
+        }
+
+        public string TechnicalIssueSearchText
+        {
+            get => _technicalIssueSearchText;
+            set
+            {
+                if (_technicalIssueSearchText != value)
+                {
+                    _technicalIssueSearchText = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FilteredTechnicalIssueOptions));
+                }
+            }
+        }
+
+        // Calculated properties to filter the building, building class, and technical issue options in the dropdown lists in the project form
+        public List<BuildingSelectionViewModel> FilteredBuildingOptions
+        {
+            get
+            {
+                string searchText = BuildingSearchText?.Trim() ?? string.Empty;
+                return searchText.Trim().Length == 0
+                    ? BuildingOptions.ToList()
+                    : BuildingOptions
+                        .Where(option =>
+                           option.Building.Name.Contains(
+                               searchText, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+            }
+        }
+
+        public List<BuildingClassSelectionViewModel> FilteredBuildingClassOptions
+        {
+            get
+            {
+                string searchText = BuildingClassSearchText?.Trim() ?? string.Empty;
+                return searchText.Trim().Length == 0
+                    ? BuildingClassOptions.ToList()
+                    : BuildingClassOptions
+                        .Where(option =>
+                           option.BuildingClass.ClassCode.Contains(
+                               searchText, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+            }
+        }
+
+        public List<TechnicalIssueSelectionViewModel> FilteredTechnicalIssueOptions
+        {
+            get
+            {
+                string searchText = TechnicalIssueSearchText?.Trim() ?? string.Empty;
+                return searchText.Trim().Length == 0
+                    ? TechnicalIssueOptions.ToList()
+                    : TechnicalIssueOptions
+                        .Where(option =>
+                           option.TechnicalIssue.Name.Contains(
+                               searchText, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+            }
+        }
+
         // Calculated properties to display selections in project form
         public string SelectedBuildingsSummary =>
             !BuildingOptions.Any(b => b.IsSelected)
@@ -275,7 +366,7 @@ namespace Eurodan.WPF.ViewModels
         public RelayCommand ClearPaymentDueDateCommand { get; }
         public RelayCommand ClearBuildingsSelectionCommand { get; }
         public RelayCommand ClearBuildingClassesSelectionCommand { get; }
-        public RelayCommand ClearIssuesSelectionCommand { get; }
+        public RelayCommand ClearTechnicalIssuesSelectionCommand { get; }
         public RelayCommand ClearProjectFormCommand { get; }
 
         // Raised after an edit is saved, carrying the ProjectId
@@ -293,7 +384,7 @@ namespace Eurodan.WPF.ViewModels
             ClearProjectFormCommand = new RelayCommand(ClearProjectForm);
             ClearBuildingsSelectionCommand = new RelayCommand(ClearBuildingsSelection);
             ClearBuildingClassesSelectionCommand = new RelayCommand(ClearBuildingClassesSelection);
-            ClearIssuesSelectionCommand = new RelayCommand(ClearIssuesSelection);
+            ClearTechnicalIssuesSelectionCommand = new RelayCommand(ClearTechnicalIssuesSelection);
         }
 
         private void ClearProjectForm(object? parameter)
@@ -333,7 +424,7 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        private void ClearIssuesSelection(object? parameter)
+        private void ClearTechnicalIssuesSelection(object? parameter)
         {
             foreach (var technicalIssueOption in TechnicalIssueOptions)
             {
@@ -488,6 +579,10 @@ namespace Eurodan.WPF.ViewModels
             SelectedFeeProposalStatus = FeeProposalStatus.Pending;
             _selectedProject = null;
             IsEditMode = false;
+            BuildingSearchText = string.Empty;
+            BuildingClassSearchText = string.Empty;
+            TechnicalIssueSearchText = string.Empty;
+
 
             foreach (var buildingOption in BuildingOptions)
             {
@@ -811,10 +906,14 @@ namespace Eurodan.WPF.ViewModels
                     SelectedClientId = null; // Reset if the previously selected client no longer exists
                 }
 
-                SaveProjectCommand.RaiseCanExecuteChanged(); // Update the command's ability to execute based on the new data
+                // Update summaries, search results and Save availability after rebuilding the choices.
+                SaveProjectCommand.RaiseCanExecuteChanged();
                 OnPropertyChanged(nameof(SelectedBuildingsSummary));
                 OnPropertyChanged(nameof(SelectedBuildingClassesSummary));
                 OnPropertyChanged(nameof(SelectedTechnicalIssuesSummary));
+                OnPropertyChanged(nameof(FilteredBuildingOptions));
+                OnPropertyChanged(nameof(FilteredBuildingClassOptions));
+                OnPropertyChanged(nameof(FilteredTechnicalIssueOptions));
                 StatusMessage = ""; // Clear any previous status message
                 return true;
             }

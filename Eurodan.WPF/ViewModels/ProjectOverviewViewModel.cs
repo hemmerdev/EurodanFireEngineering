@@ -16,6 +16,7 @@ namespace Eurodan.WPF.ViewModels
         private bool _showArchivedProjects;
         private bool _showActiveProjects = true; // Default to showing active projects
         private List<ProjectOverviewRowViewModel> _allProjectRows = new();
+        private string _technicalIssueSearchText = string.Empty;
 
         public ObservableCollection<ProjectOverviewRowViewModel> Projects { get; } = new();
         public ObservableCollection<TechnicalIssueSelectionViewModel> TechnicalIssueOptions { get; } = new();
@@ -64,6 +65,20 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+        public string TechnicalIssueSearchText
+        {
+            get => _technicalIssueSearchText;
+            set
+            {
+                if (_technicalIssueSearchText != value)
+                {
+                    _technicalIssueSearchText = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FilteredTechnicalIssueOptions));
+                }
+            }
+        }
+
         public bool ShowArchivedProjects
         {
             get => _showArchivedProjects;
@@ -102,6 +117,21 @@ namespace Eurodan.WPF.ViewModels
                     _statusMessage = value;
                     OnPropertyChanged();
                 }
+            }
+        }
+
+        public List<TechnicalIssueSelectionViewModel> FilteredTechnicalIssueOptions
+        {
+            get
+            {
+                string searchText = TechnicalIssueSearchText?.Trim() ?? string.Empty;
+                return searchText.Trim().Length == 0
+                    ? TechnicalIssueOptions.ToList()
+                    : TechnicalIssueOptions
+                        .Where(option =>
+                           option.TechnicalIssue.Name.Contains(
+                               searchText, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
             }
         }
 
@@ -177,6 +207,8 @@ namespace Eurodan.WPF.ViewModels
                     var row = new ProjectOverviewRowViewModel(project, clientCompanyName);
                     rows.Add(row);
                 }
+
+                OnPropertyChanged(nameof(FilteredTechnicalIssueOptions));
 
                 _allProjectRows = rows; // Store the complete list of rows for future filtering
                 ApplyFilters();

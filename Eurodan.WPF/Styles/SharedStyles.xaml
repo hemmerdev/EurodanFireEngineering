@@ -340,7 +340,8 @@
         <Setter Property="AlternatingRowBackground" Value="#303030" />
         <Setter Property="BorderBrush" Value="#595959" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="GridLinesVisibility" Value="Horizontal" />
+        <Setter Property="GridLinesVisibility" Value="All" />
+        <Setter Property="VerticalGridLinesBrush" Value="#505050" />
         <Setter Property="HorizontalGridLinesBrush" Value="#404040" />
         <Setter Property="HeadersVisibility" Value="Column" />
         <Setter Property="MinRowHeight" Value="36" />

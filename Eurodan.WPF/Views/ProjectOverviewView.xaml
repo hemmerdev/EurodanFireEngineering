@@ -106,14 +106,25 @@
                         <StackPanel>
                             <TextBlock Text="Projects must match all selected issues"
                                        Foreground="#EEEEEE"
+                                       FontWeight="SemiBold"
                                        TextWrapping="Wrap"
                                        Margin="0,0,0,10" />
+
+                            <TextBlock Text="Search by issue name"
+                                       Margin="0,0,0,4"/>
+
+                            <TextBox Text="{Binding TechnicalIssueSearchText,
+                                     UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputTextBoxStyle}"
+                                     Margin="0,0,0,8"
+                                     MinHeight="25"
+                                     Padding="8,3"/>
 
                             <ScrollViewer MaxHeight="200"
                                           VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Disabled">
 
-                                <ItemsControl ItemsSource="{Binding TechnicalIssueOptions}">
+                                <ItemsControl ItemsSource="{Binding FilteredTechnicalIssueOptions}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <CheckBox IsChecked="{Binding IsSelected,
@@ -155,13 +166,6 @@
                           VerticalAlignment="Center" />
 
             </StackPanel>
-
-            <Button Grid.Column="4"
-                    Content="Refresh projects"
-                    Command="{Binding LoadProjectsCommand}"
-                    Style="{StaticResource ActionButtonStyle}"
-                    VerticalAlignment="Bottom"
-                    MinHeight="36" />
         </Grid>
 
         <DataGrid Grid.Row="2"

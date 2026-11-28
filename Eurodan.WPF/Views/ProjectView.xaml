@@ -174,11 +174,19 @@
                                   IsExpanded="False">
 
                             <StackPanel>
+
+                                <TextBlock Text="Search by building name"
+                                           Margin="0,0,0,4"/>
+
+                                <TextBox Text="{Binding BuildingSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource InputTextBoxStyle}"
+                                         Margin="0,0,0,8"/>
+
                                 <ScrollViewer MaxHeight="200"
                                               VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled">
 
-                                    <ItemsControl ItemsSource="{Binding BuildingOptions}">
+                                    <ItemsControl ItemsSource="{Binding FilteredBuildingOptions}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
@@ -212,7 +220,7 @@
 
                     <!-- Building Classes -->
 
-                    <TextBlock Text="Building Classes"
+                    <TextBlock Text="Building Class(es)"
                                Margin="0,0,0,4" />
 
                     <Grid Margin="0,0,0,12">
@@ -227,11 +235,19 @@
                                   IsExpanded="False">
 
                             <StackPanel>
+
+                                <TextBlock Text="Search by class code"
+                                           Margin="0,0,0,4"/>
+
+                                <TextBox Text="{Binding BuildingClassSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource InputTextBoxStyle}"
+                                         Margin="0,0,0,8"/>
+
                                 <ScrollViewer MaxHeight="200"
                                               VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled">
 
-                                    <ItemsControl ItemsSource="{Binding BuildingClassOptions}">
+                                    <ItemsControl ItemsSource="{Binding FilteredBuildingClassOptions}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
@@ -266,7 +282,7 @@
 
 
                     <!-- Technical Issues -->
-                    <TextBlock Text="Technical Issues"
+                    <TextBlock Text="Technical Issue(s)"
                                Margin="0,0,0,4" />
 
                     <Grid Margin="0,0,0,12">
@@ -281,11 +297,19 @@
                                   IsExpanded="False">
 
                             <StackPanel>
+
+                                <TextBlock Text="Search by issue name"
+                                           Margin="0,0,0,4"/>
+
+                                <TextBox Text="{Binding TechnicalIssueSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource InputTextBoxStyle}"
+                                         Margin="0,0,0,8"/>
+
                                 <ScrollViewer MaxHeight="200"
                                               VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled">
 
-                                    <ItemsControl ItemsSource="{Binding TechnicalIssueOptions}">
+                                    <ItemsControl ItemsSource="{Binding FilteredTechnicalIssueOptions}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
@@ -304,7 +328,7 @@
 
                         <Button Grid.Column="1"
                                 Content="Clear"
-                                Command="{Binding ClearIssuesSelectionCommand}"
+                                Command="{Binding ClearTechnicalIssuesSelectionCommand}"
                                 Style="{StaticResource ActionButtonStyle}"
                                 VerticalAlignment="Top"
                                 Height="36"
