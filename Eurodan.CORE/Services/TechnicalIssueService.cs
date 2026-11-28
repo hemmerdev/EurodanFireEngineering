@@ -21,29 +21,14 @@ namespace Eurodan.Core.Services
 
         public int CreateTechnicalIssue(TechnicalIssue technicalIssue)
         {
-            ArgumentNullException.ThrowIfNull(technicalIssue);
-
-            if (string.IsNullOrWhiteSpace(technicalIssue.Name))
-            {
-                throw new ArgumentException("Name is required.");
-            }
-            technicalIssue.Name = technicalIssue.Name.Trim();
+            ValidateTechnicalIssue(technicalIssue);
 
             if (_technicalIssueRepository.GetAll()
                 .Any(issue => string.Equals(
                     issue.Name, technicalIssue.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                throw new ArgumentException("Name must be unique.");
-            }
-
-            if (technicalIssue.Name != null && technicalIssue.Name.Length > 150)
-            {
-                throw new ArgumentException("Name cannot exceed 150 characters.");
-            }
-
-            if (technicalIssue.Description != null && technicalIssue.Description.Length > 500)
-            {
-                throw new ArgumentException("Description cannot exceed 500 characters.");
+                throw new ArgumentException(
+                    "A technical issue with the same name already exists. Enter a different name.");
             }
 
             _technicalIssueRepository.Add(technicalIssue);
@@ -52,30 +37,15 @@ namespace Eurodan.Core.Services
 
         public bool UpdateTechnicalIssue(TechnicalIssue technicalIssue)
         {
-            ArgumentNullException.ThrowIfNull(technicalIssue);
-
-            if (string.IsNullOrWhiteSpace(technicalIssue.Name))
-            {
-                throw new ArgumentException("Name is required.");
-            }
-            technicalIssue.Name = technicalIssue.Name.Trim();
+            ValidateTechnicalIssue(technicalIssue);
 
             if (_technicalIssueRepository.GetAll()
                 .Any(issue => string.Equals(
                     issue.Name, technicalIssue.Name, StringComparison.OrdinalIgnoreCase) &&
                     issue.TechnicalIssueId != technicalIssue.TechnicalIssueId))
             {
-                throw new ArgumentException("Name must be unique.");
-            }
-
-            if (technicalIssue.Name != null && technicalIssue.Name.Length > 150)
-            {
-                throw new ArgumentException("Name cannot exceed 150 characters.");
-            }
-
-            if (technicalIssue.Description != null && technicalIssue.Description.Length > 500)
-            {
-                throw new ArgumentException("Description cannot exceed 500 characters.");
+                throw new ArgumentException(
+                    "A technical issue with the same name already exists. Enter a different name.");
             }
 
             if (_technicalIssueRepository.GetById(
@@ -101,10 +71,35 @@ namespace Eurodan.Core.Services
             {
                 throw new InvalidOperationException("The technical issue tag cannot be deleted, as it is assigned to a project.");
             }
-            
+
             _technicalIssueRepository.Delete(issueId);
             return true;
 
+        }
+
+        private void ValidateTechnicalIssue(TechnicalIssue technicalIssue)
+        {
+            ArgumentNullException.ThrowIfNull(technicalIssue);
+            if (string.IsNullOrWhiteSpace(technicalIssue.Name))
+            {
+                throw new ArgumentException("Enter a technical issue name.");
+            }
+
+            technicalIssue.Name = technicalIssue.Name.Trim();
+
+            if (technicalIssue.Name.Length > 150)
+            {
+                throw new ArgumentException("Technical issue name cannot exceed 150 characters.");
+            }
+
+            if (technicalIssue.Description != null)
+            {
+                technicalIssue.Description = technicalIssue.Description.Trim();
+                if (technicalIssue.Description.Length > 500)
+                {
+                    throw new ArgumentException("Description cannot exceed 500 characters.");
+                }
+            }
         }
     }
 }

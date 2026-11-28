@@ -45,10 +45,14 @@ namespace Eurodan.Core.Services
                 throw new ArgumentNullException(nameof(project), "Project could not be saved.");
             }
 
-            if (string.IsNullOrWhiteSpace(project.ProjectNumber) ||
-                string.IsNullOrWhiteSpace(project.ProjectName))
+            if (string.IsNullOrWhiteSpace(project.ProjectName))
             {
-                throw new ArgumentException("Project number and name are required.");
+                throw new ArgumentException("Enter a project name.");
+            }
+
+            if (string.IsNullOrWhiteSpace(project.ProjectNumber))
+            {
+                throw new ArgumentException("Enter a project number.");
             }
 
             project.ProjectNumber = project.ProjectNumber.Trim();
@@ -64,16 +68,23 @@ namespace Eurodan.Core.Services
                 throw new ArgumentException("Project name cannot exceed 200 characters.");
             }
 
-            if (project.ProjectManager is not null &&
-                project.ProjectManager.Length > 100)
+            if (project.ProjectManager != null)
             {
-                throw new ArgumentException("Project manager name cannot exceed 100 characters.");
+                project.ProjectManager = project.ProjectManager.Trim();
+
+                if (project.ProjectManager.Length > 100)
+                {
+                    throw new ArgumentException("Project manager name cannot exceed 100 characters.");
+                }
             }
 
-            if (project.BuildingSurveyor is not null &&
-                project.BuildingSurveyor.Length > 100)
+            if (project.BuildingSurveyor != null)
             {
-                throw new ArgumentException("Building surveyor name cannot exceed 100 characters.");
+                project.BuildingSurveyor = project.BuildingSurveyor.Trim();
+                if (project.BuildingSurveyor.Length > 100)
+                {
+                    throw new ArgumentException("Building surveyor name cannot exceed 100 characters.");
+                }
             }
 
             ValidateDecimalAmount(project.FeeProposal, "Fee proposal amount");
@@ -198,12 +209,7 @@ namespace Eurodan.Core.Services
         {
             ValidateProject(project);
 
-            Project? existingProject = _projectRepository.GetById(project.ProjectId);
-
-            if (existingProject == null)
-            {
-                throw new ArgumentException("The project to update could not be found.");
-            }
+            Project? existingProject = _projectRepository.GetById(project.ProjectId) ?? throw new ArgumentException("The project to update could not be found.");
 
             // Check the stored project, not the one from the form: the form builds a new project, so its IsArchived is always false
             if (existingProject.IsArchived)
@@ -219,12 +225,8 @@ namespace Eurodan.Core.Services
         // instead of silently "succeeding".
         public void ArchiveProject(int projectId)
         {
-            Project? project = _projectRepository.GetById(projectId);
-
-            if (project == null)
-            {
+            Project? project = _projectRepository.GetById(projectId) ??
                 throw new ArgumentException("The project to archive could not be found.");
-            }
 
             if (project.IsArchived)
             {

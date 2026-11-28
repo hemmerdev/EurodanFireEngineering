@@ -43,17 +43,25 @@ namespace Eurodan.Core.Services
         private void ValidateBuilding(Building building)
         {
             ArgumentNullException.ThrowIfNull(building);
-            if (string.IsNullOrWhiteSpace(building.Name) || string.IsNullOrWhiteSpace(building.Address))
+            if (string.IsNullOrWhiteSpace(building.Name))
             {
-                throw new ArgumentException("Enter both a building name and an address.");
+                throw new ArgumentException("Enter a building name.");
             }
 
-            if (building.Name != null && building.Name.Length > 150)
+            if (string.IsNullOrWhiteSpace(building.Address))
+            {
+                throw new ArgumentException("Enter a building address.");
+            }
+
+            building.Name = building.Name.Trim();
+            building.Address = building.Address.Trim();
+
+            if (building.Name.Length > 150)
             {
                 throw new ArgumentException("Building name cannot exceed 150 characters.");
             }
 
-            if (building.Address != null && building.Address.Length > 250)
+            if (building.Address.Length > 250)
             {
                 throw new ArgumentException("Address cannot exceed 250 characters.");
             }
@@ -79,4 +87,3 @@ namespace Eurodan.Core.Services
         }
     }
 }
- 
