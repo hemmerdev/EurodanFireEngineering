@@ -132,12 +132,12 @@ namespace Eurodan.WPF.ViewModels
             // After an edit is saved, go back to the overview and show the updated project
             ProjectOverview.PropertyChanged += ProjectOverviewPropertyChanged;
             ProjectManagement.ProjectUpdated += ProjectManagementProjectUpdated;
-            
-            // The event gives (sender, projectId); the lambda passes on the projectId plus the words for this action
+
+            // The event gives (sender, projectId); the lambda passes on the projectId plus the strings to display in the status message.
             ProjectDetails.ProjectArchived += (sender, projectId) =>
                 RefreshOverviewAfterArchiveChange(projectId, "Project archived");
-            ProjectDetails.ProjectRestored += (sender, projectId) =>
-                RefreshOverviewAfterArchiveChange(projectId, "Project restored");
+            ProjectDetails.ProjectUnarchived += (sender, projectId) =>
+                RefreshOverviewAfterArchiveChange(projectId, "Project unarchived");
 
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
@@ -208,8 +208,9 @@ namespace Eurodan.WPF.ViewModels
         }
 
 
-        // Shared by archive and restore: both need the same reload/reselect as UC04's ProjectManagementProjectUpdated.
-        // The archive or restore already succeeded before this runs, so every message starts with what was done,
+
+        // Shared by archive and unarchive: both need the same reload/reselect as UC04's ProjectManagementProjectUpdated.
+        // The archive or unarchive already succeeded before this runs, so every message starts with what was done,
         // and a failed reload is reported as a failed refresh, never as a failed archive.
         private void RefreshOverviewAfterArchiveChange(int projectId, string doneMessage)
         {

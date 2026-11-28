@@ -208,7 +208,7 @@ namespace Eurodan.Core.Services
             // Check the stored project, not the one from the form: the form builds a new project, so its IsArchived is always false
             if (existingProject.IsArchived)
             {
-                throw new InvalidOperationException("Archived projects cannot be edited. Restore the project first.");
+                throw new InvalidOperationException("Archived projects cannot be edited. Unarchive the project first.");
             }
 
             _projectRepository.Update(project);
@@ -234,22 +234,18 @@ namespace Eurodan.Core.Services
             _projectRepository.Archive(projectId);
         }
 
-        // UC05: Restoring sets IsArchived back to false. An archived project must be restored before it can be edited.
-        public void RestoreProject(int projectId)
+        // UC05: Unarchiving sets IsArchived back to false. An archived project must be unarchived before it can be edited.
+        public void UnarchiveProject(int projectId)
         {
-            Project? project = _projectRepository.GetById(projectId);
-
-            if (project == null)
-            {
-                throw new ArgumentException("The project to restore could not be found.");
-            }
+            Project? project = _projectRepository.GetById(projectId) ??
+                throw new ArgumentException("The project to unarchive could not be found.");
 
             if (!project.IsArchived)
             {
                 throw new InvalidOperationException("The project is not archived.");
             }
 
-            _projectRepository.Restore(projectId);
+            _projectRepository.Unarchive(projectId);
         }
 
         public List<Project> ViewProjectOverview()

@@ -15,12 +15,12 @@ namespace Eurodan.WPF.ViewModels
 
         public RelayCommand LoadProjectDetailsCommand { get; }
         public RelayCommand ArchiveProjectCommand { get; }
-        public RelayCommand RestoreProjectCommand { get; }
+        public RelayCommand UnarchiveProjectCommand { get; }
 
-        // Raised after a successful archive or restore, carrying the projectId.
-        // Two events instead of one, so MainViewModel knows whether to say "archived" or "restored".
+        // Raised after a successful archive or unarchive, carrying the projectId.
+        // Two events instead of one, so MainViewModel knows whether to say "archived" or "unarchived".
         public event EventHandler<int>? ProjectArchived;
-        public event EventHandler<int>? ProjectRestored;
+        public event EventHandler<int>? ProjectUnarchived;
 
         public Project? SelectedProject
         {
@@ -39,7 +39,7 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        // Yes/no flags for the Archive/Restore buttons - both are false when no project is loaded,
+        // Yes/no flags for the Archive/Unarchive buttons - both are false when no project is loaded,
         // so an empty panel shows neither button.
         public bool IsSelectedProjectArchived =>
             SelectedProject != null && SelectedProject.IsArchived;
@@ -80,7 +80,7 @@ namespace Eurodan.WPF.ViewModels
 
             LoadProjectDetailsCommand = new RelayCommand(LoadProjectDetails);
             ArchiveProjectCommand = new RelayCommand(ArchiveProject);
-            RestoreProjectCommand = new RelayCommand(RestoreProject);
+            UnarchiveProjectCommand = new RelayCommand(UnarchiveProject);
         }
 
         public void ShowError(string message)
@@ -134,6 +134,7 @@ namespace Eurodan.WPF.ViewModels
             int projectId = SelectedProject.ProjectId;
             string projectName = SelectedProject.ProjectName;
 
+            // TODO: Refactor this to use a dialog service instead of MessageBox.Show, for better testability and separation of concerns.
             MessageBoxResult answer = MessageBox.Show(
                 $"Archive project {projectName}?",
                 "Archive project",
@@ -176,12 +177,12 @@ namespace Eurodan.WPF.ViewModels
             ProjectArchived?.Invoke(this, projectId);
         }
 
-        // UC05: No confirmation here. Restoring is harmless and can be undone by archiving again.
-        private void RestoreProject(object? parameter)
+        // UC05: No confirmation here. Unarchiving is harmless and can be undone by archiving again.
+        private void UnarchiveProject(object? parameter)
         {
             if (SelectedProject == null)
             {
-                StatusMessage = "Select a project to restore.";
+                StatusMessage = "Select a project to unarchive.";
                 return;
             }
 
@@ -189,7 +190,7 @@ namespace Eurodan.WPF.ViewModels
 
             try
             {
-                _projectService.RestoreProject(projectId);
+                _projectService.UnarchiveProject(projectId);
             }
             catch (ArgumentException ex)
             {
@@ -203,7 +204,7 @@ namespace Eurodan.WPF.ViewModels
             }
             catch (DbException)
             {
-                StatusMessage = "Could not restore the project. Please try again.";
+                StatusMessage = "Could not unarchive the project. Please try again.";
                 return;
             }
             catch (Exception)
@@ -212,7 +213,7 @@ namespace Eurodan.WPF.ViewModels
                 return;
             }
 
-            ProjectRestored?.Invoke(this, projectId);
+            ProjectUnarchived?.Invoke(this, projectId);
         }
     }
 }

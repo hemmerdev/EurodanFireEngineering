@@ -17,7 +17,7 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.uspArchiveProject
+CREATE OR ALTER PROCEDURE dbo.uspUnarchiveProject
 	@ProjectId INT
 AS
 BEGIN
@@ -25,7 +25,7 @@ BEGIN
 	SET XACT_ABORT ON;
 
 	UPDATE dbo.PROJECT
-		SET IsArchived = 1
+		SET IsArchived = 0
 		WHERE ProjectId = @ProjectId;
 
 	IF @@ROWCOUNT = 0

@@ -77,11 +77,11 @@ namespace Eurodan.Data.Repositories
             }
         }
 
-        public void Restore(int projectId)
+        public void Unarchive(int projectId)
         {
             using SqlConnection connection = new(_connectionString);
 
-            using SqlCommand cmd = new("dbo.uspRestoreProject", connection);
+            using SqlCommand cmd = new("dbo.uspUnarchiveProject", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("@ProjectId", SqlDbType.Int).Value = projectId;
 

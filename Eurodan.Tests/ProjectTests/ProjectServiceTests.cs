@@ -344,7 +344,7 @@ public class ProjectServiceTests
     public void UpdateProject_UnknownProject_Throws()
     {
         // Arrange
-        
+
         // No project has this ID, like one that was deleted while the form was open.
         _validProject.ProjectId = 999;
 
@@ -425,9 +425,9 @@ public class ProjectServiceTests
         Assert.IsTrue(_validProject.IsArchived);
     }
 
-    // UC05: Restoring sets IsArchived back to false and leaves name, client, and all links unchanged
+    // UC05: Unarchiving sets IsArchived back to false and leaves name, client, and all links unchanged
     [TestMethod]
-    public void RestoreProject_ArchivedProject_ClearsFlag()
+    public void UnarchiveProject_ArchivedProject_ClearsFlag()
     {
         // Arrange
         _validProject.ProjectId = 5;
@@ -436,7 +436,7 @@ public class ProjectServiceTests
         _projectRepository.Projects.Add(_validProject);
 
         // Act
-        _projectService.RestoreProject(5);
+        _projectService.UnarchiveProject(5);
 
         // Assert
         Project? savedProject = _projectRepository.GetById(5);
@@ -454,9 +454,9 @@ public class ProjectServiceTests
         Assert.HasCount(1, _projectRepository.Projects);
     }
 
-    // UC05: Restoring a project that is not archived is reported as an error and changes nothing.
+    // UC05: Unarchiving a project that is not archived is reported as an error and changes nothing.
     [TestMethod]
-    public void RestoreProject_ActiveProject_Throws()
+    public void UnarchiveProject_ActiveProject_Throws()
     {
         // Arrange
 
@@ -467,7 +467,7 @@ public class ProjectServiceTests
         // Act and Assert
         InvalidOperationException exception =
             Assert.ThrowsExactly<InvalidOperationException>(
-                () => _projectService.RestoreProject(5));
+                () => _projectService.UnarchiveProject(5));
 
         StringAssert.Contains(exception.Message, "not archived");
         Assert.IsFalse(_validProject.IsArchived);
@@ -500,7 +500,7 @@ public class ProjectServiceTests
             Assert.ThrowsExactly<InvalidOperationException>(
                 () => _projectService.UpdateProject(_validProject));
 
-        StringAssert.Contains(exception.Message, "Restore the project first");
+        StringAssert.Contains(exception.Message, "Unarchive the project first");
 
         Assert.AreEqual("Old name", _projectRepository.Projects[0].ProjectName);
         Assert.IsTrue(_projectRepository.Projects[0].IsArchived);

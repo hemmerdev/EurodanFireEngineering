@@ -34,7 +34,7 @@
                     Margin="0,0,8,0"
                     IsEnabled="{Binding IsSelectedProjectActive}"/>
 
-            <!-- Archive and Restore swap places based on the project's state. Their commands live
+            <!-- Archive and Unarchive swap places based on the project's state. Their commands live
             on this panel's own ViewModel, so no RelativeSource is needed -->
 
             <Button DockPanel.Dock="Right"
@@ -45,8 +45,8 @@
                     Visibility="{Binding IsSelectedProjectActive, Converter={StaticResource BoolToVisibility}}"/>
 
             <Button DockPanel.Dock="Right"
-                    Content="Restore"
-                    Command="{Binding RestoreProjectCommand}"
+                    Content="Unarchive"
+                    Command="{Binding UnarchiveProjectCommand}"
                     Style="{StaticResource ActionButtonStyle}"
                     Margin="0,0,8,0"
                     Visibility="{Binding IsSelectedProjectArchived, Converter={StaticResource BoolToVisibility}}"/>
@@ -61,7 +61,7 @@
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <TextBlock Text="This project is archived. Restore it to edit."
+                <TextBlock Text="This project is archived. Unarchive it to edit."
                            Margin="0,0,0,20"
                            Visibility="{Binding IsSelectedProjectArchived, Converter={StaticResource BoolToVisibility}}"/>
 

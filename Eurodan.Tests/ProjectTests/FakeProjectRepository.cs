@@ -31,7 +31,7 @@ namespace Eurodan.Tests.ProjectTests
         }
 
         // Same effect as the SQL version where only the flag changes, so service tests can check archive
-        // and restore without a database.
+        // and unarchive without a database.
         public void Archive(int projectId)
         {
             Project? project = GetById(projectId);
@@ -44,7 +44,7 @@ namespace Eurodan.Tests.ProjectTests
             project.IsArchived = true;
         }
 
-        public void Restore(int projectId)
+        public void Unarchive(int projectId)
         {
             Project? project = GetById(projectId);
 
