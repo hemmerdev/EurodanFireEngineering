@@ -133,6 +133,12 @@ namespace Eurodan.WPF.ViewModels
             ProjectOverview.PropertyChanged += ProjectOverviewPropertyChanged;
             ProjectManagement.ProjectUpdated += ProjectManagementProjectUpdated;
 
+            // The event gives (sender, projectId); the lambda passes on the projectId plus the strings to display in the status message.
+            ProjectDetails.ProjectArchived += (sender, projectId) =>
+                RefreshOverviewAfterArchiveChanged(projectId, "Project archived");
+            ProjectDetails.ProjectUnarchived += (sender, projectId) =>
+                RefreshOverviewAfterArchiveChanged(projectId, "Project unarchived");
+
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
 
@@ -198,6 +204,51 @@ namespace Eurodan.WPF.ViewModels
                 CurrentViewModel = ProjectOverview; // Go back to the overview even if the refresh fails
                 // The save already worked. If the refresh fails, say that, instead of reporting a save error.
                 ProjectOverview.ShowMessage("The project was updated, but the overview could not be refreshed.");
+            }
+        }
+
+
+
+        // Shared by archive and unarchive: both need the same reload/reselect as UC04's ProjectManagementProjectUpdated.
+        // The archive or unarchive already succeeded before this runs, so every message starts with what was done,
+        // and a failed reload is reported as a failed refresh, never as a failed archive.
+        private void RefreshOverviewAfterArchiveChanged(int projectId, string doneMessage)
+        {
+            try
+            {
+                bool loadedSuccessfully = ProjectOverview.LoadProjects(null); // Refresh the overview to reflect the updated project
+
+                CurrentViewModel = ProjectOverview;
+
+                if (!loadedSuccessfully) // If the refresh fails, clear the selection and show a message
+                {
+                    ProjectOverview.SelectedProjectRow = null; // Clear selection to avoid showing the previous project details
+                    ProjectOverview.ShowMessage($"{doneMessage}, but the overview could not be refreshed.");
+                    return; // Prevent further processing since the refresh failed
+                }
+
+                // Search the filtered list. The result is null if the current search or filters hide the updated project.
+                ProjectOverviewRowViewModel? updatedRow =
+                    ProjectOverview.Projects.FirstOrDefault(row => row.Project.ProjectId == projectId);
+
+                // Keep the user's filters, but tell them why the updated project is not shown.
+                if (updatedRow == null)
+                {
+                    // Clear selection so panel doesn't show the previously open project pre-edit
+                    ProjectOverview.SelectedProjectRow = null;
+                    ProjectOverview.ShowMessage($"{doneMessage}, but it is hidden by the current search or filters.");
+                }
+                else
+                {
+                    ProjectOverview.SelectedProjectRow = updatedRow;
+                    ProjectOverview.ShowMessage($"{doneMessage}.");
+                }
+            }
+            catch (Exception)
+            {
+                CurrentViewModel = ProjectOverview; // Go back to the overview even if the refresh fails
+                // The save already worked. If the refresh fails, say that, instead of reporting a save error.
+                ProjectOverview.ShowMessage($"{doneMessage}, but the overview could not be refreshed.");
             }
         }
     }

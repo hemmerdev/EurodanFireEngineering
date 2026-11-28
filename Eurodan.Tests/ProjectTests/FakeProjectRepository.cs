@@ -30,9 +30,30 @@ namespace Eurodan.Tests.ProjectTests
             }
         }
 
+        // Same effect as the SQL version where only the flag changes, so service tests can check archive
+        // and unarchive without a database.
         public void Archive(int projectId)
         {
-            throw new NotImplementedException();
+            Project? project = GetById(projectId);
+
+            if (project == null)
+            {
+                throw new InvalidOperationException("Project not found.");
+            }
+
+            project.IsArchived = true;
+        }
+
+        public void Unarchive(int projectId)
+        {
+            Project? project = GetById(projectId);
+
+            if (project == null)
+            {
+                throw new InvalidOperationException("Project not found.");
+            }
+
+            project.IsArchived = false;
         }
 
         // Let the service check that a project exists without a database

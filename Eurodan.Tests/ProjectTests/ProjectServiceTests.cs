@@ -344,7 +344,7 @@ public class ProjectServiceTests
     public void UpdateProject_UnknownProject_Throws()
     {
         // Arrange
-        
+
         // No project has this ID, like one that was deleted while the form was open.
         _validProject.ProjectId = 999;
 
@@ -356,5 +356,153 @@ public class ProjectServiceTests
         StringAssert.Contains(exception.Message, "could not be found");
 
         Assert.HasCount(0, _projectRepository.Projects);
+    }
+
+    // UC05: Archiving only flips the flag. Name, client and all links stay as history,
+    // and the project is not removed.
+    [TestMethod]
+    public void ArchiveProject_ActiveProject_KeepsHistory()
+    {
+        // Arrange
+        _validProject.ProjectId = 5;
+        _projectRepository.Projects.Add(_validProject);
+
+        // Act
+        _projectService.ArchiveProject(5);
+
+        // Assert
+        Project? savedProject = _projectRepository.GetById(5);
+
+        Assert.IsNotNull(savedProject);
+
+        Assert.IsTrue(savedProject.IsArchived);
+
+        Assert.AreEqual("Test Project", savedProject.ProjectName);
+        Assert.AreEqual(1, savedProject.ClientId);
+
+        Assert.HasCount(2, savedProject.Buildings);
+        Assert.HasCount(1, savedProject.BuildingClasses);
+        Assert.HasCount(1, savedProject.TechnicalIssues);
+        Assert.HasCount(1, _projectRepository.Projects);
+    }
+
+    // UC05: Archiving an ID that doesn't exist fails with a clear message and changes nothing
+    [TestMethod]
+    public void ArchiveProject_UnknownProject_Throws()
+    {
+        // Arrange
+
+        _validProject.ProjectId = 5;
+        _projectRepository.Projects.Add(_validProject);
+
+        // Act and Assert
+        ArgumentException exception =
+            Assert.ThrowsExactly<ArgumentException>(
+                () => _projectService.ArchiveProject(999));
+
+        StringAssert.Contains(exception.Message, "could not be found");
+        Assert.IsFalse(_validProject.IsArchived);
+    }
+
+    // UC05: Archiving twice is reported as an error instead of silently "succeeding",
+    // and the project stays archived
+    [TestMethod]
+    public void ArchiveProject_AlreadyArchived_Throws()
+    {
+        // Arrange
+
+        _validProject.ProjectId = 5;
+        _validProject.IsArchived = true;
+
+        _projectRepository.Projects.Add(_validProject);
+
+        // Act and Assert
+        InvalidOperationException exception =
+            Assert.ThrowsExactly<InvalidOperationException>(
+                () => _projectService.ArchiveProject(5));
+
+        StringAssert.Contains(exception.Message, "already archived");
+        Assert.IsTrue(_validProject.IsArchived);
+    }
+
+    // UC05: Unarchiving sets IsArchived back to false and leaves name, client, and all links unchanged
+    [TestMethod]
+    public void UnarchiveProject_ArchivedProject_ClearsFlag()
+    {
+        // Arrange
+        _validProject.ProjectId = 5;
+        _validProject.IsArchived = true;
+
+        _projectRepository.Projects.Add(_validProject);
+
+        // Act
+        _projectService.UnarchiveProject(5);
+
+        // Assert
+        Project? savedProject = _projectRepository.GetById(5);
+
+        Assert.IsNotNull(savedProject);
+
+        Assert.IsFalse(savedProject.IsArchived);
+
+        Assert.AreEqual("Test Project", savedProject.ProjectName);
+        Assert.AreEqual(1, savedProject.ClientId);
+
+        Assert.HasCount(2, savedProject.Buildings);
+        Assert.HasCount(1, savedProject.BuildingClasses);
+        Assert.HasCount(1, savedProject.TechnicalIssues);
+        Assert.HasCount(1, _projectRepository.Projects);
+    }
+
+    // UC05: Unarchiving a project that is not archived is reported as an error and changes nothing.
+    [TestMethod]
+    public void UnarchiveProject_ActiveProject_Throws()
+    {
+        // Arrange
+
+        _validProject.ProjectId = 5;
+
+        _projectRepository.Projects.Add(_validProject);
+
+        // Act and Assert
+        InvalidOperationException exception =
+            Assert.ThrowsExactly<InvalidOperationException>(
+                () => _projectService.UnarchiveProject(5));
+
+        StringAssert.Contains(exception.Message, "not archived");
+        Assert.IsFalse(_validProject.IsArchived);
+    }
+
+    // UC05: An archived project cannot be edited. The edited copy from the form has IsArchived = false,
+    // so this proves the service checks the stored project, and that nothing is saved.
+    [TestMethod]
+    public void UpdateProject_ArchivedProject_ThrowsWithoutSaving()
+    {
+        // Arrange
+        var existingProject = new Project
+        {
+            ProjectId = 5,
+            ProjectNumber = "1",
+            ProjectName = "Old name",
+            ClientId = 1,
+            IsArchived = true,
+            Buildings = new() { _validProject.Buildings[0] }
+        };
+
+        _projectRepository.Projects.Add(existingProject);
+
+        // Stored and edited are separate objects. If the test changed the stored object directly,
+        // it would pass even if Update did nothing.
+        _validProject.ProjectId = 5;
+
+        // Act and Assert
+        InvalidOperationException exception =
+            Assert.ThrowsExactly<InvalidOperationException>(
+                () => _projectService.UpdateProject(_validProject));
+
+        StringAssert.Contains(exception.Message, "Unarchive the project first");
+
+        Assert.AreEqual("Old name", _projectRepository.Projects[0].ProjectName);
+        Assert.IsTrue(_projectRepository.Projects[0].IsArchived);
     }
 }

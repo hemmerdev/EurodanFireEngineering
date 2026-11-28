@@ -450,6 +450,11 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = $"Error: {ex.Message}";
                 return;
             }
+            catch (InvalidOperationException ex)
+            {
+                StatusMessage = $"Error: {ex.Message}";
+                return;
+            }
             catch (DbException)
             {
                 StatusMessage = "Could not save the project. Please try again.";
@@ -457,7 +462,7 @@ namespace Eurodan.WPF.ViewModels
             }
             catch (Exception)
             {
-                StatusMessage = "An unexpected error occurred";
+                StatusMessage = "An unexpected error occurred.";
                 return;
             }
 
