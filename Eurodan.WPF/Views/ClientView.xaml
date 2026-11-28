@@ -45,10 +45,10 @@
                        Margin="10,12,10,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
-                        <Setter Property="Text" Value="Register new client"/>
+                        <Setter Property="Text" Value="Register New Client"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsEditMode}" Value="True">
-                                <Setter Property="Text" Value="Edit client"/>
+                                <Setter Property="Text" Value="Edit Client"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -98,11 +98,13 @@
                     </Style>
                 </WrapPanel.Style>
 
-                <Button Content="Register client" Command="{Binding RegisterClientCommand}"
+                <Button Content="Register client"
+                        Command="{Binding RegisterClientCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Margin="10,0,8,0"/>
 
-                <Button Content="Clear form" Command="{Binding ClearClientFormCommand}"
+                <Button Content="Clear form"
+                        Command="{Binding ClearClientFormCommand}"
                         Style="{StaticResource ActionButtonStyle}"
                         Margin="0,0,8,0"/>
             </WrapPanel>
@@ -120,15 +122,18 @@
                     </Style>
                 </WrapPanel.Style>
 
-                <Button Content="Update client" Command="{Binding UpdateClientCommand}"
+                <Button Content="Update client"
+                        Command="{Binding UpdateClientCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Margin="10,0,8,0"/>
 
-                <Button Content="Cancel editing" Command="{Binding ClearClientFormCommand}"
+                <Button Content="Cancel editing"
+                        Command="{Binding ClearClientFormCommand}"
                         Style="{StaticResource ActionButtonStyle}"
                         Margin="0,0,8,0"/>
 
-                <Button Content="Delete client" Command="{Binding DeleteClientCommand}"
+                <Button Content="Delete client"
+                        Command="{Binding DeleteClientCommand}"
                         Style="{StaticResource WarningButtonStyle}"
                         Margin="0,0,8,0"/>
             </WrapPanel>

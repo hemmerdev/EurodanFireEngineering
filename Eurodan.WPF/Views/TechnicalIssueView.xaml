@@ -34,6 +34,22 @@
                 </DataGrid.Columns>
             </DataGrid>
 
+            <!-- Heading for the issue registration form -->
+            <TextBlock FontSize="18"
+                       FontWeight="Bold"
+                       Margin="10,12,10,8">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="Register new Technical Issue"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                <Setter Property="Text" Value="Edit Technical Issue"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
             <!-- Required fields are marked with an asterisk -->
             <TextBlock Text="Required fields are marked with an asterisk (*)"
                        FontSize="12"
@@ -52,18 +68,57 @@
                      MaxLength="500"
                      Margin="10,0,10,12"/>
 
+            <!-- Registration buttons-->
             <WrapPanel>
-                <Button Content="Add issue" Command="{Binding AddIssueCommand}"
+                <WrapPanel.Style>
+                    <Style TargetType="WrapPanel">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </WrapPanel.Style>
+
+                <Button Content="Add issue"
+                        Command="{Binding AddIssueCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Margin="10,0,8,0"/>
 
-                <Button Content="Save changes" Command="{Binding UpdateIssueCommand}"
+                <Button Content="Clear form"
+                        Command="{Binding ClearIssueFormCommand}"
                         Style="{StaticResource ActionButtonStyle}"
+                        Margin="0,0,8,0"/>
+            </WrapPanel>
+
+            <!-- Editing buttons -->
+            <WrapPanel>
+                <WrapPanel.Style>
+                    <Style TargetType="WrapPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </WrapPanel.Style>
+
+                <Button Content="Update issue"
+                        Command="{Binding UpdateIssueCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
                         Margin="10,0,8,0"/>
 
-                <Button Content="Delete" Command="{Binding DeleteIssueCommand}"
+                <Button Content="Cancel editing"
+                        Command="{Binding ClearIssueFormCommand}"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Margin="0,0,8,0"/>
+
+                <Button Content="Delete issue"
+                        Command="{Binding DeleteIssueCommand}"
                         Style="{StaticResource WarningButtonStyle}"
-                        Margin="10,0,8,0"/>
+                        Margin="0,0,8,0"/>
             </WrapPanel>
 
             <TextBlock Text="{Binding StatusMessage}"

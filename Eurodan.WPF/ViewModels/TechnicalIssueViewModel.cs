@@ -3,18 +3,14 @@ using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
 using System.Collections.ObjectModel;
 using System.Data.Common;
-using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
 {
     public class TechnicalIssueViewModel : ViewModelBase
     {
         private readonly TechnicalIssueService _technicalIssueService;
-
         public ObservableCollection<TechnicalIssue> TechnicalIssues { get; } = new();
-
         private TechnicalIssue? _selectedIssue;
-
         public TechnicalIssue? SelectedIssue
         {
 
@@ -25,9 +21,11 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _selectedIssue = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsEditMode));
 
                     DeleteIssueCommand.RaiseCanExecuteChanged();
                     UpdateIssueCommand.RaiseCanExecuteChanged();
+                    AddIssueCommand.RaiseCanExecuteChanged();
 
                     Name = value?.Name ?? string.Empty;
                     Description = value?.Description;
@@ -78,20 +76,27 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        public ICommand AddIssueCommand { get; }
+        public bool IsEditMode => SelectedIssue != null;
+
+        public RelayCommand AddIssueCommand { get; }
         public RelayCommand UpdateIssueCommand { get; }
         public RelayCommand DeleteIssueCommand { get; }
+        public RelayCommand ClearIssueFormCommand { get; }
 
         public TechnicalIssueViewModel(TechnicalIssueService technicalIssueService)
         {
             _technicalIssueService = technicalIssueService;
-            AddIssueCommand = new RelayCommand(AddIssue);
+            AddIssueCommand = new RelayCommand(
+                AddIssue,
+                _ => !IsEditMode);
             UpdateIssueCommand = new RelayCommand(
                 UpdateIssue,
                 _ => SelectedIssue != null);
             DeleteIssueCommand = new RelayCommand(
                 DeleteIssue,
                 _ => SelectedIssue != null);
+            ClearIssueFormCommand = new RelayCommand(
+                _ => ClearIssueForm());
 
             LoadIssues();
         }
@@ -269,12 +274,17 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        public void Refresh()
+        private void ClearIssueForm()
         {
             SelectedIssue = null;
             Name = "";
             Description = "";
             StatusMessage = "";
+        }
+
+        public void Refresh()
+        {
+            ClearIssueForm();
 
             try
             {

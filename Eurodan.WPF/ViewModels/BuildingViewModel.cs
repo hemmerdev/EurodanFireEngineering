@@ -3,7 +3,6 @@ using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
 using System.Collections.ObjectModel;
 using System.Data.Common;
-using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
 {
@@ -24,9 +23,11 @@ namespace Eurodan.WPF.ViewModels
                 {
                     _selectedBuilding = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsEditMode));
 
                     DeleteBuildingCommand.RaiseCanExecuteChanged();
                     UpdateBuildingCommand.RaiseCanExecuteChanged();
+                    RegisterBuildingCommand.RaiseCanExecuteChanged();
 
                     Name = value?.Name ?? string.Empty;
                     Address = value?.Address ?? string.Empty;
@@ -76,20 +77,27 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        public ICommand RegisterBuildingCommand { get; }
+        public bool IsEditMode => SelectedBuilding != null;
+
+        public RelayCommand RegisterBuildingCommand { get; }
         public RelayCommand UpdateBuildingCommand { get; }
         public RelayCommand DeleteBuildingCommand { get; }
+        public RelayCommand ClearBuildingFormCommand { get; }
 
         public BuildingViewModel(BuildingService buildingService)
         {
             _buildingService = buildingService;
-            RegisterBuildingCommand = new RelayCommand(RegisterBuilding);
+            RegisterBuildingCommand = new RelayCommand(
+                RegisterBuilding,
+                _ => !IsEditMode);
             UpdateBuildingCommand = new RelayCommand(
                 UpdateBuilding,
                 _ => SelectedBuilding != null);
             DeleteBuildingCommand = new RelayCommand(
                 DeleteBuilding,
                 _ => SelectedBuilding != null);
+            ClearBuildingFormCommand = new RelayCommand(
+                _ => ClearBuildingForm()); // Lambda expression to call ClearBuildingForm without parameters
             LoadBuildings();
         }
 
@@ -261,13 +269,17 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
-        public void Refresh()
+        private void ClearBuildingForm()
         {
             SelectedBuilding = null;
             Name = "";
             Address = "";
             StatusMessage = "";
+        }
 
+        public void Refresh()
+        {
+            ClearBuildingForm();
             try
             {
                 LoadBuildings();
