@@ -37,6 +37,11 @@
                    Margin="0,0,0,20" />
 
         <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300" />
                 <ColumnDefinition Width="260" />
@@ -176,7 +181,8 @@
             <!-- Payment status filter-->
             <StackPanel Grid.Column="4"
                         Width="145"
-                        VerticalAlignment="Bottom">
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Left">
                 <TextBlock Text="Search by payment status"
                            Margin="0,0,0,6"/>
 
@@ -208,6 +214,126 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
             </StackPanel>
+
+            <!-- Date filter -->
+            <StackPanel Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="0,12,12,0">
+                <TextBlock Text="Payment due from"
+                           Margin="0,0,0,6"/>
+
+                <DatePicker SelectedDate="{Binding PaymentDueDateFrom, Mode=TwoWay}"
+                            Style="{StaticResource InputDatePickerStyle}"
+                            Language="en-AU"
+                            SelectedDateFormat="Short"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1"
+                        Grid.Column="1"
+                        Margin="0,12,12,0">
+                <TextBlock Text="Payment due to"
+                           Margin="0,0,0,6"/>
+
+                <DatePicker SelectedDate="{Binding PaymentDueDateTo, Mode=TwoWay}"
+                            Style="{StaticResource InputDatePickerStyle}"
+                            Language="en-AU"
+                            SelectedDateFormat="Short"/>
+            </StackPanel>
+
+            <!-- Building class dropdown-->
+            <Grid Grid.Row="1" Grid.Column="2"
+                  Width="140"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Bottom"
+                  Margin="0,0,12,0">
+                <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                    <TextBlock Text="Search by issue"
+                               Margin="0,0,0,6" />
+
+                    <ToggleButton x:Name="BuildingClassFilterButton"
+                                  Style="{StaticResource FilterDropdownButtonStyle}">
+                        <DockPanel LastChildFill="True">
+
+                            <TextBlock DockPanel.Dock="Right"
+                                       Text="▾"
+                                       FontSize="10"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center" />
+
+                            <TextBlock Text="Building classes"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                    </ToggleButton>
+                </StackPanel>
+
+                <Popup Placement="Bottom"
+                       PlacementTarget="{Binding ElementName=BuildingClassFilterButton}"
+                       IsOpen="{Binding IsChecked,
+                       ElementName=BuildingClassFilterButton,
+                       Mode=TwoWay}"
+                       DataContext="{Binding PlacementTarget.DataContext,
+                       RelativeSource={RelativeSource Self}}"
+                       StaysOpen="False"
+                       AllowsTransparency="True">
+
+                    <Border Width="340"
+                            Background="#333333"
+                            BorderBrush="#595959"
+                            BorderThickness="1"
+                            CornerRadius="3"
+                            Padding="10">
+
+                        <StackPanel>
+                            <TextBlock Text="Projects must match any selected class"
+                                       Foreground="#EEEEEE"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,10" />
+
+                            <TextBlock Text="Search by class code"
+                                       Margin="0,0,0,4"/>
+
+                            <TextBox Text="{Binding BuildingClassSearchText,
+                                     UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputTextBoxStyle}"
+                                     Margin="0,0,0,8"
+                                     MinHeight="25"
+                                     Padding="8,3"/>
+
+                            <ScrollViewer MaxHeight="200"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+
+                                <ItemsControl ItemsSource="{Binding FilteredBuildingClassOptions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected,
+                                                      Mode=TwoWay}"
+                                                      ToolTip="{Binding BuildingClass.Description}"
+                                                      Style="{StaticResource FilterCheckBoxStyle}"
+                                                      Margin="0,0,0,8">
+
+                                                <TextBlock Text="{Binding BuildingClass.ClassCode}"
+                                                           TextWrapping="Wrap" />
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </Grid>
+
+            <Button Grid.Row="1"
+                    Grid.Column="4"
+                    Content="Reset filters"
+                    Command="{Binding ResetFiltersCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    MinHeight="36"
+                    Margin="0,12,0,0"/>
         </Grid>
 
         <DataGrid Grid.Row="2"
@@ -417,7 +543,7 @@
         <TextBlock Grid.Row="3"
                    Text="{Binding StatusMessage}"
                    Style="{StaticResource MessageTextStyle}"
-                   Foreground="#AAAAAA"
+                   Foreground="#EEEEEE"
                    TextWrapping="Wrap"
                    Margin="0,8,0,0" />
 

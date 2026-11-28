@@ -6,10 +6,12 @@
              xmlns:local="clr-namespace:Eurodan.WPF.Views"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Keep the heading and Close button visible while the details scroll. -->
@@ -23,7 +25,7 @@
                     RelativeSource={RelativeSource AncestorType=Window}}"
                     Style="{StaticResource ActionButtonStyle}"
                     MinWidth="36"
-                    ToolTip="Close project details" />
+                    ToolTip="Close project details"/>
 
             <Button DockPanel.Dock="Right"
                     Content="Edit"
@@ -54,7 +56,7 @@
             <TextBlock Text="Project details"
                        FontSize="24"
                        FontWeight="Bold"
-                       VerticalAlignment="Center" />
+                       VerticalAlignment="Center"/>
         </DockPanel>
 
         <ScrollViewer Grid.Row="1"
@@ -66,41 +68,42 @@
                            Visibility="{Binding IsSelectedProjectArchived, Converter={StaticResource BoolToVisibility}}"/>
 
                 <TextBlock Text="Company name"
-                           Margin="0,0,0,3" />
+                           Margin="0,0,0,3"/>
                 <TextBlock Text="{Binding SelectedClient.CompanyName}"
                            TextWrapping="Wrap"
-                           Margin="0,0,0,12" />
+                           Margin="0,0,0,12"/>
 
                 <TextBlock Text="Contact name"
-                           Margin="0,0,0,3" />
+                           Margin="0,0,0,3"/>
                 <TextBlock Text="{Binding SelectedClient.ContactName}"
                            TextWrapping="Wrap"
-                           Margin="0,0,0,12" />
+                           Margin="0,0,0,12"/>
 
                 <TextBlock Text="Phone"
-                           Margin="0,0,0,3" />
+                           Margin="0,0,0,3"/>
                 <TextBlock Text="{Binding SelectedClient.Phone}"
                            TextWrapping="Wrap"
-                           Margin="0,0,0,12" />
+                           Margin="0,0,0,12"/>
 
                 <TextBlock Text="Email"
-                           Margin="0,0,0,3" />
+                           Margin="0,0,0,3"/>
                 <TextBlock Text="{Binding SelectedClient.Email}"
                            TextWrapping="Wrap"
-                           Margin="0,0,0,12" />
+                           Margin="0,0,0,12"/>
 
                 <TextBlock Text="Comments"
-                           Margin="0,0,0,3" />
+                           Margin="0,0,0,3"/>
                 <TextBlock Text="{Binding SelectedProject.Comments}"
                            TextWrapping="Wrap"
-                           Margin="0,0,0,12" />
-
-                <TextBlock Text="{Binding StatusMessage}"
-                           Style="{StaticResource MessageTextStyle}"
-                           Foreground="#AAAAAA"
-                           TextWrapping="Wrap"
-                           Margin="0,12,0,0" />
+                           Margin="0,0,0,12"/>
             </StackPanel>
         </ScrollViewer>
+
+        <TextBlock Grid.Row="2"
+                   Text="{Binding StatusMessage}"
+                   Style="{StaticResource MessageTextStyle}"
+                   Foreground="#EEEEEE"
+                   TextWrapping="Wrap"
+                   Margin="0,8,0,0"/>
     </Grid>
 </UserControl>

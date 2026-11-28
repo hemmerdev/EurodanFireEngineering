@@ -7,124 +7,137 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              Background="#202020" Foreground="#EEEEEE">
+
     <Grid>
-        <TextBlock Text="Building Management"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   Margin="10" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <StackPanel>
-            <DataGrid Style="{StaticResource ManagementDataGridStyle}"
-                      Margin="10,70,10,12"
-                      ItemsSource="{Binding Buildings}"
-                      SelectedItem="{Binding SelectedBuilding}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      SelectionMode="Single"
-                      MaxHeight="350">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Name"
-                                        Binding="{Binding Name}"
-                                        ElementStyle="{StaticResource ManagementCellTextStyle}"/>
-                    <DataGridTextColumn Header="Address"
-                                        Binding="{Binding Address}"
-                                        ElementStyle="{StaticResource ManagementCellTextStyle}"
-                                        Width="*"/>
-                </DataGrid.Columns>
-            </DataGrid>
+        <ScrollViewer Grid.Row="0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid>
+                <TextBlock Text="Building Management"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           Margin="10"/>
 
-            <!-- Heading for the building registration form-->
-            <TextBlock FontSize="18"
-                       FontWeight="Bold"
-                       Margin="10,12,10,8">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Text" Value="Register New Building"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsEditMode}" Value="True">
-                                <Setter Property="Text" Value="Edit Building"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
+                <StackPanel>
+                    <DataGrid Style="{StaticResource ManagementDataGridStyle}"
+                              Margin="10,70,10,12"
+                              ItemsSource="{Binding Buildings}"
+                              SelectedItem="{Binding SelectedBuilding}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              MaxHeight="350">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name"
+                                                Binding="{Binding Name}"
+                                                ElementStyle="{StaticResource ManagementCellTextStyle}"/>
+                            <DataGridTextColumn Header="Address"
+                                                Binding="{Binding Address}"
+                                                ElementStyle="{StaticResource ManagementCellTextStyle}"
+                                                Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
 
-            <!-- Required fields are marked with an asterisk -->
-            <TextBlock Text="Required fields are marked with an asterisk (*)"
-                       FontSize="12"
-                       Foreground="#AAAAAA"
-                       Margin="10,0,0,12" />
+                    <!-- Heading for the building registration form-->
+                    <TextBlock FontSize="18"
+                               FontWeight="Bold"
+                               Margin="10,12,10,8">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="Register New Building"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Text" Value="Edit Building"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
 
-            <TextBlock Text="Name *" Margin="10,0,10,3"/>
-            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                     MaxLength="150" Style="{StaticResource InputTextBoxStyle}"
-                     Margin="10,0,10,12"/>
+                    <!-- Required fields are marked with an asterisk -->
+                    <TextBlock Text="Required fields are marked with an asterisk (*)"
+                               FontSize="12"
+                               Foreground="#AAAAAA"
+                               Margin="10,0,0,12"/>
 
-            <TextBlock Text="Address *" Margin="10,0,10,3"/>
-            <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource InputTextBoxStyle}"
-                     Margin="10,0,10,12"
-                     MaxLength="250"/>
+                    <TextBlock Text="Name *" Margin="10,0,10,3"/>
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="150"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="10,0,10,12"/>
 
-            <!-- Registration buttons-->
-            <WrapPanel>
-                <WrapPanel.Style>
-                    <Style TargetType="WrapPanel">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsEditMode}" Value="True">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </WrapPanel.Style>
+                    <TextBlock Text="Address *" Margin="10,0,10,3"/>
+                    <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputTextBoxStyle}"
+                             Margin="10,0,10,12"
+                             MaxLength="250"/>
 
-                <Button Content="Register building"
-                        Command="{Binding RegisterBuildingCommand}"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Margin="10,0,8,0"/>
-
-                <Button Content="Clear form"
-                        Command="{Binding ClearBuildingFormCommand}"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Margin="0,0,8,0"/>
-            </WrapPanel>
-
-            <!-- Editing Buttons-->
-            <WrapPanel>
-                <WrapPanel.Style>
-                    <Style TargetType="WrapPanel">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                    <!-- Registration buttons-->
+                    <WrapPanel>
+                        <WrapPanel.Style>
+                            <Style TargetType="WrapPanel">
                                 <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </WrapPanel.Style>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </WrapPanel.Style>
 
-                <Button Content="Update building"
-                        Command="{Binding UpdateBuildingCommand}"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Margin="10,0,8,0"/>
+                        <Button Content="Register building"
+                                Command="{Binding RegisterBuildingCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Margin="10,0,8,0"/>
 
-                <Button Content="Cancel editing"
-                        Command="{Binding ClearBuildingFormCommand}"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Margin="0,0,8,0"/>
+                        <Button Content="Clear form"
+                                Command="{Binding ClearBuildingFormCommand}"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Margin="0,0,8,0"/>
+                    </WrapPanel>
 
-                <Button Content="Delete building"
-                        Command="{Binding DeleteBuildingCommand}"
-                        Style="{StaticResource WarningButtonStyle}"
-                        Margin="0,0,8,0"/>
-            </WrapPanel>
+                    <!-- Editing Buttons-->
+                    <WrapPanel>
+                        <WrapPanel.Style>
+                            <Style TargetType="WrapPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </WrapPanel.Style>
 
-            <TextBlock Text="{Binding StatusMessage}"
-                       Style="{StaticResource MessageTextStyle}"
-                       Foreground="#AAAAAA"
-                       TextWrapping="Wrap"
-                       Margin="10,12,10,0"/>
+                        <Button Content="Update building"
+                                Command="{Binding UpdateBuildingCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Margin="10,0,8,0"/>
 
-        </StackPanel>
+                        <Button Content="Cancel editing"
+                                Command="{Binding ClearBuildingFormCommand}"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Margin="0,0,8,0"/>
+
+                        <Button Content="Delete building"
+                                Command="{Binding DeleteBuildingCommand}"
+                                Style="{StaticResource WarningButtonStyle}"
+                                Margin="0,0,8,0"/>
+                    </WrapPanel>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+
+        <TextBlock Grid.Row="1"
+                   Text="{Binding StatusMessage}"
+                   Style="{StaticResource MessageTextStyle}"
+                   Foreground="#EEEEEE"
+                   TextWrapping="Wrap"
+                   Margin="10,8,10,10"/>
     </Grid>
 </UserControl>

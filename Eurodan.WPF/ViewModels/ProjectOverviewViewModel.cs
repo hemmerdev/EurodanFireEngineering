@@ -19,10 +19,14 @@ namespace Eurodan.WPF.ViewModels
         private List<ProjectOverviewRowViewModel> _allProjectRows = new();
         private ProjectOverviewRowViewModel? _selectedProjectRow;
         private string _technicalIssueSearchText = string.Empty;
+        private string _buildingClassSearchText = string.Empty;
         private PaymentStatusFilter _paymentStatusFilter = PaymentStatusFilter.All;
+        private DateTime? _paymentDueDateFrom = null;
+        private DateTime? _paymentDueDateTo = null;
 
         public ObservableCollection<ProjectOverviewRowViewModel> Projects { get; } = new();
         public ObservableCollection<TechnicalIssueSelectionViewModel> TechnicalIssueOptions { get; } = new();
+        public ObservableCollection<BuildingClassSelectionViewModel> BuildingClassOptions { get; } = new();
 
 
         // Holds the row selected in the Project Overview table.
@@ -77,6 +81,20 @@ namespace Eurodan.WPF.ViewModels
                     _technicalIssueSearchText = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(FilteredTechnicalIssueOptions));
+                }
+            }
+        }
+
+        public string BuildingClassSearchText
+        {
+            get => _buildingClassSearchText;
+            set
+            {
+                if (_buildingClassSearchText != value)
+                {
+                    _buildingClassSearchText = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FilteredBuildingClassOptions));
                 }
             }
         }
@@ -137,6 +155,21 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+        public List<BuildingClassSelectionViewModel> FilteredBuildingClassOptions
+        {
+            get
+            {
+                string searchText = BuildingClassSearchText?.Trim() ?? string.Empty;
+                return searchText.Trim().Length == 0
+                    ? BuildingClassOptions.ToList()
+                    : BuildingClassOptions
+                        .Where(option =>
+                           option.BuildingClass.ClassCode.Contains(
+                               searchText, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+            }
+        }
+
         public PaymentStatusFilter SelectedStatusFilter
         {
             get => _paymentStatusFilter;
@@ -159,26 +192,91 @@ namespace Eurodan.WPF.ViewModels
             PaymentStatusFilter.NotSpecified
         };
 
+        public DateTime? PaymentDueDateFrom
+        {
+            get => _paymentDueDateFrom;
+            set
+            {
+                if (_paymentDueDateFrom != value)
+                {
+                    _paymentDueDateFrom = value;
+                    OnPropertyChanged();
+                    ApplyFilters();
+                }
+            }
+        }
+
+        public DateTime? PaymentDueDateTo
+        {
+            get => _paymentDueDateTo;
+            set
+            {
+                if (_paymentDueDateTo != value)
+                {
+                    _paymentDueDateTo = value;
+                    OnPropertyChanged();
+                    ApplyFilters();
+                }
+            }
+        }
+
+
+        public RelayCommand ResetFiltersCommand { get; }
+
+        public ProjectOverviewViewModel(ProjectService projectService)
+        {
+            _projectService = projectService;
+
+            ResetFiltersCommand = new RelayCommand(ResetFitlers);
+        }
+
+        private void ResetFitlers(object? parameter)
+        {
+            ProjectSearchText = "";
+            ClientSearchText = "";
+            TechnicalIssueSearchText = "";
+            BuildingClassSearchText = "";
+            PaymentDueDateFrom = null;
+            PaymentDueDateTo = null;
+            SelectedStatusFilter = PaymentStatusFilter.All;
+            ShowActiveProjects = true;
+            ShowArchivedProjects = false;
+
+            foreach (var option in TechnicalIssueOptions)
+            {
+                option.IsSelected = false;
+            }
+
+            foreach (var option in BuildingClassOptions)
+            {
+                option.IsSelected = false;
+            }
+
+            ApplyFilters();
+        }
+
         // Lets MainViewModel show a message on the overview, because StatusMessage has a private setter.
         public void ShowMessage(string message)
         {
             StatusMessage = message;
         }
 
-        public RelayCommand LoadProjectsCommand { get; }
-
-        public ProjectOverviewViewModel(ProjectService projectService)
-        {
-            _projectService = projectService;
-
-            LoadProjectsCommand = new RelayCommand(
-                _ => LoadProjects(null)); // Lambda because LoadProjects now returns a bool, but RelayCommand expects void. So we discard the return value.
-        }
-
         // Event handler for when a TechnicalIssueOption's IsSelected property changes
-        private void TechnicalIssueOptionPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void TechnicalIssueOptionPropertyChanged(
+            object? sender,
+            PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(TechnicalIssueSelectionViewModel.IsSelected))
+            {
+                ApplyFilters();
+            }
+        }
+
+        private void BuildingClassOptionPropertyChanged(
+            object? sender,
+            PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(BuildingClassSelectionViewModel.IsSelected))
             {
                 ApplyFilters();
             }
@@ -191,9 +289,11 @@ namespace Eurodan.WPF.ViewModels
                 var projects = _projectService.ViewProjectOverview();
                 var clients = _projectService.GetAllClients();
                 var technicalIssues = _projectService.GetAllTechnicalIssues();
+                var buildingClasses = _projectService.GetAllBuildingClasses();
                 var rows = new List<ProjectOverviewRowViewModel>();
-                var selectedTechnicalIssueIds = new List<int>();
 
+                var selectedTechnicalIssueIds = new List<int>();
+                var selectedBuildingClassIds = new List<int>();
                 foreach (var issue in TechnicalIssueOptions)
                 {
                     if (issue.IsSelected)
@@ -205,6 +305,18 @@ namespace Eurodan.WPF.ViewModels
                     issue.PropertyChanged -= TechnicalIssueOptionPropertyChanged;
                 }
 
+                foreach (var buildingClass in BuildingClassOptions)
+                {
+                    if (buildingClass.IsSelected)
+                    {
+                        selectedBuildingClassIds.Add(
+                            buildingClass.BuildingClass.BuildingClassId);
+                    }
+
+                    buildingClass.PropertyChanged -= BuildingClassOptionPropertyChanged;
+                }
+
+                BuildingClassOptions.Clear();
                 TechnicalIssueOptions.Clear();
 
                 foreach (var issue in technicalIssues)
@@ -217,6 +329,18 @@ namespace Eurodan.WPF.ViewModels
 
                     TechnicalIssueOptions.Add(option);
                     option.PropertyChanged += TechnicalIssueOptionPropertyChanged;
+                }
+
+                foreach (var buildingClass in buildingClasses)
+                {
+                    var option = new BuildingClassSelectionViewModel(buildingClass)
+                    {
+                        IsSelected = selectedBuildingClassIds.Contains(
+                            buildingClass.BuildingClassId)
+                    };
+
+                    BuildingClassOptions.Add(option);
+                    option.PropertyChanged += BuildingClassOptionPropertyChanged;
                 }
 
                 // Prepares the display rows
@@ -233,6 +357,7 @@ namespace Eurodan.WPF.ViewModels
                 }
 
                 OnPropertyChanged(nameof(FilteredTechnicalIssueOptions));
+                OnPropertyChanged(nameof(FilteredBuildingClassOptions));
 
                 _allProjectRows = rows; // Store the complete list of rows for future filtering
                 ApplyFilters();
@@ -254,12 +379,35 @@ namespace Eurodan.WPF.ViewModels
                 .Where(option => option.IsSelected)
                 .Select(option => option.TechnicalIssue.TechnicalIssueId)
                 .ToList();
+            List<int> selectedBuildingClassIds = BuildingClassOptions
+                .Where(option => option.IsSelected)
+                .Select(option => option.BuildingClass.BuildingClassId)
+                .ToList();
+
+            // Convert nullable DateTime to DateOnly for filtering
+            DateOnly? paymentDueDateFrom = null;
+            DateOnly? paymentDueDateTo = null;
+            if (PaymentDueDateFrom.HasValue)
+            {
+                paymentDueDateFrom = DateOnly.FromDateTime(PaymentDueDateFrom.Value);
+            }
+            if (PaymentDueDateTo.HasValue)
+            {
+                paymentDueDateTo = DateOnly.FromDateTime(PaymentDueDateTo.Value);
+            }
+
+            // If both dates are provided, ensure that the From date is not after the To date
+            if ((paymentDueDateFrom.HasValue && paymentDueDateTo.HasValue) &&
+                paymentDueDateFrom > paymentDueDateTo)
+            {
+                StatusMessage = "The 'From' date must be on or before the 'To' date. Results have not been updated.";
+                return;
+            }
 
             Projects.Clear();
 
             foreach (var row in _allProjectRows)
             {
-
                 // Check if the row matches the project search text
                 bool matchesProjectSearch =
                     string.IsNullOrWhiteSpace(projectSearchText) ||
@@ -302,12 +450,57 @@ namespace Eurodan.WPF.ViewModels
                     _ => false
                 };
 
+                // Check if the row matches the payment due date range filter                
+                bool hasPaymentDueDateFilter =
+                    paymentDueDateFrom.HasValue || paymentDueDateTo.HasValue;
+
+                bool matchesPaymentDueDateFilter = true;
+                if (hasPaymentDueDateFilter &&
+                    !row.Project.PaymentDueDate.HasValue)
+                {
+                    matchesPaymentDueDateFilter = false; // Project has no payment due date, so it doesn't match the filter
+                }
+
+                if (row.Project.PaymentDueDate.HasValue)
+                {
+                    DateOnly dueDate = row.Project.PaymentDueDate.Value;
+
+                    if (paymentDueDateFrom.HasValue &&
+                        dueDate < paymentDueDateFrom.Value)
+                    {
+                        matchesPaymentDueDateFilter = false; // Project's due date is before the "From" date
+                    }
+
+                    if (paymentDueDateTo.HasValue &&
+                        dueDate > paymentDueDateTo.Value)
+                    {
+                        matchesPaymentDueDateFilter = false; // Project's due date is after the "To" date
+                    }
+                }
+
+                // Check if the row matches the selected building class filter.
+                // This filter includes projects that have at least one of the selected building classes.
+                bool matchesBuildingClasses = selectedBuildingClassIds.Count == 0; // If no building classes are selected, all projects match
+
+                foreach (var id in selectedBuildingClassIds)
+                {
+
+                    if (row.Project.BuildingClasses
+                        .Any(bc => bc.BuildingClassId == id))
+                    {
+                        matchesBuildingClasses = true; // Project has at least one of the selected building classes
+                        break;
+                    }
+                }
+
                 // Only add the row to the displayed list if it matches all filters
                 if (matchesProjectSearch &&
                     matchesClientSearch &&
                     matchesTechnicalIssues &&
                     matchesArchiveFilter &&
-                    matchesPaymentStatusFilter)
+                    matchesPaymentStatusFilter &&
+                    matchesPaymentDueDateFilter &&
+                    matchesBuildingClasses)
                 {
                     Projects.Add(row);
                 }
