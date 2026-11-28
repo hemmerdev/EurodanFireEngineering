@@ -1,6 +1,7 @@
 ﻿using Eurodan.Core.Models;
 using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
+using Eurodan.WPF.ViewModels.enums;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Common;
@@ -16,12 +17,13 @@ namespace Eurodan.WPF.ViewModels
         private bool _showArchivedProjects;
         private bool _showActiveProjects = true; // Default to showing active projects
         private List<ProjectOverviewRowViewModel> _allProjectRows = new();
+        private ProjectOverviewRowViewModel? _selectedProjectRow;
         private string _technicalIssueSearchText = string.Empty;
+        private PaymentStatusFilter _paymentStatusFilter = PaymentStatusFilter.All;
 
         public ObservableCollection<ProjectOverviewRowViewModel> Projects { get; } = new();
         public ObservableCollection<TechnicalIssueSelectionViewModel> TechnicalIssueOptions { get; } = new();
 
-        private ProjectOverviewRowViewModel? _selectedProjectRow;
 
         // Holds the row selected in the Project Overview table.
         public ProjectOverviewRowViewModel? SelectedProjectRow
@@ -135,6 +137,28 @@ namespace Eurodan.WPF.ViewModels
             }
         }
 
+        public PaymentStatusFilter SelectedStatusFilter
+        {
+            get => _paymentStatusFilter;
+            set
+            {
+                if (_paymentStatusFilter != value)
+                {
+                    _paymentStatusFilter = value;
+                    OnPropertyChanged();
+                    ApplyFilters();
+                }
+            }
+        }
+
+        public List<PaymentStatusFilter> PaymentStatusFilters { get; } = new()
+        {
+            PaymentStatusFilter.All,
+            PaymentStatusFilter.Paid,
+            PaymentStatusFilter.NotPaid,
+            PaymentStatusFilter.NotSpecified
+        };
+
         // Lets MainViewModel show a message on the overview, because StatusMessage has a private setter.
         public void ShowMessage(string message)
         {
@@ -235,6 +259,7 @@ namespace Eurodan.WPF.ViewModels
 
             foreach (var row in _allProjectRows)
             {
+
                 // Check if the row matches the project search text
                 bool matchesProjectSearch =
                     string.IsNullOrWhiteSpace(projectSearchText) ||
@@ -264,11 +289,25 @@ namespace Eurodan.WPF.ViewModels
                 bool matchesArchiveFilter = (ShowActiveProjects && !row.Project.IsArchived) ||
                                             (ShowArchivedProjects && row.Project.IsArchived);
 
+                // Check if the row matches the selected payment status filter
+                bool hasPaymentAmounts = row.Project.InvoicedAmount.HasValue &&
+                                         row.Project.OutstandingAmount.HasValue;
+
+                bool matchesPaymentStatusFilter = SelectedStatusFilter switch
+                {
+                    PaymentStatusFilter.All => true,                                            // All projects match the "All" filter
+                    PaymentStatusFilter.Paid => row.Project.IsPaid,                             // Only projects that are paid match the "Paid" filter
+                    PaymentStatusFilter.NotPaid => hasPaymentAmounts && !row.Project.IsPaid,    // Only projects that have invoiced and outstand amount and are not paid match the "NotPaid" filter
+                    PaymentStatusFilter.NotSpecified => !hasPaymentAmounts,                     // Only projects that do not have invoiced or outstanding amounts match the "NotSpecified" filter
+                    _ => false
+                };
+
                 // Only add the row to the displayed list if it matches all filters
                 if (matchesProjectSearch &&
                     matchesClientSearch &&
                     matchesTechnicalIssues &&
-                    matchesArchiveFilter)
+                    matchesArchiveFilter &&
+                    matchesPaymentStatusFilter)
                 {
                     Projects.Add(row);
                 }

@@ -10,17 +10,17 @@
              Foreground="#EEEEEE">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
         <!-- Project Creation form-->
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
+        <ScrollViewer Grid.Row="0"
+                      VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="200"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0"
-                            Margin="10">
+                <StackPanel Margin="20">
 
                     <TextBlock Text="Project Management"
                                FontSize="24"
@@ -361,18 +361,18 @@
                                 Margin="12,12,0,0" />
                     </StackPanel>
 
-                    <TextBlock Text="{Binding StatusMessage}"
-                               Style="{StaticResource MessageTextStyle}"
-                               Foreground="#AAAAAA"
-                               TextWrapping="Wrap"
-                               Margin="0,8,0,0" />
-
                 </StackPanel>
                 <!-- Empty column for spacing -->
                 <!-- TODO: Fix this temporary solution with better UI/UX design -->
-                <Grid Grid.Column="1"
-                      Background="Transparent"/>
+
             </Grid>
         </ScrollViewer>
+
+        <TextBlock Grid.Row="1"
+                   Text="{Binding StatusMessage}"
+                   Style="{StaticResource MessageTextStyle}"
+                   Foreground="#EEEEEE"
+                   TextWrapping="Wrap"
+                   Margin="10,8,10,10"/>
     </Grid>
 </UserControl>

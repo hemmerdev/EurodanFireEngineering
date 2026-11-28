@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Eurodan.WPF.Views"
+             xmlns:enums="clr-namespace:Eurodan.WPF.ViewModels.enums"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              Background="#202020" Foreground="#EEEEEE">
@@ -71,20 +72,25 @@
                   HorizontalAlignment="Left"
                   VerticalAlignment="Bottom"
                   Margin="0,0,12,0">
+                <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                    <TextBlock Text="Search by issue"
+                               Margin="0,0,0,6" />
 
-                <ToggleButton x:Name="TechnicalIssueFilterButton"
-                              Style="{StaticResource FilterDropdownButtonStyle}">
-                    <DockPanel LastChildFill="True">
-                        <TextBlock DockPanel.Dock="Right"
-                                   Text="▾"
-                                   FontSize="10"
-                                   Margin="12,0,0,0"
-                                   VerticalAlignment="Center" />
+                    <ToggleButton x:Name="TechnicalIssueFilterButton"
+                                  Style="{StaticResource FilterDropdownButtonStyle}">
+                        <DockPanel LastChildFill="True">
 
-                        <TextBlock Text="Technical issues"
-                                   VerticalAlignment="Center" />
-                    </DockPanel>
-                </ToggleButton>
+                            <TextBlock DockPanel.Dock="Right"
+                                       Text="▾"
+                                       FontSize="10"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center" />
+
+                            <TextBlock Text="Technical issues"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                    </ToggleButton>
+                </StackPanel>
 
                 <Popup Placement="Bottom"
                        PlacementTarget="{Binding ElementName=TechnicalIssueFilterButton}"
@@ -165,6 +171,42 @@
                           Style="{StaticResource FilterCheckBoxStyle}"
                           VerticalAlignment="Center" />
 
+            </StackPanel>
+
+            <!-- Payment status filter-->
+            <StackPanel Grid.Column="4"
+                        Width="145"
+                        VerticalAlignment="Bottom">
+                <TextBlock Text="Search by payment status"
+                           Margin="0,0,0,6"/>
+
+                <ComboBox ItemsSource="{Binding PaymentStatusFilters}"
+                          SelectedItem="{Binding SelectedStatusFilter, Mode=TwoWay}"
+                          Style="{StaticResource InputComboBoxStyle}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding}"/>
+
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding}"
+                                                         Value="{x:Static enums:PaymentStatusFilter.NotPaid}">
+                                                <Setter Property="Text" Value="Not paid"/>
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding}"
+                                                         Value="{x:Static enums:PaymentStatusFilter.NotSpecified}">
+                                                <Setter Property="Text" Value="Not specified"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
         </Grid>
 
@@ -259,38 +301,111 @@
                                     Width="170"
                                     ElementStyle="{StaticResource OverviewCellTextStyle}" />
 
-                <DataGridCheckBoxColumn Header="Paid"
-                                        Binding="{Binding Project.IsPaid, Mode=OneWay}"
+                <!-- Payment status column -->
+                <DataGridTemplateColumn Header="Payment status"
                                         HeaderStyle="{StaticResource CenteredColumnHeaderStyle}"
-                                        IsReadOnly="True"
-                                        Width="80">
-                    <DataGridCheckBoxColumn.ElementStyle>
-                        <Style TargetType="CheckBox">
-                            <Setter Property="HorizontalAlignment" Value="Center" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="Margin" Value="0" />
-                            <Setter Property="IsHitTestVisible" Value="False" />
-                            <Setter Property="Focusable" Value="False" />
-                        </Style>
-                    </DataGridCheckBoxColumn.ElementStyle>
-                </DataGridCheckBoxColumn>
+                                        Width="145">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border x:Name="PaymentStatusPill"
+                                    Width="112"
+                                    Height="28"
+                                    CornerRadius="14"
+                                    Background="#49422E"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="6,4">
+                                <TextBlock x:Name="PaymentStatusText"
+                                           Text="Not paid"
+                                           Foreground="#E6CF8E"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- Green pill when paid  -->
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Project.IsPaid}"
+                                             Value="True">
+                                    <Setter TargetName="PaymentStatusText"
+                                            Property="Text"
+                                            Value="Paid"/>
+                                    <Setter TargetName="PaymentStatusPill"
+                                            Property="Background"
+                                            Value="#2F4635"/>
+                                    <Setter TargetName="PaymentStatusText"
+                                            Property="Foreground"
+                                            Value="#B7DDBE"/>
+                                </DataTrigger>
+
+                                <!-- Show "Not specified" pill when invoiced amount or outstanding amount is missing -->
+                                <DataTrigger Binding="{Binding Project.InvoicedAmount}"
+                                             Value="{x:Null}">
+                                    <Setter TargetName="PaymentStatusText"
+                                            Property="Text"
+                                            Value="Not specified"/>
+                                    <Setter TargetName="PaymentStatusPill"
+                                            Property="Background"
+                                            Value="#3A3A3A"/>
+                                    <Setter TargetName="PaymentStatusText"
+                                            Property="Foreground"
+                                            Value="#CCCCCC"/>
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding Project.OutstandingAmount}"
+                                             Value="{x:Null}">
+                                    <Setter TargetName="PaymentStatusText"
+                                            Property="Text"
+                                            Value="Not specified"/>
+                                    <Setter TargetName="PaymentStatusPill"
+                                            Property="Background"
+                                            Value="#3A3A3A"/>
+                                    <Setter TargetName="PaymentStatusText"
+                                            Property="Foreground"
+                                            Value="#CCCCCC"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
 
                 <!-- Shows which rows are archived when "Show archived projects" is ticked. -->
-                <DataGridCheckBoxColumn Header="Archived"
-                                        Binding="{Binding Project.IsArchived, Mode=OneWay}"
+                <DataGridTemplateColumn Header="Archive status"
                                         HeaderStyle="{StaticResource CenteredColumnHeaderStyle}"
-                                        IsReadOnly="True"
-                                        Width="80">
-                    <DataGridCheckBoxColumn.ElementStyle>
-                        <Style TargetType="CheckBox">
-                            <Setter Property="HorizontalAlignment" Value="Center" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="Margin" Value="0" />
-                            <Setter Property="IsHitTestVisible" Value="False" />
-                            <Setter Property="Focusable" Value="False" />
-                        </Style>
-                    </DataGridCheckBoxColumn.ElementStyle>
-                </DataGridCheckBoxColumn>
+                                        Width="125">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border x:Name="ArchiveStatusPill"
+                                    Width="88"
+                                    Height="28"
+                                    CornerRadius="14"
+                                    Background="#2F4635"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="6,4">
+                                <TextBlock x:Name="ArchiveStatusText"
+                                           Text="Active"
+                                           Foreground="#B7DDBE"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Project.IsArchived}"
+                                             Value="True">
+                                    <Setter TargetName="ArchiveStatusText"
+                                            Property="Text"
+                                            Value="Archived"/>
+                                    <Setter TargetName="ArchiveStatusPill"
+                                            Property="Background"
+                                            Value="#3A3A3A"/>
+                                    <Setter TargetName="ArchiveStatusText"
+                                            Property="Foreground"
+                                            Value="#CCCCCC"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
 
                 <DataGridTextColumn Header="Payment due date"
                                     Binding="{Binding Project.PaymentDueDate, StringFormat={}{0:dd/MM/yyyy}}"
