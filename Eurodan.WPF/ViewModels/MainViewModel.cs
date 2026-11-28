@@ -135,9 +135,9 @@ namespace Eurodan.WPF.ViewModels
 
             // The event gives (sender, projectId); the lambda passes on the projectId plus the strings to display in the status message.
             ProjectDetails.ProjectArchived += (sender, projectId) =>
-                RefreshOverviewAfterArchiveChange(projectId, "Project archived");
+                RefreshOverviewAfterArchiveChanged(projectId, "Project archived");
             ProjectDetails.ProjectUnarchived += (sender, projectId) =>
-                RefreshOverviewAfterArchiveChange(projectId, "Project unarchived");
+                RefreshOverviewAfterArchiveChanged(projectId, "Project unarchived");
 
             ShowProjectOverviewCommand.Execute(null); // Set the initial view to ProjectOverview
         }
@@ -212,7 +212,7 @@ namespace Eurodan.WPF.ViewModels
         // Shared by archive and unarchive: both need the same reload/reselect as UC04's ProjectManagementProjectUpdated.
         // The archive or unarchive already succeeded before this runs, so every message starts with what was done,
         // and a failed reload is reported as a failed refresh, never as a failed archive.
-        private void RefreshOverviewAfterArchiveChange(int projectId, string doneMessage)
+        private void RefreshOverviewAfterArchiveChanged(int projectId, string doneMessage)
         {
             try
             {
