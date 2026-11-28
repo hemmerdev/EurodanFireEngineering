@@ -2,6 +2,7 @@
 using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
 using System.Collections.ObjectModel;
+using System.Data.Common;
 using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
@@ -117,9 +118,14 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = ex.Message;
                 return;
             }
+            catch (DbException)
+            {
+                StatusMessage = "Could not save the building because of a database error. Please try again.";
+                return;
+            }
             catch (Exception)
             {
-                StatusMessage = "Could not save the building.";
+                StatusMessage = "An unexpected error occurred while saving the building.";
                 return;
             }
 
@@ -163,9 +169,14 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = ex.Message;
                 return;
             }
+            catch (DbException)
+            {
+                StatusMessage = "Could not update the building because of a database error. Please try again.";
+                return;
+            }
             catch (Exception)
             {
-                StatusMessage = "Could not update the building.";
+                StatusMessage = "An unexpected error occurred while updating the building.";
                 return;
             }
 
@@ -188,7 +199,7 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = "Please select a building to delete.";
                 return;
             }
-            
+
             int buildingId = SelectedBuilding.BuildingId;
             string name = SelectedBuilding.Name;
 
@@ -212,9 +223,14 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = ex.Message;
                 return;
             }
+            catch (DbException)
+            {
+                StatusMessage = "Could not delete the building because of a database error. Please try again.";
+                return;
+            }
             catch (Exception)
             {
-                StatusMessage = "Could not delete the building.";
+                StatusMessage = "An unexpected error occurred while deleting the building.";
                 return;
             }
 

@@ -2,6 +2,7 @@
 using Eurodan.Core.Services;
 using Eurodan.WPF.Commands;
 using System.Collections.ObjectModel;
+using System.Data.Common;
 using System.Windows.Input;
 
 namespace Eurodan.WPF.ViewModels
@@ -152,9 +153,14 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = ex.Message;
                 return;
             }
+            catch (DbException)
+            {
+                StatusMessage = "Could not save the client because of a database error. Please try again.";
+                return;
+            }
             catch (Exception)
             {
-                StatusMessage = "Could not save the client.";
+                StatusMessage = "An unexpected error occurred while saving the client.";
                 return;
             }
 
@@ -200,9 +206,14 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = ex.Message;
                 return;
             }
+            catch (DbException)
+            {
+                StatusMessage = "Could not update the client because of a database error. Please try again.";
+                return;
+            }
             catch (Exception)
             {
-                StatusMessage = "Could not update the client.";
+                StatusMessage = "An unexpected error occurred while updating the client.";
                 return;
             }
 
@@ -217,7 +228,7 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = "The client was updated, but the list could not be refreshed.";
             }
         }
-        
+
         private void DeleteClient(object? parameter)
         {
             if (SelectedClient == null)
@@ -249,9 +260,14 @@ namespace Eurodan.WPF.ViewModels
                 StatusMessage = ex.Message;
                 return;
             }
+            catch (DbException)
+            {
+                StatusMessage = "Could not delete the client because of a database error. Please try again.";
+                return;
+            }
             catch (Exception)
             {
-                StatusMessage = "Could not delete the client.";
+                StatusMessage = "An unexpected error occurred while deleting the client.";
                 return;
             }
 
